@@ -1,0 +1,216 @@
+<div class="container">
+  {% render 'breadcrumbs' %}
+
+  <div vue-init v-cloak>
+    <product-detail
+      inline-template
+      :product="{{ product | json | escape }}"
+      {% if collection %}
+      collection-url="{{ collection.url }}"
+      {% endif %}>
+      <div class="w-full gap-8 md:grid grid-cols-[60%_1fr]">
+        <div class="relative">
+          {%- if product.gift_card? -%}
+            {%- for media in product.media limit: 1 -%}
+              {{ media | image_url: width: 1000 | image_tag: widths: '425, 767, 845, 1690', sizes: '(max-width: 767px) 100vw, (max-width: 1440px) 60vw, calc(1440px * 3 / 5)' }}
+            {%- endfor -%}
+          {%- else -%}
+            {% render 'product__gallery' %}
+          {%- endif -%}
+
+          <span v-if="isSale" class="product-badge product-badge--sale">
+            {{ 'products.product.on_sale' | t }}
+          </span>
+        </div>
+
+        <div class="">
+          <h1 class="mb-3">{{ product.title }}</h1>
+          <div class="mb-3 text-xl font-bold" v-if="currentVariant || product">
+            <span v-if="currentVariant">
+              <span class="price" :class="{ 'price--sale': isSale }">${ currentVariant.price | currencyFromCents }</span>
+              <s v-if="isSale" class="price price--old">
+                ${ currentVariant.compare_at_price | currencyFromCents }
+              </s>
+            </span>
+
+            <span v-else>
+              <span v-if="product.price_min != product.price_max">${ product.price_min | currencyFromCents } - ${ product.price_max | currencyFromCents }</span>
+              <span v-else>
+                <span class="price" :class="{ 'price--sale': isSale }">${ product.price | currencyFromCents }</span>
+                <s v-if="product.compare_at_price_max > product.price" class="price price--old">
+                  ${ product.compare_at_price_max | currencyFromCents }
+                </s>
+              </span>
+            </span>
+          </div>
+
+          {% if product.description != blank %}
+            <read-more class="mb-4 rte" :less-height="100">
+              {{ product.description }}
+            </read-more>
+          {% endif %}
+
+          <form @submit.prevent="handleAddToCart" class="mb-4">
+            <input
+              name="id"
+              :value="currentVariant ? currentVariant.id : {{ product.variants.first.id }}"
+              type="hidden">
+
+            <div v-if="productOptions.length" class="mb-2">
+              <div class="field" v-for="(option, index) in productOptions">
+                <label :for="'option' + option.position" v-html="option.name"></label>
+
+                <select
+                  :id="'option' + option.position"
+                  :name="'options[' + option.name + ']'"
+                  :value="selectedOptions[index]"
+                  @change="updateOption(index, $event.target.value)">
+                  <option value="">Select ${ option.name }...</option>
+                  <option
+                    v-for="value in option.values"
+                    :value="value"
+                    v-html="value"></option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="label">{{ 'products.product.quantity' | t }}</label>
+              <quantity-field :value="quantity" @update-quantity="value => quantity = value"></quantity-field>
+            </div>
+
+            <button-spinner
+              :is-loading="isAddingToCart"
+              class="w-full mt-4 button button--primary"
+              :disabled="!currentVariant || !currentVariant.available">
+              <span v-if="!currentVariant || currentVariant.available">{{ 'products.product.add_to_cart' | t }}</span>
+              <span v-else>{{ 'products.product.sold_out' | t }}</span>
+            </button-spinner>
+
+            <p
+              v-if="cartError"
+              v-html="cartError"
+              class="text-error mt-2"></p>
+          </form>
+
+          <vue-accordion>
+            {% if product.description != blank %}
+              <vue-collapsible>
+                <template v-slot:title>
+                  <h2 class="h3">{{ 'products.product.information.description' | t }}</h2>
+                </template>
+                <template>
+                  <div class="rte">
+                    {{ product.description }}
+                  </div>
+                </template>
+              </vue-collapsible>
+              <vue-collapsible>
+                <template v-slot:title>
+                  <h2 class="h3">Accordion 2</h2>
+                </template>
+                <template>
+                  <div class="rte">
+                    {{ product.description }}
+                  </div>
+                </template>
+              </vue-collapsible>
+            {% endif %}
+
+            {% comment %}
+              Product metafields - Accordion
+              ---
+              Metafield naming convention: information.[display order]__[title_key]
+              e.g. information.20__shipping_and_returns
+
+              Title logic:
+              IF translation exists for 'products.product.information.[title_key]'
+              ELSE replace underscores (_) and capitalise [title_key]
+
+            {% endcomment %}
+            {% assign information = product.metafields.information %}
+
+            {%- for field in information -%}
+              {%- liquid
+                assign key = field | first
+                assign split = key | split: "__"
+                if split[1]
+                  assign key = split[1]
+                endif
+                assign title = 'products.product.information.' | append: key | t
+                if title contains 'translation missing:'
+                  assign title = key | replace: '_', ' ' | capitalize 
+                endif
+              -%}
+
+              <vue-collapsible>
+                <template v-slot:title>
+                  <h2 class="h3">{{ title | strip }}</h2>
+                </template>
+                <template>
+                  <div class="rte">
+                    {{ field | last | newline_to_br }}
+                  </div>
+                </template>
+              </vue-collapsible>
+            {%- endfor -%}
+          </vue-accordion>
+        </div>
+      </div>
+    </product-detail>
+  </div>
+</div>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org/",
+    "@type": "Product",
+    "name": {{ product.title | json }},
+    "url": {{ request.origin | append: product.url | json }},
+    {% if seo_media -%}
+      "image": [
+        {{ seo_media | image_url: width: 1920 | prepend: "https:" | json }}
+      ],
+    {%- endif %}
+    "description": {{ product.description | strip_html | json }},
+    {% if product.selected_or_first_available_variant.sku != blank -%}
+      "sku": {{ product.selected_or_first_available_variant.sku | json }},
+    {%- endif %}
+    "brand": {
+      "@type": "Brand",
+      "name": {{ product.vendor | json }}
+    },
+    "offers": [
+      {%- for variant in product.variants -%}
+        {
+          "@type" : "Offer",
+          {%- if variant.sku != blank -%}
+            "sku": {{ variant.sku | json }},
+          {%- endif -%}
+          {%- if variant.barcode.size == 12 -%}
+            "gtin12": {{ variant.barcode }},
+          {%- endif -%}
+          {%- if variant.barcode.size == 13 -%}
+            "gtin13": {{ variant.barcode }},
+          {%- endif -%}
+          {%- if variant.barcode.size == 14 -%}
+            "gtin14": {{ variant.barcode }},
+          {%- endif -%}
+          "availability" : "http://schema.org/{% if variant.available %}InStock{% else %}OutOfStock{% endif %}",
+          "price" : {{ variant.price | divided_by: 100.00 | json }},
+          "priceCurrency" : {{ cart.currency.iso_code | json }},
+          "url" : {{ request.origin | append: variant.url | json }}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  }
+</script>
+
+{% schema %}
+  {
+    "name": "Product Main",
+    "tag": "section",
+    "settings": [
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,107 @@
+<section class="eyewear-cards eyewear-cards--{{ section.id }}">
+  <div class="container">
+    <div class="eyewear-cards__grid">
+      {%- for block in section.blocks -%}
+        <article class="eyewear-cards__item" {{ block.shopify_attributes }}>
+          <div class="eyewear-cards__media">
+            {%- if block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 900
+                | image_tag:
+                  class: 'eyewear-cards__image',
+                  alt: block.settings.title,
+                  loading: 'lazy',
+                  widths: '360,540,720,900',
+                  sizes: '(max-width: 767px) 100vw, 33vw'
+              }}
+            {%- else -%}
+              {{ 'image' | placeholder_svg_tag: 'eyewear-cards__placeholder' }}
+            {%- endif -%}
+          </div>
+
+          {%- if block.settings.title != blank -%}
+            <h3 class="eyewear-cards__title">{{ block.settings.title }}</h3>
+          {%- endif -%}
+
+          {%- if block.settings.button_label != blank -%}
+            <a
+              class="eyewear-cards__button"
+              href="{{ block.settings.button_link | default: '#' }}">
+              {{ block.settings.button_label }}
+            </a>
+          {%- endif -%}
+        </article>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{{ 'products-cards.css' | asset_url | stylesheet_tag }}
+
+{% schema %}
+  {
+    "name": "Products cards",
+    "tag": "section",
+    "class": "section-products-cards",
+    "max_blocks": 3,
+    "blocks": [
+      {
+        "type": "card",
+        "name": "Card",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Explore our eyewear brands"
+          },
+          {
+            "type": "text",
+            "id": "button_label",
+            "label": "Button label",
+            "default": "View brands"
+          },
+          {
+            "type": "url",
+            "id": "button_link",
+            "label": "Button link"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Eyewear cards",
+        "blocks": [
+          {
+            "type": "card",
+            "settings": {
+              "title": "Prescription glasses and frames",
+              "button_label": "Shop now"
+            }
+          },
+          {
+            "type": "card",
+            "settings": {
+              "title": "Explore our eyewear brands",
+              "button_label": "View brands"
+            }
+          },
+          {
+            "type": "card",
+            "settings": {
+              "title": "Explore our collection of sunglasses",
+              "button_label": "Explore now"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

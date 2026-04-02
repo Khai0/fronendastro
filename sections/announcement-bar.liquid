@@ -1,0 +1,77 @@
+{%- if section.settings.announcement_bar_enabled -%}
+  {%- if section.settings.announcement_bar_home_page_only == false or template.name == 'index' and section.blocks.size > 0 -%}
+    <div vue-init class="announcement-bar bg-light-background text-center py-1">
+      <keen-slider 
+        :options="{
+          loop: true,
+          vertical: true,
+          slides: {
+            perView: 1
+          }
+        }"
+        classes="h-[24px]"
+        {%- if section.settings.is_auto_scroll %}
+          :autoplay="{{ section.settings.announcement_autoplay_speed | times: 1000 }}"
+        {%- endif %}
+      >
+        {%- for block in section.blocks -%}
+          <div class="h-[25px]">
+            {{ block.settings.message | strip_newlines }}
+          </div>
+        {%- endfor -%}
+      </keen-slider>
+    </div>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Announcement bar",
+    "tag":"section",
+    "class": "relative z-50",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "announcement_bar_enabled",
+        "label": "Show announcement",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "announcement_bar_home_page_only",
+        "label": "Show on home page only",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "is_auto_scroll",
+        "label": "Auto scroll?",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "announcement_autoplay_speed",
+        "label": "Scrolling speed",
+        "default": 4,
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "unit": "s"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "announcement",
+        "name": "Announcement",
+        "settings": [
+          {
+            "type": "richtext",
+            "id": "message",
+            "label": "Announcement",
+            "default": "<p>Announce something here</p>"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

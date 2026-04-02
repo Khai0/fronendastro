@@ -1,0 +1,85 @@
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
+    <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+      <a href="{{ shop.url }}" title="{{ shop.name | escape }}" itemprop="item" itemscope itemtype="http://schema.org/Thing" itemid="/">
+        <span itemprop="name">{{ 'general.breadcrumbs.home' | t }}</span>
+      </a>
+      <meta itemprop="position" content="1" />
+    </li>
+
+    {%- case template.name -%}
+
+      {%- when 'product' -%}
+        <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+          {% if collection %}
+            <a href="{{ collection.url }}" title="{{ collection.title | escape }}" itemprop="item" itemscope itemtype="http://schema.org/Thing" itemid="{{ collection.url }}">
+              <span itemprop="name">{{ collection.title }}</span>
+            </a>
+            <meta itemprop="position" content="2" />
+          {% else %}
+            <a href="{{ routes.all_products_collection_url }}" title="{{ collections.all.title }}" itemprop="item" itemscope itemtype="http://schema.org/Thing" itemid="{{ routes.all_products_collection_url }}">
+              <span itemprop="name">{{ collections.all.title }}</span>
+            </a>
+            <meta itemprop="position" content="2" />
+          {% endif %}
+        </li>
+        <li class="breadcrumb__item breadcrumb__item--active" aria-current="page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+          <span itemscope itemtype="http://schema.org/Thing" itemprop="item" itemid="{{ page.url }}">
+            <span itemprop="name">{{ product.title }}</span>
+          </span>
+          <meta itemprop="position" content="3" />
+        </li>
+
+      {%- when 'cart' -%}
+        <li class="breadcrumb__item breadcrumb__item--active" aria-current="page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+          <span itemscope itemtype="http://schema.org/Thing" itemprop="item" itemid="{{ routes.cart_url }}">
+            <span itemprop="name">{{ 'cart.general.title' | t }}</span>
+          </span>
+          <meta itemprop="position" content="2" />
+        </li>
+
+      {%- when 'collection' -%}
+        <li class="breadcrumb__item breadcrumb__item--active" aria-current="page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+          <span itemscope itemtype="http://schema.org/Thing" itemprop="item" itemid="{{ collection.url }}">
+            <span itemprop="name">{{ collection.title }}</span>
+          </span>
+          <meta itemprop="position" content="2" />
+        </li>
+
+      {%- when 'blog' -%}
+        <li class="breadcrumb__item breadcrumb__item--active" aria-current="page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+          <span itemscope itemtype="http://schema.org/Thing" itemprop="item" itemid="{{ blog.url }}">
+            <span itemprop="name">{{ blog.title }}</span>
+          </span>
+          <meta itemprop="position" content="2" />
+        </li>
+
+      {%- when 'article' -%}
+        <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+          <a href="{{ blog.url }}" title="{{ blog.title | escape }}" itemprop="item" itemscope itemtype="http://schema.org/Thing" itemid="{{ blog.url }}">
+            <span itemprop="name">{{ blog.title }}</span>
+          </a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <li class="breadcrumb__item breadcrumb__item--active" aria-current="page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+          <span itemscope itemtype="http://schema.org/Thing" itemprop="item" itemid="{{ page.url }}">
+            <span itemprop="name">{{ article.title }}</span>
+          </span>
+          <meta itemprop="position" content="3" />
+        </li>
+
+      {% else %}
+        <li class="breadcrumb__item breadcrumb__item--active" aria-current="page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+					<span itemscope itemtype="http://schema.org/Thing" itemprop="item" itemid="{{ request.path }}">
+            {%- if page.title -%}
+							<span itemprop="name">{{ page.title }}</span>
+            {%- else -%}
+							<span itemprop="name">{{ page_title }}</span>
+            {%- endif -%}
+					</span>
+					<meta itemprop="position" content="2" />
+				</li>
+
+    {%- endcase -%}
+  </ol>
+</nav>

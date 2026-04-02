@@ -1,0 +1,41 @@
+.menu-link {
+  @apply inline-flex py-2 px-0;
+
+  @media (min-width: 1024px) {
+    &:hover {
+      @apply underline underline-offset-4 decoration-2;
+    }
+  }
+}
+
+.menu-arrow {
+  @apply ml-2 transition-transform;
+
+  @media (min-width: 1024px) {
+    @apply hidden;
+  }
+
+  &--active {
+    @apply rotate-180;
+  }
+}
+
+@media (max-width: 1023px) { 
+  .navigation-menu {
+    @apply absolute top-full left-0 w-full h-[var(--content-height,_100vh)] bg-white overflow-y-auto z-40;
+  }
+
+  .menu {
+    @apply px-4;
+  }
+
+  .megamenu .container {
+    @apply p-0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .megamenu {
+    @apply absolute top-full left-0 w-full py-8 px-0 bg-white shadow z-40;
+  }  
+}

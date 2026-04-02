@@ -1,0 +1,101 @@
+<section vue-init v-cloak>
+  <customer-login inline-template>
+    <div class="customer">
+      <div v-if="isRecoverSuccessShown" class="form-success mb-3">
+        {{ 'customer.recover_password.success' | t }}
+      </div>
+
+      <div v-show="!isRecoverPasswordShown">
+        {% form 'customer_login' %}
+          <h1 class="customer__title">{{ 'customer.login.title' | t }}</h1>
+
+          {{ form.errors | default_errors }}
+
+          <div class="field">
+            <label for="CustomerEmail">{{ 'customer.login.email' | t }}</label>
+            <input 
+              type="email"
+              name="customer[email]"
+              id="CustomerEmail"
+              placeholder="{{ 'general.misc.generic_placeholder' | t }}"
+              spellcheck="false"
+              autocomplete="off"
+              autocapitalize="off"
+              autofocus
+            >
+          </div>
+
+          {% if form.password_needed %}
+            <div class="field">
+              <label for="CustomerPassword">{{ 'customer.login.password' | t }}</label>
+              <input 
+                type="password"
+                name="customer[password]"
+                id="CustomerPassword"
+                placeholder="{{ 'general.misc.generic_placeholder' | t }}"
+              >
+            </div>
+          {% endif %}
+
+          <div class="customer__buttons">
+            <button type="submit" class="button button--primary">{{ 'customer.login.sign_in' | t }}</button>
+          </div>
+
+          <div class="customer__links">
+            {% unless shop.checkout.guest_login %}
+              <a class="link" href="{{ routes.account_register_url }}">{{ 'layout.customer.create_account' | t }}</a>
+            {%- endunless -%}
+
+            {% if form.password_needed %}
+              <a class="link" @click="toggleRecoverPassword()" href="javascript:">{{ 'customer.login.forgot_password' | t }}</a>
+            {% endif %}
+          </div>
+        {% endform %}
+
+      </div>
+
+      <div v-show="isRecoverPasswordShown">
+        <h1 class="customer__title">{{ 'customer.recover_password.title' | t }}</h1>
+        <p>{{ 'customer.recover_password.subtext' | t }}</p>
+
+        {% form 'recover_customer_password' %}
+          {{ form.errors | default_errors }}
+
+          {% if form.posted_successfully? %}
+            <input ref="isRecoverSuccess" type="hidden" value="true">
+          {% endif %}
+
+          <div class="field">
+            <label for="RecoverEmail">{{ 'customer.recover_password.email' | t }}</label>
+            <input 
+              type="email"
+              name="email"
+              id="RecoverEmail"
+              placeholder="{{ 'general.misc.generic_placeholder' | t }}"
+              spellcheck="false"
+              autocomplete="off"
+              autocapitalize="off"
+              required
+            >
+          </div>
+
+          <div class="customer__buttons">
+            <button type="submit" class="button button--primary">{{ 'customer.recover_password.submit' | t }}</button>
+            <button @click="toggleRecoverPassword()" type="button" class="button button--secondary">
+              {{ 'customer.recover_password.cancel' | t }}
+            </button>
+          </div>
+        {% endform %}
+
+      </div>
+
+      {% if shop.checkout.guest_login %}
+        <div class="mt-3">
+          {% form 'guest_login' %}
+            <button type="submit" class="button button--primary">{{ 'customer.login.guest_continue' | t }}</button>
+          {% endform %}
+        </div>
+      {% endif %}
+    </div>
+  </customer-login>
+</section>

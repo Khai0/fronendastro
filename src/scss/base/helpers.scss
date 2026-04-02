@@ -1,0 +1,23 @@
+// Only show when JS is not supported
+.no-js:not(html) {
+  @apply hidden;
+
+  .no-js & {
+    @apply block;
+  }
+}
+
+// Only show when JS is supported
+.js {
+  .no-js & {
+    @apply hidden;
+  }
+}
+
+[v-cloak] {
+  @apply hidden #{!important};
+}
+
+.no-scroll {
+  @apply fixed w-full max-w-full overflow-hidden;
+}

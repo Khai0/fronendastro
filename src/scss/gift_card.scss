@@ -1,0 +1,46 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+// Base
+@import 'base/animations';
+@import 'base/helpers';
+@import 'base/layout';
+@import 'base/typography';
+
+// Components
+@import 'components/buttons';
+
+// Gift card
+
+:root {
+  --wrap-corner-size: 47px;
+  --wrap-corner-size--mobile: 18px;
+}
+
+
+@media print {
+  @page {
+    margin: 0.5cm;
+  }
+}
+
+@keyframes slideup {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(2000px) rotate(10deg)
+  }
+
+  60% {
+    opacity: 1;
+    -webkit-transform: translateY(-30px)
+  }
+
+  80% {
+    -webkit-transform: translateY(10px)
+  }
+
+  100% {
+    -webkit-transform: translateY(0) rotate(0deg)
+  }
+}

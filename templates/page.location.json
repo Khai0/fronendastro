@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "form": {
+      "type": "Location-form",
+      "settings": {
+      }
+    }
+  },
+  "order": [
+    "form"
+  ]
+}

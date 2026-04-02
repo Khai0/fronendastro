@@ -1,0 +1,15 @@
+.breadcrumb {
+  @apply flex text-body-secondary text-sm;
+
+  &__item {
+    @apply whitespace-nowrap;
+
+    & + & {
+      @apply flex pl-1;
+
+      &:before {
+        @apply inline-block pr-1 content-['>'];
+      }
+    }
+  }
+}

@@ -1,0 +1,122 @@
+/* Container chính */
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-family: 'Inter', sans-serif;
+  color: #111827;
+}
+
+/* Toolbar trên cùng */
+.toolbar {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.toolbar label {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+.toolbar select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+.toolbar select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Grid sản phẩm */
+ul.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media(min-width: 768px) {
+  ul.grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Item sản phẩm */
+li product-item {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+li product-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+/* Hình ảnh responsive */
+li product-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s;
+}
+li product-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Loading mask */
+.mask--loading {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+.loading-animation {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.loading-animation div {
+  width: 10px;
+  height: 10px;
+  background: #3b82f6;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+.loading-animation .bounce1 { animation-delay: -0.32s; }
+.loading-animation .bounce2 { animation-delay: -0.16s; }
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Text đẹp */
+p.lead {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+.pagination a {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  color: #111827;
+  transition: background 0.3s, color 0.3s;
+}
+.pagination a:hover,
+.pagination a.active {
+  background-color: #3b82f6;
+  color: #ffffff;
+}

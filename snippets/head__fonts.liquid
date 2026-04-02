@@ -1,0 +1,50 @@
+{%- comment -%}
+
+Custom fonts
+============
+
+Keep font-family names the same and utilise font-weight and font-style to style.
+
+Using @font-face - https://css-tricks.com/snippets/css/using-font-face/
+
+When using Google fonts, either:
+- Use <link> tag (recommended)
+- Download files and include using @font-face
+See here for more info - https://stackoverflow.com/questions/12316501/including-google-web-fonts-link-or-import/12380004
+
+Example:
+
+@font-face {
+  font-family: "Gotham";
+  src: local("Gotham"), url({{ 'gotham-book.woff2' | asset_url }}) format("woff2"), url({{ 'gotham-book.woff' | asset_url }}) format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: local("Gotham-Medium"), url({{ 'GothamSSm-Medium_Web.woff2' | asset_url }}) format("woff2"), url({{ 'GothamSSm-Medium_Web.woff' | asset_url }}) format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+{%- endcomment -%}
+
+{%- comment -%}
+TODO: Remove preconnects if not required
+{%- endcomment -%}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+
+{% style %}
+  @font-face {
+    font-family: 'icomoon';
+    src: url({{ 'icomoon.woff2' | asset_url }}) format('woff2'),
+      url({{ 'icomoon.woff' | asset_url }}) format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+  }
+{% endstyle %}

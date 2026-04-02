@@ -1,0 +1,42 @@
+.centered-text {
+  background: #f6f6f6;
+  padding: 56px 0;
+}
+
+.centered-text__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.centered-text__heading {
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+.centered-text__content {
+  margin-top: 20px;
+  color: #1f2937;
+  line-height: 1.65;
+  font-size: 17px;
+}
+
+.centered-text__content p {
+  margin: 0 0 14px;
+}
+
+.centered-text__content p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 767px) {
+  .centered-text {
+    padding: 40px 0;
+  }
+
+  .centered-text__content {
+    font-size: 15px;
+  }
+}

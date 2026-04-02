@@ -1,0 +1,20 @@
+{% comment %}
+  - favicon.png should be at least 192x192 in size
+  - See here for more info - https://www.favicon-generator.org/
+  - manifest.json not included, add if you wish - https://web.dev/add-manifest/
+{% endcomment -%}
+
+<link rel="apple-touch-icon" sizes="57x57" href="{{ 'favicon.png' | asset_img_url: '57x57' }}">
+<link rel="apple-touch-icon" sizes="60x60" href="{{ 'favicon.png' | asset_img_url: '60x60' }}">
+<link rel="apple-touch-icon" sizes="72x72" href="{{ 'favicon.png' | asset_img_url: '72x72' }}">
+<link rel="apple-touch-icon" sizes="76x76" href="{{ 'favicon.png' | asset_img_url: '76x76' }}">
+<link rel="apple-touch-icon" sizes="114x114" href="{{ 'favicon.png' | asset_img_url: '114x114' }}">
+<link rel="apple-touch-icon" sizes="120x120" href="{{ 'favicon.png' | asset_img_url: '120x120' }}">
+<link rel="apple-touch-icon" sizes="144x144" href="{{ 'favicon.png' | asset_img_url: '144x144' }}">
+<link rel="apple-touch-icon" sizes="152x152" href="{{ 'favicon.png' | asset_img_url: '152x152' }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ 'favicon.png' | asset_img_url: '180x180' }}">
+<link rel="icon" type="image/png" sizes="192x192" href="{{ 'favicon.png' | asset_img_url: '192x192' }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ 'favicon.png' | asset_img_url: '32x32' }}">
+<link rel="icon" type="image/png" sizes="96x96" href="{{ 'favicon.png' | asset_img_url: '96x96' }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ 'favicon.png' | asset_img_url: '16x16' }}">
+<meta name="msapplication-TileImage" content="{{ 'favicon.png' | asset_img_url: '144x144' }}">

@@ -1,0 +1,81 @@
+{% comment %}
+  Carousel of selected products from the store
+{% endcomment %}
+
+{%- assign products = section.settings.product_list -%}
+
+{%- if products.count > 0 -%}
+  <div
+    vue-init
+    v-cloak
+    class="featured-products container">
+
+    {%- if section.settings.title != blank -%}
+      <h2 class="h1 mb-4">{{ section.settings.title }}</h2>
+    {%- endif -%}
+
+    <keen-slider
+      arrows="(min-width: 768px)"
+      pagination="(max-width: 767px)"
+      :options="{
+      slides: {
+        perView: 2,
+        spacing: 30
+      },
+      breakpoints: {
+        '(min-width: 768px)': {
+          slides: {
+            perView: 4,
+            spacing: 30
+          }
+        }
+      }
+    }">
+      {%- for product in products -%}
+        <div>
+          <product-item
+            inline-template
+            :product='{{ product | json | escape }}'
+            img-sizes="(max-width: 767px) 50vw, (max-width: 1440px) 25vw, calc(1440px / 4)">
+            {% render 'product-item' %}
+          </product-item>
+        </div>
+      {%- endfor -%}
+    </keen-slider>
+
+  </div>
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Featured products",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title"
+      }, 
+      {
+        "type": "header",
+        "content": "Products"
+      }, 
+      {
+        "type": "paragraph",
+        "content": "Display up to 8 products. The order will be determined by the order of selections you make."
+      }, 
+      {
+        "type": "product_list",
+        "id": "product_list",
+        "label": "Products",
+        "limit": 8
+      }
+    ],
+    "presets": [
+      {
+        "name": "Featured products",
+        "category": "Products"
+      }
+    ]
+  }
+{% endschema %}

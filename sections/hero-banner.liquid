@@ -1,0 +1,195 @@
+<section
+  class="hero-banner hero-banner--{{ section.id }}"
+  data-hero-banner-section-id="{{ section.id }}">
+  
+
+  <div class="hero-banner__frame">
+    {%- if section.settings.video != blank -%}
+      {%- assign video_sources = section.settings.video.sources | where: 'format', 'mp4' -%}
+      <video
+        class="hero-banner__video"
+        playsinline
+        muted
+        loop
+        autoplay
+        preload="metadata"
+        {% if poster_image != blank %}
+          poster="{{ poster_image | image_url: width: 1920 }}"
+        {% endif %}
+        aria-label="{{ section.settings.heading | default: shop.name | escape }}">
+        {%- for video_source in video_sources -%}
+          <source src="{{ video_source.url }}" type="video/mp4">
+        {%- endfor -%}
+      </video>
+   
+    {%- else -%}
+      {{ 'hero-apparel-1' | placeholder_svg_tag: 'hero-banner__placeholder' }}
+    {%- endif -%}
+
+    <div class="hero-banner__shade"></div>
+
+    <div class="hero-banner__controls" {% if section.settings.video == blank %}hidden{% endif %}>
+      <button
+        type="button"
+        class="hero-banner__control-button"
+        data-video-toggle="play"
+        aria-label="Pause video"
+        title="Pause video">
+        <span class="hero-banner__icon hero-banner__icon--pause" aria-hidden="true"></span>
+      </button>
+
+      <button
+        type="button"
+        class="hero-banner__control-button"
+        data-video-toggle="mute"
+        aria-label="Unmute video"
+        title="Unmute video">
+        <span class="hero-banner__icon hero-banner__icon--mute" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <div class="hero-banner__content">
+     
+
+      {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}
+        <a
+          href="{{ section.settings.button_link }}"
+          class="hero-banner__button">
+          {{ section.settings.button_label }}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+{% comment %} css only apply section id ({{ section.id }}) {% endcomment %}
+{{ 'hero.css' | asset_url | stylesheet_tag }}
+
+<script>
+  (() => {
+    const selector = '.hero-banner--{{ section.id }}'
+
+    const updateState = (video, scope) => {
+      const playButton = scope.querySelector('[data-video-toggle="play"]')
+      const muteButton = scope.querySelector('[data-video-toggle="mute"]')
+
+      if (playButton) {
+        const paused = video.paused
+        playButton.classList.toggle('is-paused', paused)
+        playButton.setAttribute('aria-label', paused ? 'Play video' : 'Pause video')
+        playButton.setAttribute('title', paused ? 'Play video' : 'Pause video')
+      }
+
+      if (muteButton) {
+        const muted = video.muted
+        muteButton.classList.toggle('is-muted', muted)
+        muteButton.setAttribute('aria-label', muted ? 'Unmute video' : 'Mute video')
+        muteButton.setAttribute('title', muted ? 'Unmute video' : 'Mute video')
+      }
+    }
+
+    const setup = (sectionRoot) => {
+      if (!sectionRoot || sectionRoot.dataset.heroBannerReady === 'true') return
+      sectionRoot.dataset.heroBannerReady = 'true'
+
+      const video = sectionRoot.querySelector('.hero-banner__video')
+      if (!video) return
+
+      const controls = sectionRoot.querySelector('.hero-banner__controls')
+      const playButton = controls?.querySelector('[data-video-toggle="play"]')
+      const muteButton = controls?.querySelector('[data-video-toggle="mute"]')
+
+      updateState(video, sectionRoot)
+
+      playButton?.addEventListener('click', () => {
+        if (video.paused) {
+          video.play().catch(() => {})
+        } else {
+          video.pause()
+        }
+        updateState(video, sectionRoot)
+      })
+
+      muteButton?.addEventListener('click', () => {
+        video.muted = !video.muted
+        updateState(video, sectionRoot)
+      })
+
+      video.addEventListener('play', () => updateState(video, sectionRoot))
+      video.addEventListener('pause', () => updateState(video, sectionRoot))
+      video.addEventListener('volumechange', () => updateState(video, sectionRoot))
+    }
+
+    const init = (root = document) => {
+      root.querySelectorAll(selector).forEach(setup)
+    }
+
+    init()
+    document.addEventListener('shopify:section:load', (event) => init(event.target))
+  })()
+</script>
+
+{% schema %}
+  {
+    "name": "Hero Banner",
+    "tag": "section",
+    "class": "section-hero-banner",
+    "settings": [
+      {
+        "type": "video",
+        "id": "video",
+        "label": "Shopify-hosted video"
+      },
+      
+     
+      {
+        "type": "text",
+        "id": "button_label",
+        "label": "Button label",
+        "default": "Try our free AI scan"
+      },
+      {
+        "type": "url",
+        "id": "button_link",
+        "label": "Button link"
+      },
+      {
+        "type": "range",
+        "id": "banner_height_desktop",
+        "min": 50,
+        "max": 100,
+        "step": 5,
+        "unit": "vh",
+        "label": "Desktop height",
+        "default": 70
+      },
+      {
+        "type": "range",
+        "id": "banner_height_mobile",
+        "min": 40,
+        "max": 100,
+        "step": 5,
+        "unit": "vh",
+        "label": "Mobile height",
+        "default": 60
+      },
+      {
+        "type": "color",
+        "id": "accent_color",
+        "label": "Button hover color",
+        "default": "#f2d34f"
+      },
+      {
+        "type": "checkbox",
+        "id": "lazyload",
+        "label": "Lazy load poster image",
+        "default": true
+      }
+    ],
+    "presets": [
+      {
+        "name": "Hero Banner",
+        "category": "Image"
+      }
+    ]
+  }
+{% endschema %}

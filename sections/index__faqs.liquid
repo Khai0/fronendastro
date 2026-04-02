@@ -1,0 +1,113 @@
+{{ 'faqs.css' | asset_url | stylesheet_tag }}
+
+<section class="faqs" data-faqs-section="{{ section.id }}">
+  <div class="container">
+    
+    {% if section.settings.heading != blank %}
+      <h2 class="faqs__heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    {% if section.settings.subheading != blank %}
+      <p class="faqs__subheading">{{ section.settings.subheading }}</p>
+    {% endif %}
+
+    <div class="faqs__list">
+      {% for block in section.blocks %}
+        <article class="faqs__item {% if forloop.first %}active{% endif %}" {{ block.shopify_attributes }}>
+          
+          <button
+            type="button"
+            class="faqs__question"
+            aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}">
+            
+            <span>{{ block.settings.question }}</span>
+            <span class="faqs__icon">+</span>
+          </button>
+
+          <div class="faqs__answer">
+            {{ block.settings.answer }}
+          </div>
+
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var root = document.querySelector('[data-faqs-section="{{ section.id }}"]');
+  if (!root) return;
+
+  var items = root.querySelectorAll('.faqs__item');
+
+  items.forEach(function(item) {
+    var button = item.querySelector('.faqs__question');
+
+    button.addEventListener('click', function() {
+      var isActive = item.classList.contains('active');
+
+      items.forEach(function(otherItem) {
+        otherItem.classList.remove('active');
+
+        var btn = otherItem.querySelector('.faqs__question');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+
+      if (!isActive) {
+        item.classList.add('active');
+        button.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "FAQs",
+  "tag": "section",
+  "class": "section-faqs",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently asked questions"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Everything you need to know before ordering"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "FAQ item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "How long does shipping take?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Most orders arrive within 3-5 business days.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQs",
+      "category": "Text"
+    }
+  ]
+}
+{% endschema %}

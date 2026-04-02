@@ -1,0 +1,304 @@
+name: Transfer Images
+
+defaults:
+  run:
+    working-directory: .
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Choose a source Shopify store"
+        type: environment
+        required: true
+      targetstore:
+        description: "Choose a target Shopify store"
+        type: environment
+        required: true
+      daysago:
+        description: "How many days in the past?"
+        type: number
+        default: 30 
+        required: true
+      graphqlapiversion:
+        description: "GraphQl API version"
+        type: string
+        default: "2023-10"
+        required: true
+
+jobs:
+  notifyslackstart:
+    name: Notify Slack Channel (Job Start)
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.environment != github.event.inputs.targetstore }}
+    outputs:
+      ts: ${{ steps.slack-started.outputs.ts }}
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Post to a Slack channel (Started)
+        id: slack-started
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*Image Transfer*: Started",
+                  "color": "#FFA500",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "In Progress"
+                    },
+                    {
+                      "title": "Source Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.environment }}"
+                    },
+                    {
+                      "title": "Workflow Logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    },
+                    {
+                      "title": "Target Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.targetstore }}"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ],
+              "as_user": "MindArc Jane"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+
+  deploy:
+    name: Transfer Images
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Fail job
+        if: ${{ github.event.inputs.environment == github.event.inputs.targetstore }}
+        run: exit 1
+      - uses: actions/checkout@v3
+      - name: Transfer images
+        uses: actions/github-script@v7
+        env:
+          SOURCE_STORE_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          TARGET_STORE_TOKEN: ${{ secrets.TARGET_SHOPIFY_THEME_TOKEN }}
+        with:
+          script: |
+            const transferImagesHelper = require('./.github/workflows/image-transfer/app.js');
+            const config = {
+              sourceStore: "${{ github.event.inputs.environment }}",
+              sourceStoreToken: "${{ env.SOURCE_STORE_TOKEN }}",
+              targetStore: "${{ github.event.inputs.targetstore }}",
+              targetStoreToken: "${{ env.TARGET_STORE_TOKEN }}",
+              daysAgo: ${{ github.event.inputs.daysago }},
+              apiVersion: "${{ github.event.inputs.graphqlapiversion }}"
+            };
+  
+            try {
+             const result = await transferImagesHelper({ config });
+             console.log(JSON.stringify(result, null, 2))
+            } catch (e) {
+              console.error(e)
+            }
+
+  notifyslackfinish:
+    name: Notify Slack Channel (Result)
+    runs-on: ubuntu-latest
+    needs: 
+      - notifyslackstart
+      - deploy
+    if: always()
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Post to a Slack channel (Success)
+        if: needs.deploy.result == 'success'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          update-ts: ${{ needs.notifyslackstart.outputs.ts }}
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*Image Transfer*: Complete",
+                  "color": "#36a64f",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "Success"
+                    },
+                    {
+                      "title": "Source Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.environment }}"
+                    },
+                    {
+                      "title": "Workflow Logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    },
+                    {
+                      "title": "Target Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.targetstore }}"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ],
+              "as_user": "MindArc Jane"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+
+      - name: Post to a Slack channel (Failed)
+        if: needs.deploy.result == 'failure'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          update-ts: ${{ needs.notifyslackstart.outputs.ts }}
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*Image Transfer*: Failed",
+                  "color": "#FF0000",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "Failed"
+                    },
+                    {
+                      "title": "Source Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.environment }}"
+                    },
+                    {
+                      "title": "Workflow logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    },
+                    {
+                      "title": "Target Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.targetstore }}"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ],
+              "as_user": "MindArc Jane"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+
+      - name: Post to a Slack channel (Cancelled)
+        if: needs.deploy.result == 'cancelled'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          update-ts: ${{ needs.notifyslackstart.outputs.ts }}
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*Image Transfer*: Cancelled",
+                  "color": "#FF0000",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "Cancelled"
+                    },
+                    {
+                      "title": "Source Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.environment }}"
+                    },
+                    {
+                      "title": "Workflow logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    },
+                    {
+                      "title": "Target Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.targetstore }}"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}

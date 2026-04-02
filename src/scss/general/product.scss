@@ -1,0 +1,13 @@
+.product-badge {
+  @apply absolute top-0 left-0 py-1 px-3 bg-sale text-white;
+}
+
+.price {
+  &--old {
+    @apply text-body-secondary;
+  }
+  
+  &--sale {
+    @apply text-sale;
+  }
+}

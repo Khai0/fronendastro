@@ -1,0 +1,23 @@
+.image-banner-only {
+  width: 100%;
+  line-height: 0;
+  background: #000;
+}
+
+.image-banner-only__img,
+.image-banner-only__placeholder {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.image-banner-only__img {
+  max-height: 360px;
+  object-fit: cover;
+}
+
+@media (max-width: 767px) {
+  .image-banner-only__img {
+    max-height: 220px;
+  }
+}

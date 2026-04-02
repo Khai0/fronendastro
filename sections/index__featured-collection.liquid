@@ -1,0 +1,80 @@
+{% comment %}
+  Carousel of products from a chosen collection
+{% endcomment %}
+
+{%- assign products = collections[section.settings.collection].products -%}
+
+{%- if products.size > 0 -%}
+  <div
+    vue-init
+    v-cloak
+    class="featured-collection container">
+
+    {%- if section.settings.title != blank -%}
+      <h2 class="h1 mb-4">{{ section.settings.title }}</h2>
+    {%- endif -%}
+
+    <keen-slider
+      arrows="(min-width: 768px)"
+      pagination="(max-width: 767px)"
+      :options="{
+      slides: {
+        perView: 2,
+        spacing: 30
+      },
+      breakpoints: {
+        '(min-width: 768px)': {
+          slides: {
+            perView: 4,
+            spacing: 30
+          }
+        }
+      }
+    }">
+      {%- for product in products limit: 9 -%}
+        <div>
+          <product-item
+            inline-template
+            :product='{{ product | json | escape }}'
+            img-sizes="(max-width: 767px) 50vw, (max-width: 1440px) 25vw, calc(1440px / 4)">
+            {% render 'product-item' %}
+          </product-item>
+        </div>
+      {%- endfor -%}
+    </keen-slider>
+
+  </div>
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Featured collection",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title"
+      }, 
+      {
+        "type": "header",
+        "content": "Collection"
+      }, 
+      {
+        "type": "paragraph",
+        "content": "Display up to 9 products from a collection. The order will be the same as the order set in the collection admin."
+      }, 
+      {
+        "type": "collection",
+        "id": "collection",
+        "label": "Collection"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Featured collection",
+        "category": "Collection"
+      }
+    ]
+  }
+{% endschema %}

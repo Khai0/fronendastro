@@ -1,0 +1,188 @@
+{%- if section.blocks.size > 0 -%}
+  <div class="trust-bar" style="background-color: {{ section.settings.bg_color }}; color: {{ section.settings.text_color }};">
+    <div class="trust-bar__container">
+      <div class="trust-bar__grid">
+        {%- for block in section.blocks -%}
+          <div class="trust-bar__item" {{ block.shopify_attributes }}>
+            <div class="trust-bar__icon">
+              {%- if block.settings.icon_image != blank -%}
+                {{ block.settings.icon_image | image_url: width: 120 | image_tag: loading: 'lazy', class: 'trust-bar__img' }}
+              {%- elsif block.settings.icon_svg != blank -%}
+                {{ block.settings.icon_svg }}
+              {%- endif -%}
+            </div>
+            <div class="trust-bar__content">
+              {%- if block.settings.text != blank -%}
+                <div class="trust-bar__text">
+                  {{ block.settings.text }}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+<style>
+  .trust-bar {
+    padding: 2rem 1rem;
+  }
+  .trust-bar__container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  .trust-bar__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  @media (min-width: 640px) {
+    .trust-bar__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .trust-bar__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3rem;
+    }
+  }
+  .trust-bar__item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    max-width: 100%;
+  }
+  .trust-bar__icon {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .trust-bar__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .trust-bar__icon svg {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+    fill: none;
+  }
+  .trust-bar__icon svg path {
+    stroke-width: 1.5;
+  }
+  .trust-bar__text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.025em;
+  }
+  .trust-bar__text p {
+    margin: 0;
+  }
+  @media (max-width: 1023px) {
+    .trust-bar__item {
+      justify-content: flex-start;
+      text-align: left;
+      gap: 1.5rem;
+    }
+    .trust-bar {
+      padding: 2.5rem 1.5rem;
+    }
+    .trust-bar__grid {
+      gap: 2.5rem;
+    }
+    .trust-bar__icon {
+      width: 56px;
+      height: 56px;
+    }
+    .trust-bar__text {
+      font-size: 0.8125rem;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Trust Bar",
+  "settings": [
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#006064"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_item",
+      "name": "Trust Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Icon Image"
+        },
+        {
+          "type": "html",
+          "id": "icon_svg",
+          "label": "Icon SVG (Alternative)"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Trust statement here</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust Bar",
+      "blocks": [
+        {
+          "type": "trust_item",
+          "settings": {
+            "text": "<p>Free Delivery for Australian orders above $99.99 and $22 for Overseas</p>"
+          }
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "text": "<p>30 Day Customer Satisfaction Guarantee*</p>"
+          }
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "text": "<p>12 Month Manufacturer's Warranty</p>"
+          }
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "text": "<p>5000+ 5 Star Reviews on Google</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

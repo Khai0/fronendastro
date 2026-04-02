@@ -1,0 +1,106 @@
+<div class="gallery">
+  {%- if product.media.size > 0 -%}
+    <div ref="main"
+      class="keen-slider"
+    >
+      {% for media in product.media %}
+        <div class="keen-slider__slide lazy__slide">
+          {%- case media.media_type -%}
+
+            {%- when 'external_video' -%}
+              <video-wrapper
+                video-type="{{ media.host }}"
+                video-id="{{ media.external_id }}"
+                aspect-ratio="100%"
+                :is-visible="currentSlide == {{ forloop.index0 }}"
+                :is-autoplay="true"
+                :is-mute="true"
+              ></video-wrapper>
+
+            {%- when 'video' -%}
+              {%- capture sources_data -%}
+                {%- assign video_sources = media.sources | where: "format", "mp4" -%}
+                {%- for video_source in video_sources -%}
+                  '{{ video_source.url }}'{%- unless forloop.last -%},{%- endunless -%}
+                {%- endfor -%}
+              {%- endcapture -%}
+              <video-wrapper
+                video-type="html"
+                video-id="{{ media.external_id }}"
+                aspect-ratio="100%"
+                :is-visible="currentSlide == {{ forloop.index0 }}"
+                :is-autoplay="true"
+                :is-mute="true"
+                :thumbnail="'{{ media.preview_image | image_url: width: 1024 }}'"
+                :sources="[{{ sources_data }}]"
+              ></video-wrapper>
+
+            {%- when 'image' -%}
+              <div class="relative">
+                {%- comment -%}
+                .product-image class used for forced aspect ratio settings
+                {%- endcomment -%}
+                <image-zoom
+                  alt="{{ media.alt }}"
+                  img-mobile="{{ media | image_url: width: 767 }}"
+                  img-normal="{{ media | image_url: width: 1024 }}" 
+                  img-zoom="{{ media | image_url: width: 2048 }}"
+                  width="{{ media.width }}"
+                  height="{{ media.height }}"
+                  class="product-image"
+                  {% if forloop.index == 1 %}
+                    :is-lazy-load="false"
+                  {% endif %}
+                ></image-zoom>
+                <div class="absolute right-4 bottom-4 hidden lg:flex pointer-events-none">
+                  {%- render 'icon', name: 'zoom' -%}
+                </div>
+              </div>
+          {%- endcase -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div ref="nav"
+      class="keen-slider keen-slider--thumbnail"
+    >
+      {% for media in product.media %}
+        <div class="keen-slider__slide">
+          {%- if media.media_type contains 'video' -%}
+            <div class="video-thumbnail flex items-center justify-center w-full h-full object-contain">
+              <responsive-image
+                src="{{ media.preview_image | image_url: width: 200 }}"
+                :base-width="200"
+                :base-height="200 / {{ media.preview_image.aspect_ratio }}"
+                sizes="200px"
+                alt="media.preview_image.alt"
+              ></responsive-image>
+            </div>
+
+          {%- elsif media.media_type == 'image' -%}
+            <div class="product-image flex items-center justify-center w-full h-full object-contain">
+              <responsive-image
+                src="{{ media | image_url: width: 200 }}"
+                :base-width="200"
+                :base-height="200 / {{ media.aspect_ratio }}"
+                sizes="200px"
+                alt="media.alt"
+              ></responsive-image>
+            </div>
+
+          {%- endif -%}
+        </div>
+      {% endfor %}
+    </div>
+  {%- else -%}
+
+    <div class="gallery__main">
+      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+
+    <div class="gallery__nav">
+      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+  {% endif %}
+
+</div>

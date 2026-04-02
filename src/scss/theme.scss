@@ -1,0 +1,35 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+// Vendors
+@import 'vendors/icomoon';
+@import 'vendors/keen-slider';
+
+// Base
+@import 'base/animations';
+@import 'base/helpers';
+@import 'base/layout';
+@import 'base/typography';
+
+// Components
+@import 'components/breadcrumb';
+@import 'components/buttons';
+@import 'components/collapsible';
+@import 'components/forms';
+@import 'components/lists';
+@import 'components/masks';
+@import 'components/messages';
+@import 'components/pagination';
+@import 'components/placeholders';
+@import 'components/quantity-field';
+@import 'components/tables';
+@import 'components/tabs';
+
+// General
+@import 'general/account';
+@import 'general/addresses';
+@import 'general/orders';
+@import 'general/navigation';
+@import 'general/product';
+@import 'general/customers';

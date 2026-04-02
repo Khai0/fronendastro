@@ -1,0 +1,22 @@
+{% assign menu = linklists[parent_handle] %}
+
+{% if menu.links.size > 0 %}
+  <ul class="megamenu-links">
+    {% for link in menu.links %}
+      <li>
+        <a href="{{ link.url }}">{{ link.title }}</a>
+
+        {% if link.links.size > 0 %}
+          <ul>
+            {% for child in link.links %}
+              <li>
+                <a href="{{ child.url }}">{{ child.title }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

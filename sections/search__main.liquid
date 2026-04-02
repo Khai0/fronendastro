@@ -1,0 +1,114 @@
+
+
+<div class="container" vue-init v-cloak>
+  {% render 'breadcrumbs' %}
+  {% assign sort_by = search.sort_by | default: search.default_sort_by %}
+  <product-list-and-filtering inline-template default-sort="{{ sort_by }}">
+    <div>
+      <section class="w-full max-w-[500px] mx-auto text-center mb-5">
+        {%- if search.performed -%}
+          <h1 class="h2">{{ 'general.search.searched_title' | t: terms: search.terms }}</h1>
+        {%- else -%}
+          <h1 class="h2">{{ 'general.search.title' | t }}</h1>
+        {%- endif -%}
+
+        <form action="{{ routes.search_url }}" method="get" role="search">
+          <div class="field mt-4">
+            <label for="Search-In-Template" class="sr-only">{{ 'general.search.label' | t }}</label>
+            <div class="relative">
+              <input
+                id="Search-In-Template"
+                type="search"
+                name="q"
+                value="{{ search.terms }}"
+                placeholder="{{ 'general.search.placeholder' | t }}"
+              >
+              <button 
+                type="submit"
+                class="absolute top-0 bottom-0 right-0 px-4 flex items-center justify-center"
+                aria-label="{{ 'general.search.submit' | t }}"
+              >
+                {% render 'icon', name: 'search' %}
+              </button>
+            </div>
+          </div>
+          <input type="hidden" name="type" value="product" />
+          <input type="hidden" name="options[prefix]" value="last">
+        </form>
+      </section>
+
+      <div class="md:flex">
+        <aside class="md:basis-1/4">
+          {% render 'facets', results: search %}
+        </aside>
+        
+        <div class="md:basis-3/4">
+          <aside class="toolbar md:flex items-center justify-between mb-5">
+            <span>{{ 'collections.general.products_count' | t: count: search.results_count }}</span>
+          
+            <div>
+              <label for="sort-by">{{ 'collections.sorting.title' | t }}</label>
+              <select v-model="sortBy" name="sort_by" id="sort-by" @change="submitFilters">
+                {% for option in search.sort_options %}
+                  <option value="{{ option.value }}">
+                    {{ option.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </aside>
+
+          <section>
+            {%- if search.results.size == 0 -%}
+              <p>{{ 'collections.general.no_matches' | t }}</p>
+            
+            {%- else -%}
+              {%- paginate search.results by 24 -%}
+                <div class="relative">
+                  <ul class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {% for item in search.results %}
+                      <li>
+                        <product-item 
+                          inline-template 
+                          :product="{{ item | json | escape }}"
+                          :featured-media="{{ item.featured_media | json | escape }}"
+                          url="{{ item.url }}"
+                          img-sizes="(max-width: 767px) 50vw, (max-width: 1440px) 20vw, calc(1440px / 5)"
+                        >
+                          {% render 'product-item' %}
+                        </product-item>
+                      </li>
+                    {% endfor %}
+                  </ul>
+
+                  {%- if paginate.pages > 1 -%}
+                    {% render 'pagination', paginate: paginate, classes: 'mt-12' %}
+                  {%- endif -%}
+
+                  <div v-if="isLoading" class="mask mask--loading">
+                    <div class="text-center">
+                      <p class="lead">{{ 'collections.general.loading_products' | t }}</p>
+                      <div class="loading-animation">
+                        <div class="bounce1"></div>
+                        <div class="bounce2"></div>
+                        <div class="bounce3"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {%- endpaginate -%}
+            {%- endif -%}
+          </section>
+        </div>
+      </div>
+    </div>
+  </product-list-and-filtering>
+</div>
+
+{% schema %}
+  {
+    "name": "Search Main",
+    "settings": [
+    ]
+  }
+{% endschema %}

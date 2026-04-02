@@ -1,0 +1,54 @@
+{
+  "current": {
+    "social_facebook_link": "#",
+    "social_instagram_link": "#",
+    "sections": {
+      "footer": {
+        "type": "footer",
+        "blocks": {
+          "footer-links": {
+            "type": "link_list",
+            "settings": {
+              "menu": "footer"
+            }
+          }
+        },
+        "block_order": [
+          "footer-links"
+        ],
+        "settings": {
+        }
+      }
+    },
+    "content_for_index": [
+
+    ]
+  },
+  "presets": {
+    "Default": {
+      "social_facebook_link": "#",
+      "social_instagram_link": "#",
+      "sections": {
+        "footer": {
+          "type": "footer",
+          "blocks": {
+            "footer-links": {
+              "type": "link_list",
+              "settings": {
+                "menu": "footer"
+              }
+            }
+          },
+          "block_order": [
+            "footer-links"
+          ],
+          "settings": {
+          }
+        }
+      },
+      "content_for_index": [
+
+      ]
+    }
+  }
+}

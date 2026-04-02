@@ -1,0 +1,147 @@
+/*!*************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-2.use[1]!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/sass-loader/dist/cjs.js!./src/scss/styleguide.scss ***!
+  \*************************************************************************************************************************************************************************************************************/
+.color-style {
+    margin-right: 1rem;
+    display: flex;
+    height: 9rem;
+    width: 9rem;
+    align-items: center;
+    justify-content: center;
+    --tw-bg-opacity: 1;
+    background-color: rgb(209 213 219 / var(--tw-bg-opacity, 1));
+    text-align: center
+}
+.color-style:before {
+    display: block;
+    white-space: pre-wrap
+}
+.color-style--background {
+    width: 100%;
+    --tw-bg-opacity: 1;
+    background-color: rgb(238 238 238 / var(--tw-bg-opacity, 1));
+    --tw-text-opacity: 1;
+    color: rgb(255 255 255 / var(--tw-text-opacity, 1))
+}
+/*!***********************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/highlight.js/styles/vs2015.css ***!
+  \***********************************************************************************************/
+pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}
+code.hljs {
+  padding: 3px 5px
+}
+/*
+ * Visual Studio 2015 dark style
+ * Author: Nicolas LLOBERA <nllobera@gmail.com>
+ */
+.hljs {
+  background: #1E1E1E;
+  color: #DCDCDC
+}
+.hljs-keyword,
+.hljs-literal,
+.hljs-symbol,
+.hljs-name {
+  color: #569CD6
+}
+.hljs-link {
+  color: #569CD6;
+  text-decoration: underline
+}
+.hljs-built_in,
+.hljs-type {
+  color: #4EC9B0
+}
+.hljs-number,
+.hljs-class {
+  color: #B8D7A3
+}
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: #D69D85
+}
+.hljs-regexp,
+.hljs-template-tag {
+  color: #9A5334
+}
+.hljs-subst,
+.hljs-function,
+.hljs-title,
+.hljs-params,
+.hljs-formula {
+  color: #DCDCDC
+}
+.hljs-comment,
+.hljs-quote {
+  color: #57A64A;
+  font-style: italic
+}
+.hljs-doctag {
+  color: #608B4E
+}
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-tag {
+  color: #9B9B9B
+}
+.hljs-variable,
+.hljs-template-variable {
+  color: #BD63C5
+}
+.hljs-attr,
+.hljs-attribute {
+  color: #9CDCFE
+}
+.hljs-section {
+  color: gold
+}
+.hljs-emphasis {
+  font-style: italic
+}
+.hljs-strong {
+  font-weight: bold
+}
+/*.hljs-code {
+  font-family:'Monospace';
+}*/
+.hljs-bullet,
+.hljs-selector-tag,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: #D7BA7D
+}
+.hljs-addition {
+  background-color: #144212;
+  display: inline-block;
+  width: 100%
+}
+.hljs-deletion {
+  background-color: #600;
+  display: inline-block;
+  width: 100%
+}
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-2.use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./src/js/components/ma-code.vue?vue&type=style&index=0&id=00332b8a&lang=scss ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+.code__render {
+  max-width: calc(100% - 10em);
+  margin-bottom: 1em;
+}
+.code__toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+pre {
+  margin: 0;
+  font-size: 1em;
+  letter-spacing: 0.05em;
+}
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3R5bGVndWlkZS5jc3MiLCJtYXBwaW5ncyI6Ijs7O0FBQ0U7SUFBQTtJQUFBO0lBQUE7SUFBQTtJQUFBO0lBQUE7SUFBQTtJQUFBO0lBQUE7QUFBQTtBQUdFO0lBQUE7SUFBQTtBQUFBO0FBSUE7SUFBQTtJQUFBO0lBQUE7SUFBQTtJQUFBO0FBQUEsQzs7OztBQ1JKO0VBQ0UsY0FBYztFQUNkLGdCQUFnQjtFQUNoQjtBQUNGO0FBQ0E7RUFDRTtBQUNGO0FBQ0E7OztFQUdFO0FBQ0Y7RUFDRSxtQkFBbUI7RUFDbkI7QUFDRjtBQUNBOzs7O0VBSUU7QUFDRjtBQUNBO0VBQ0UsY0FBYztFQUNkO0FBQ0Y7QUFDQTs7RUFFRTtBQUNGO0FBQ0E7O0VBRUU7QUFDRjtBQUNBOztFQUVFO0FBQ0Y7QUFDQTs7RUFFRTtBQUNGO0FBQ0E7Ozs7O0VBS0U7QUFDRjtBQUNBOztFQUVFLGNBQWM7RUFDZDtBQUNGO0FBQ0E7RUFDRTtBQUNGO0FBQ0E7OztFQUdFO0FBQ0Y7QUFDQTs7RUFFRTtBQUNGO0FBQ0E7O0VBRUU7QUFDRjtBQUNBO0VBQ0U7QUFDRjtBQUNBO0VBQ0U7QUFDRjtBQUNBO0VBQ0U7QUFDRjtBQUNBOztFQUVFO0FBQ0Y7Ozs7OztFQU1FO0FBQ0Y7QUFDQTtFQUNFLHlCQUF5QjtFQUN6QixxQkFBcUI7RUFDckI7QUFDRjtBQUNBO0VBQ0Usc0JBQXNCO0VBQ3RCLHFCQUFxQjtFQUNyQjtBQUNGLEM7Ozs7QUNsR0E7RUFDSTtFQUNBO0FBQUo7QUFHQTtFQUNJO0VBQ0E7RUFDQTtBQUFKO0FBR0E7RUFDSTtFQUNBO0VBQ0E7QUFBSixDIiwic291cmNlcyI6WyJ3ZWJwYWNrOi8vYXN0cm8vLi9zcmMvc2Nzcy9zdHlsZWd1aWRlLnNjc3MiLCJ3ZWJwYWNrOi8vYXN0cm8vLi9ub2RlX21vZHVsZXMvaGlnaGxpZ2h0LmpzL3N0eWxlcy92czIwMTUuY3NzIiwid2VicGFjazovL2FzdHJvLy4vc3JjL2pzL2NvbXBvbmVudHMvbWEtY29kZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiLmNvbG9yLXN0eWxlIHtcbiAgQGFwcGx5IGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIHctMzYgaC0zNiBtci00IGJnLWdyYXktMzAwIHRleHQtY2VudGVyO1xuXG4gICY6YmVmb3JlIHtcbiAgICBAYXBwbHkgYmxvY2sgd2hpdGVzcGFjZS1wcmUtd3JhcDtcbiAgfVxuXG4gICYtLWJhY2tncm91bmQge1xuICAgIEBhcHBseSB3LWZ1bGwgYmctbGlnaHQtYmFja2dyb3VuZCB0ZXh0LXdoaXRlO1xuICB9XG59IiwicHJlIGNvZGUuaGxqcyB7XG4gIGRpc3BsYXk6IGJsb2NrO1xuICBvdmVyZmxvdy14OiBhdXRvO1xuICBwYWRkaW5nOiAxZW1cbn1cbmNvZGUuaGxqcyB7XG4gIHBhZGRpbmc6IDNweCA1cHhcbn1cbi8qXG4gKiBWaXN1YWwgU3R1ZGlvIDIwMTUgZGFyayBzdHlsZVxuICogQXV0aG9yOiBOaWNvbGFzIExMT0JFUkEgPG5sbG9iZXJhQGdtYWlsLmNvbT5cbiAqL1xuLmhsanMge1xuICBiYWNrZ3JvdW5kOiAjMUUxRTFFO1xuICBjb2xvcjogI0RDRENEQ1xufVxuLmhsanMta2V5d29yZCxcbi5obGpzLWxpdGVyYWwsXG4uaGxqcy1zeW1ib2wsXG4uaGxqcy1uYW1lIHtcbiAgY29sb3I6ICM1NjlDRDZcbn1cbi5obGpzLWxpbmsge1xuICBjb2xvcjogIzU2OUNENjtcbiAgdGV4dC1kZWNvcmF0aW9uOiB1bmRlcmxpbmVcbn1cbi5obGpzLWJ1aWx0X2luLFxuLmhsanMtdHlwZSB7XG4gIGNvbG9yOiAjNEVDOUIwXG59XG4uaGxqcy1udW1iZXIsXG4uaGxqcy1jbGFzcyB7XG4gIGNvbG9yOiAjQjhEN0EzXG59XG4uaGxqcy1zdHJpbmcsXG4uaGxqcy1tZXRhIC5obGpzLXN0cmluZyB7XG4gIGNvbG9yOiAjRDY5RDg1XG59XG4uaGxqcy1yZWdleHAsXG4uaGxqcy10ZW1wbGF0ZS10YWcge1xuICBjb2xvcjogIzlBNTMzNFxufVxuLmhsanMtc3Vic3QsXG4uaGxqcy1mdW5jdGlvbixcbi5obGpzLXRpdGxlLFxuLmhsanMtcGFyYW1zLFxuLmhsanMtZm9ybXVsYSB7XG4gIGNvbG9yOiAjRENEQ0RDXG59XG4uaGxqcy1jb21tZW50LFxuLmhsanMtcXVvdGUge1xuICBjb2xvcjogIzU3QTY0QTtcbiAgZm9udC1zdHlsZTogaXRhbGljXG59XG4uaGxqcy1kb2N0YWcge1xuICBjb2xvcjogIzYwOEI0RVxufVxuLmhsanMtbWV0YSxcbi5obGpzLW1ldGEgLmhsanMta2V5d29yZCxcbi5obGpzLXRhZyB7XG4gIGNvbG9yOiAjOUI5QjlCXG59XG4uaGxqcy12YXJpYWJsZSxcbi5obGpzLXRlbXBsYXRlLXZhcmlhYmxlIHtcbiAgY29sb3I6ICNCRDYzQzVcbn1cbi5obGpzLWF0dHIsXG4uaGxqcy1hdHRyaWJ1dGUge1xuICBjb2xvcjogIzlDRENGRVxufVxuLmhsanMtc2VjdGlvbiB7XG4gIGNvbG9yOiBnb2xkXG59XG4uaGxqcy1lbXBoYXNpcyB7XG4gIGZvbnQtc3R5bGU6IGl0YWxpY1xufVxuLmhsanMtc3Ryb25nIHtcbiAgZm9udC13ZWlnaHQ6IGJvbGRcbn1cbi8qLmhsanMtY29kZSB7XG4gIGZvbnQtZmFtaWx5OidNb25vc3BhY2UnO1xufSovXG4uaGxqcy1idWxsZXQsXG4uaGxqcy1zZWxlY3Rvci10YWcsXG4uaGxqcy1zZWxlY3Rvci1pZCxcbi5obGpzLXNlbGVjdG9yLWNsYXNzLFxuLmhsanMtc2VsZWN0b3ItYXR0cixcbi5obGpzLXNlbGVjdG9yLXBzZXVkbyB7XG4gIGNvbG9yOiAjRDdCQTdEXG59XG4uaGxqcy1hZGRpdGlvbiB7XG4gIGJhY2tncm91bmQtY29sb3I6ICMxNDQyMTI7XG4gIGRpc3BsYXk6IGlubGluZS1ibG9jaztcbiAgd2lkdGg6IDEwMCVcbn1cbi5obGpzLWRlbGV0aW9uIHtcbiAgYmFja2dyb3VuZC1jb2xvcjogIzYwMDtcbiAgZGlzcGxheTogaW5saW5lLWJsb2NrO1xuICB3aWR0aDogMTAwJVxufSIsIlxuLmNvZGVfX3JlbmRlciB7XG4gICAgbWF4LXdpZHRoOiBjYWxjKDEwMCUgLSAxMGVtKTtcbiAgICBtYXJnaW4tYm90dG9tOiAxZW07XG59XG5cbi5jb2RlX190b2dnbGUge1xuICAgIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgICB0b3A6IDA7XG4gICAgcmlnaHQ6IDA7XG59XG5cbnByZSB7XG4gICAgbWFyZ2luOiAwO1xuICAgIGZvbnQtc2l6ZTogMWVtO1xuICAgIGxldHRlci1zcGFjaW5nOiAuMDVlbTtcbn1cbiJdLCJuYW1lcyI6W10sInNvdXJjZVJvb3QiOiIifQ==*/

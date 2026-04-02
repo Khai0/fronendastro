@@ -1,0 +1,114 @@
+<header-search inline-template default-value="{{ search.terms | escape }}">
+  <div>
+    <transition name="fade">
+      <div
+        v-if="flyouts.search"
+        class="mask mask--dark"
+        @click="toggleFlyout('search')"></div>
+    </transition>
+
+    <transition name="slide-down">
+      <div v-show="flyouts.search" class="absolute top-full left-0 right-0">
+        <form
+          action="{{ routes.search_url }}"
+          method="get"
+          role="search"
+          class="bg-light-background p-4">
+          <div class="flex items-center justify-between w-full max-w-[500px] mx-auto">
+            <div class="field relative w-full">
+              <label for="search-{{ section.id }}" class="sr-only">
+                {{ 'general.search.placeholder' | t }}
+              </label>
+
+              <input
+                type="search"
+                v-model="search"
+                ref="search"
+                id="search-{{ section.id }}"
+                name="q"
+                placeholder="{{ 'general.search.placeholder' | t }}"
+                autocomplete="off"
+                value="{{ search.terms | escape }}">
+              <input
+                type="hidden"
+                name="type"
+                value="product" />
+
+              <button
+                type="submit"
+                class="absolute top-0 bottom-0 right-0 px-4 flex items-center justify-center"
+                aria-label="{{ 'general.search.submit' | t }}">
+                {% render 'icon', name: 'search' %}
+              </button>
+            </div>
+
+            <button
+              @click="toggleFlyout('search')"
+              type="button"
+              class="flex items-center justify-center h-full px-4"
+              aria-label="{{ 'general.search.close' | t }}">
+              {% render 'icon', name: 'close' %}
+            </button>
+          </div>
+        </form>
+
+        <div v-if="search" class="bg-white py-8">
+          <div class="container">
+            <div v-if="isSearchLoading" class="text-center">
+              <p class="lead">{{ 'general.search.loading' | t }}</p>
+              <div class="loading-animation">
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+              </div>
+            </div>
+
+            <div v-else>
+              <div v-if="!results.length" class="text-center">
+                <p>{{ 'general.search.no_results' | t }}</p>
+              </div>
+
+              <div v-else>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div
+                    v-for="product in results"
+                    :key="product.id"
+                    class="text-center">
+                    <a :href="product.url" :title="product.title">
+                      <div class="product-item__image product-image">
+                        <responsive-image
+                          v-if="product.featured_image"
+                          :src="product.featured_image.url"
+                          :base-width="400"
+                          :base-height="400 / product.featured_image.aspect_ratio"
+                          sizes="(max-width: 767px) 50vw, (max-width: 1440px) 25vw, calc(1440px / 4)"
+                          :alt="product.featured_image.alt || product.title"
+                        ></responsive-image>
+                        <template v-else>{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</template>
+                      </div>
+                    </a>
+                    <div class="product-item__name product-name mt-2">
+                      <a :href="product.url" :title="product.title">
+                        ${ product.title }
+                      </a>
+                    </div>
+                    <div>
+                      <span>
+                        <s v-if="product.compare_at_price && product.compare_at_price > product.price">${ product.compare_at_price | currency }</s>
+                        <span>${ product.price | currency }</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-center mt-3">
+                  <a :href="'{{ routes.search_url }}?q=' + search + '&type=product'" class="button">{{ 'general.search.view_all_results' | t }}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
+</header-search>

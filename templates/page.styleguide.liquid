@@ -1,0 +1,441 @@
+<script src="{{ 'styleguide.js' | asset_url }}" defer></script>
+
+{{ 'styleguide.css' | asset_url | stylesheet_tag }}
+
+<div class="container" vue-init-styleguide v-cloak>
+  <h1>{{ page.title }}</h1>
+
+  <div class="rte">
+    {{ page.content }}
+  </div>
+
+  <hr class="mt-8 pb-8" />
+
+  <ma-code class="mb-3" raw-code="{% raw %}{% render 'breadcrumbs' %}{% endraw %}">
+    <pre>
+      
+    </pre> {% render 'breadcrumbs' %}
+  </ma-code>
+
+  <div class="space-y-4 mb-4">
+    <h2>Colours</h2>
+
+    {% comment %}
+      Color styles
+      ---
+      Colors need to exist here:
+      - src/scss/abstracts/variables
+      - src/scss/base/styleguide
+
+    {% endcomment %}
+
+    <div class="flex mb-3">
+      <div class="color-style bg-primary"></div>
+      <div class="color-style bg-secondary"></div>
+      <div class="color-style bg-accent"></div>
+      <div class="color-style bg-sale"></div>
+    </div>
+
+    <div>
+      <div class="color-style color-style--background"></div>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <h2>Typography</h2>
+
+    <ma-code>
+      <pre>
+        <h1>Heading 1</h1>
+        <h2>Heading 2</h2>
+        <h3>Heading 3</h3>
+        <h4>Heading 4</h4>
+        <h5>Heading 5</h5>
+        <h6>Heading 6</h6>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <a class="link" href="#">Link Text</a>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <p class="lead">Paragraph: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+          fugiat nulla pariatur.</p>
+        <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. <a href="javascript:" class="link">Click here</a></p>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div class="rte">
+          <h2>CMS content</h2>
+          <p>
+            <em>This is a demonstration store. You can purchase products like this from <a href="//skiandscuba.com"
+                target="_blank">The Ski Chalet &amp; Treasure Cove Scuba</a>.</em>
+          </p>
+          <ul>
+            <li>BASEPLATE: Dual-Component EST® Featuring The Hinge with 30% Short-Glass/Nylon Composite Spar and 45%
+              Short-Glass/Nylon Composite Lower</li>
+            <li>HI-BACK: Single-Component Canted Living Hinge™ Zero-Lean Hi-Back with DialFLAD™</li>
+            <li>STRAPS: Lightweight Reactstrap™ with Flex Slider and Gettagrip Capstrap™</li>
+            <li>BUCKLES: NEW Double Take Buckles Featuring Insta-Click</li>
+            <li>CUSHIONING: AutoCANT SensoryBED™ Cushioning System with B3 Gel</li>
+            <li>Features Re-Ground Materials to Reduce Waste</li>
+            <li>Rides Exclusively with Burton Boards Featuring The Channel™</li>
+          </ul>
+        </div>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <ul class="list">
+          <li>List item</li>
+          <li>List item</li>
+          <li>List item</li>
+        </ul>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <small>Small</small>
+    </ma-code>
+
+    <ma-code>
+      <s>Strikethrough</s>
+    </ma-code>
+
+    <ma-code>
+      <em>Italics</em>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div><strong>Strong</strong></div>
+        <div><b>Bold</b></div>
+      </pre>
+    </ma-code>
+  </div>
+
+  <hr class="mt-8 pb-8" />
+
+  <div class="space-y-4">
+    <h2>Buttons</h2>
+
+    <ma-code>
+      <button class="button">Default</button>
+    </ma-code>
+
+    <ma-code>
+      <button class="button button--primary">Primary</button>
+    </ma-code>
+
+    <ma-code>
+      <button class="button button--secondary">Secondary</button>
+    </ma-code>
+
+    <div class="bg-black text-white p-5">
+      <h3 class="text-white mb-4">Buttons --dark</h3>
+
+      <ma-code>
+        <button class="button button--dark">Default</button>
+      </ma-code>
+
+      <ma-code>
+        <button class="button button--primary button--dark">Primary</button>
+      </ma-code>
+
+      <ma-code>
+        <button class="button button--secondary button--dark">Secondary</button>
+      </ma-code>
+    </div>
+  </div>
+
+  <hr class="mt-8 pb-8" />
+
+  <div class="space-y-4">
+    <h2>Forms</h2>
+
+    <ma-code>
+      <pre>
+        <div class="errors">
+          <ul>
+            <li>No account found with that email.</li>
+            <li>Sorry, this product is out of stock right now.</li>
+          </ul>
+        </div>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <p class="form-success">
+          {{ 'contact.form.post_success' | t }}
+        </p>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <p class="info">
+          Some helpful information.
+        </p>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div class="field w-50">
+          <label for="text-input">Label</label>
+          <input type="text" id="text-input" placeholder="Text input">
+        </div>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div class="field w-50">
+          <label for="textarea">Textarea</label>
+          <textarea type="textarea" id="textarea" placeholder="Textarea"></textarea>
+        </div>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div class="field w-50">
+          <label for="select">Select</label>
+          <select id="select">
+            <option value="">Select one...</option>
+            <option value="1">Option 1</option>
+            <option value="2">Option 2</option>
+            <option value="3">Option 3</option>
+          </select>
+        </div>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div class="field w-50">
+          <label for="file">File</label>
+          <input type="file" id="file" placeholder="Select a file...">
+        </div>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div class="field">
+          <input type="checkbox" id="checkbox-input">
+          <label for="checkbox-input">Checkbox</label>
+        </div>
+
+        <div class="field">
+          <input type="checkbox" id="checkbox-input-checked" checked="checked">
+          <label for="checkbox-input-checked">Checkbox checked</label>
+        </div>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div class="field">
+          <input type="radio" id="radio-input" name="radio-group">
+          <label for="radio-input">Radio</label>
+        </div>
+
+        <div class="field">
+          <input type="radio" id="radio-input-checked" name="radio-group" checked="checked">
+          <label for="radio-input-checked">Radio checked</label>
+        </div>
+      </pre>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div class="quantity">
+          <button class="quantity__button" type=“button”></button>
+          <input class="quantity__input" type="number" value="8">
+          <button class="quantity__button" type=“button”>{% render 'icon', name: 'plus' %}</button>
+        </div>
+      </pre> {% render 'icon', name: 'minus' %}
+    </ma-code>
+  </div>
+
+  <hr class="mt-8 pb-8" />
+
+  <div class="space-y-4">
+    <h2>Loading</h2>
+
+    <ma-code>
+      <span class="spinner">{{ 'general.misc.loading' | t }}</span>
+    </ma-code>
+
+    <ma-code>
+      <pre>
+        <div class="inline-block text-center">
+          <p class="lead">{{ 'collections.general.loading_products' | t }}</p>
+          <div class="loading-animation">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+        </div>
+      </pre>
+    </ma-code>
+  </div>
+
+  <hr class="mt-8 pb-8" />
+
+  <div class="space-y-4">
+    <h2>Placeholder Images</h2>
+
+    <ma-code raw-code="{% raw %}{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}{% endraw %}">
+      <div class="md:w-1/4">
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      </div>
+    </ma-code>
+
+    <ma-code raw-code="{% raw %}{{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--portrait' }}{% endraw %}">
+      <div class="md:w-1/4">
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--portrait' }}
+      </div>
+    </ma-code>
+
+    <ma-code raw-code="{% raw %}{{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--landscape' }}{% endraw %}">
+      <div class="md:w-1/4">
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--landscape' }}
+      </div>
+    </ma-code>
+  </div>
+
+  <hr class="mt-8 pb-8" />
+
+  <div>
+    <h2>Carousels</h2>
+
+    <keen-slider :arrows="true" :pagination="true">
+      <div v-for="i in 3">
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--wide' }}
+      </div>
+    </keen-slider>
+
+    <br/>
+
+    <keen-slider
+      arrows="(min-width: 768px)"
+      pagination="(max-width: 767px)"
+      :options="{
+                slides: {
+                  perPage: 2,
+                  spacing: 30
+                },
+                breakpoints: {
+                  '(min-width: 768px)': {
+                    slides: {
+                      perView: 4,
+                      spacing: 30
+                    }
+                  }
+                }
+              }">
+      <div v-for="i in 6">
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      </div>
+    </keen-slider>
+  </div>
+
+  <hr/>
+
+  <div>
+    <h2 class="mt-6 mb-6">Table</h2>
+
+    <table class="responsive-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>SKU</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+          <td colspan="4" class="d-none d-md-table-cell">Subtotal</td>
+          <td data-label="Subtotal">$20.00</td>
+        </tr>
+        <tr>
+          <td colspan="4" class="d-none d-md-table-cell">Tax (GST 10.0%)</td>
+          <td data-label="Tax (GST 10.0%)">$2.00</td>
+        </tr>
+        <tr>
+          <td colspan="4" class="d-none d-md-table-cell">Total</td>
+          <td data-label="Total">$22.00</td>
+        </tr>
+      </tfoot>
+      <tbody>
+        <tr>
+          <td data-label="Product">Sample product title</td>
+          <td data-label="SKU">123456</td>
+          <td data-label="Price">$20.00</td>
+          <td data-label="Quantity">1</td>
+          <td data-label="Total">$20.00</td>
+        </tr>
+        <tr>
+          <td data-label="Product">Sample product title</td>
+          <td data-label="SKU">123456</td>
+          <td data-label="Price">$20.00</td>
+          <td data-label="Quantity">1</td>
+          <td data-label="Total">$20.00</td>
+        </tr>
+        <tr>
+          <td data-label="Product">Sample product title</td>
+          <td data-label="SKU">123456</td>
+          <td data-label="Price">$20.00</td>
+          <td data-label="Quantity">1</td>
+          <td data-label="Total">$20.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="mt-8 pb-8" />
+
+  <div>
+    <h2>Pagination</h2>
+    <div class="pagination">
+      <span class="prev">
+        <a href="?page=4" title="">{% render 'icon', name: 'arrow-left' %}</a>
+      </span>
+      <span class="page">
+        <a href="?page=1" title="">1</a>
+      </span>
+      <span class="deco">…</span>
+      <span class="page">
+        <a href="?page=3" title="">3</a>
+      </span>
+      <span class="page">
+        <a href="?page=4" title="">4</a>
+      </span>
+      <span class="page current">5</span>
+      <span class="page">
+        <a href="?page=6" title="">6</a>
+      </span>
+      <span class="page">
+        <a href="?page=7" title="">7</a>
+      </span>
+      <span class="deco">…</span>
+      <span class="page">
+        <a href="?page=20" title="">20</a>
+      </span>
+      <span class="next">
+        <a href="?page=6" title="">{% render 'icon', name: 'arrow-right' %}</a>
+      </span>
+    </div>
+  </div>
+</div>

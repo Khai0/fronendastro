@@ -1,0 +1,11 @@
+.color-style {
+  @apply flex items-center justify-center w-36 h-36 mr-4 bg-gray-300 text-center;
+
+  &:before {
+    @apply block whitespace-pre-wrap;
+  }
+
+  &--background {
+    @apply w-full bg-light-background text-white;
+  }
+}

@@ -1,0 +1,281 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Astro",
+    "theme_version": "4.0 (OS 2.0)",
+    "theme_author": "MindArc",
+    "theme_documentation_url": "https:\/\/github.com\/mindarc\/astro",
+    "theme_support_url": "https:\/\/www.mindarc.com.au\/"
+  },
+  {
+    "name": "SEO",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Google Search Console"
+      },
+      {
+        "type": "paragraph",
+        "content": "The site will need to be verified via the HTML tag method (in Alternate Methods). Enter the 'content' value of the meta tag below"
+      },
+      {
+        "type": "text",
+        "id": "gsc_verification",
+        "label": "Verification content value"
+      },
+      {
+        "type": "header",
+        "content": "Indexing"
+      },
+      {
+        "type": "checkbox",
+        "id": "is_indexing_disabled",
+        "label": "Stop indexing?",
+        "default": false,
+        "info": "Will add 'noindex, nofollow' robots meta tag."
+      },
+      {
+        "type": "header",
+        "content": "Hreflang meta tags"
+      },
+      {
+        "type": "paragraph",
+        "content": "These meta tags are used to tell search engines that the page exists on other versions of the website, to improve international SEO and reduce duplicate content issues."
+      },
+      {
+        "type": "paragraph",
+        "content": "These tags are global, all pages will have the meta tag. Leave an address field blank to not output an hreflang tag for that website."
+      },
+      {
+        "type": "paragraph",
+        "content": "Language is in ISO 639-1 format, examples are 'en-au', 'en-us'"
+      },
+      {
+        "type": "paragraph",
+        "content": "These settings will need to be the same on all websites."
+      },
+      {
+        "type": "text",
+        "id": "hreflang_au",
+        "label": "AU website address"
+      },
+      {
+        "type": "text",
+        "id": "hreflang_au_language",
+        "label": "AU website language"
+      },
+      {
+        "type": "text",
+        "id": "hreflang_us",
+        "label": "US website address"
+      },
+      {
+        "type": "text",
+        "id": "hreflang_us_language",
+        "label": "US website language"
+      },
+      {
+        "type": "text",
+        "id": "hreflang_nz",
+        "label": "NZ website address"
+      },
+      {
+        "type": "text",
+        "id": "hreflang_nz_language",
+        "label": "NZ website language"
+      },
+      {
+        "type": "text",
+        "id": "hreflang_int",
+        "label": "International website address"
+      },
+      {
+        "type": "text",
+        "id": "hreflang_int_language",
+        "label": "International website language"
+      },
+      {
+        "type": "header",
+        "content": "Theme"
+      },
+      {
+        "type": "color",
+        "id": "theme_color",
+        "label": "Theme colour",
+        "default": "#000000",
+        "info": "SEO meta data purposes only"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo",
+        "info": "SEO meta data purposes only"
+      }
+    ]
+  },
+  {
+    "name": "Customer privacy",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "is_consent_tracking_enabled",
+        "label": "Enable consent tracking prompt?",
+        "info": "Even if enabled, will only display for European customers. Details [here](https://shopify.dev/api/consent-tracking#consent-collection). Uncheck this if you already have an app installed to collect customer consent. Limit data collection in [Online Store > Preferences](http://shopify.com/admin/online_store/preferences)",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "consent_tracking_title",
+        "label": "Title",
+        "default": "We use cookies"
+      },
+      {
+        "type": "richtext",
+        "id": "consent_tracking_message",
+        "label": "Message",
+        "default": "<p>We use third-party cookies to personalise content, ads, and analyse site traffic. View our <a href=\"/policies/privacy-policy\">privacy policy</a> to learn more.</p>"
+      },
+      {
+        "type": "text",
+        "id": "consent_tracking_allow_label",
+        "label": "Allow button label",
+        "default": "Allow cookies"
+      },
+      {
+        "type": "text",
+        "id": "consent_tracking_deny_label",
+        "label": "Deny button label",
+        "default": "Decline"
+      }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Social sharing image"
+      },
+      {
+        "type": "image_picker",
+        "id": "share_image",
+        "label": "Image",
+        "info": "Shown when sharing a link on social media. [Learn more](https:\/\/help.shopify.com\/manual\/using-themes\/troubleshooting\/showing-social-media-thumbnail-images\/) about image thumbnails."
+      },
+      {
+        "type": "header",
+        "content": "Social sharing options"
+      },
+      {
+        "type": "checkbox",
+        "id": "social_sharing_blog",
+        "label": "Enable sharing for blog articles",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "share_facebook",
+        "label": "Share on Facebook",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "share_twitter",
+        "label": "Tweet on Twitter",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "share_pinterest",
+        "label": "Pin on Pinterest",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Sharing links"
+      },
+      {
+        "type": "text",
+        "id": "social_twitter_link",
+        "label": "Twitter link"
+      },
+      {
+        "type": "text",
+        "id": "social_facebook_link",
+        "label": "Facebook link"
+      },
+      {
+        "type": "text",
+        "id": "social_pinterest_link",
+        "label": "Pinterest link"
+      },
+      {
+        "type": "text",
+        "id": "social_instagram_link",
+        "label": "Instagram link"
+      },
+      {
+        "type": "text",
+        "id": "social_snapchat_link",
+        "label": "Snapchat link"
+      },
+      {
+        "type": "text",
+        "id": "social_tiktok_link",
+        "label": "TikTok link"
+      },
+      {
+        "type": "text",
+        "id": "social_tumblr_link",
+        "label": "Tumblr link"
+      },
+      {
+        "type": "text",
+        "id": "social_youtube_link",
+        "label": "Youtube link"
+      },
+      {
+        "type": "text",
+        "id": "social_vimeo_link",
+        "label": "Vimeo link"
+      },
+      {
+        "type": "text",
+        "id": "social_linkedin_link",
+        "label": "LinkedIn link"
+      }
+    ]
+  },
+  {
+    "name": "Product images",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "is_aspect_ratio_forced",
+        "label": "Force aspect ratio?",
+        "default": false
+      },
+      {
+        "type": "range",
+        "id": "aspect_ratio_padding",
+        "min": 70,
+        "max": 170,
+        "step": 1,
+        "label": "Aspect ratio",
+        "default": 100,
+        "info": "Where 100 = square, < 100 = landscape and > 100 = portrait."
+      }
+    ]
+  },
+  {
+    "name": "Cart",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "cart_notes_enable",
+        "label": "Enable cart notes",
+        "default": true
+      }
+    ]
+  }
+]

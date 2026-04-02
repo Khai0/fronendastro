@@ -1,0 +1,22 @@
+<title>
+  {% if template.name == 'search' %}
+    {%- if search.performed -%}
+      {{ 'general.search.searched_title' | t: terms: search.terms }}
+    {%- else -%}
+      {{ 'general.search.title' | t }}
+    {%- endif -%}
+  {% else %}
+    {{ page_title }}
+  {% endif %}
+  {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+  {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+</title>
+
+{%- if page_description -%}
+  <meta name="description" content="{{ page_description | escape }}">
+{%- endif -%}
+
+{%- if settings.theme_color != blank -%}
+  <meta name="theme-color" content="{{ settings.theme_color }}">
+  <meta name="msapplication-TileColor" content="{{ settings.theme_color }}">
+{%- endif -%}

@@ -1,0 +1,76 @@
+{{ 'find-nearest-store.css' | asset_url | stylesheet_tag }}
+
+<section class="find-nearest-store find-nearest-store--{{ section.id }}">
+  <div class="container">
+    <div class="find-nearest-store__inner">
+      <div class="find-nearest-store__left">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="find-nearest-store__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+
+        {%- if section.settings.subheading != blank -%}
+          <p class="find-nearest-store__subheading">{{ section.settings.subheading }}</p>
+        {%- endif -%}
+      </div>
+
+      <div class="find-nearest-store__right">
+        {%- if section.settings.description != blank -%}
+          <div class="find-nearest-store__description">{{ section.settings.description }}</div>
+        {%- endif -%}
+
+        {%- if section.settings.button_label != blank -%}
+          <a
+            class="find-nearest-store__button"
+            href="{{ section.settings.button_link | default: '#' }}">
+            {{ section.settings.button_label }}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Find nearest store",
+    "tag": "section",
+    "class": "section-find-nearest-store",
+    "settings": [
+      {
+        "type": "textarea",
+        "id": "heading",
+        "label": "Heading",
+        "default": "WE'LL ALWAYS HAVE\nTIME FOR YOU"
+      },
+      {
+        "type": "text",
+        "id": "subheading",
+        "label": "Subheading",
+        "default": "Visit us for expert fitting advice"
+      },
+      {
+        "type": "richtext",
+        "id": "description",
+        "label": "Description",
+        "default": "<p>We're here to help you find a solution that has you looking good, feeling confident and seeing more.</p>"
+      },
+      {
+        "type": "text",
+        "id": "button_label",
+        "label": "Button label",
+        "default": "FIND YOUR NEAREST STORE"
+      },
+      {
+        "type": "url",
+        "id": "button_link",
+        "label": "Button link"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Find nearest store",
+        "category": "Text"
+      }
+    ]
+  }
+{% endschema %}

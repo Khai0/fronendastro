@@ -1,0 +1,19 @@
+.collapsible {
+  &__title {
+    @extend .h3;
+    @apply py-4 px-0 cursor-pointer;
+  }
+
+  &__toggle {
+    @apply transition-transform;
+
+    &:before {
+      @apply font-icon content-['\e912'];
+    }
+
+    &--active {
+      @apply rotate-180;
+    }
+  }
+}
+

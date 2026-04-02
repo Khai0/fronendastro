@@ -1,0 +1,66 @@
+<div class="product-item">
+  <a
+    :href="url || product.url || productUrl"
+    :title="product.title"
+    class="space-y-3">
+    {%- comment -%}
+      .product-image class used for forced aspect ratio settings
+    {%- endcomment -%}
+    <div class="product-item__image product-image relative">
+      <responsive-image
+        v-if="media"
+        :is-lazy-load="isLazyLoad"
+        :src="media.src"
+        :base-width="468"
+        :base-height="468 / media.aspect_ratio"
+        :sizes="imgSizes"
+        :alt="media.alt || product.title"
+        class="w-full"
+      ></responsive-image>
+
+      <template v-else>{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</template>
+      <span v-if="isSale" class="product-badge product-badge--sale">{{ 'products.product.on_sale' | t }}</span>
+    </div>
+
+    <h3 class="h5" v-html="product.title"></h3>
+
+    <span class="price" :class="{ 'price--sale': isSale }">${ product.price | currencyFromCents }</span>
+    <s v-if="isSale" class="price price--old">${ product.compare_at_price | currencyFromCents }</s>
+  </a>
+
+  <form @submit.prevent="handleAddToCart" class="hidden lg:block mt-3">
+    <input
+      name="id"
+      :value="currentVariant ? currentVariant.id : product.variants[0].id"
+      type="hidden">
+
+    <template v-if="productOptions.length && !product.has_only_default_variant">
+      <div class="field option" v-for="(option, index) in productOptions">
+        <label
+          :for="'option' + option.position"
+          v-html="option.name"
+          class="sr-only"></label>
+
+        <select
+          :id="product.id + 'option' + option.position"
+          :name="'options[' + option.name + ']'"
+          v-model="selectedOptions[index]"
+          @change="updateVariant">
+          <option value="">Select ${ option.name }...</option>
+          <option
+            v-for="value in option.values"
+            :value="value"
+            v-html="value"></option>
+        </select>
+      </div>
+    </template>
+
+    <button-spinner
+      :is-loading="isAddingToCart"
+      class="button button--primary w-full"
+      :disabled="!currentVariant || !currentVariant.available">
+      <span v-if="!currentVariant || currentVariant.available">{{ 'products.product.add_to_cart' | t }}</span>
+      <span v-else>{{ 'products.product.sold_out' | t }}</span>
+    </button-spinner>
+  </form>
+</div>

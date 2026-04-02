@@ -1,0 +1,18 @@
+.errors,
+.form-success,
+.info {
+  @apply my-8;
+}
+
+.errors,
+  [class*="--error"] {
+  @apply text-error;
+}
+
+.form-success {
+  @apply text-success;
+}
+
+.info {
+  @apply text-info;
+}

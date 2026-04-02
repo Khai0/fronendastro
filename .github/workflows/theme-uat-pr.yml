@@ -1,0 +1,382 @@
+name: UAT Theme Deploy (Pull Request)
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - 'UAT_*'
+
+jobs:
+  notifyslackstart:
+    name: Notify Slack Channel (Job Start)
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'UAT_')
+    runs-on: ubuntu-latest
+    outputs:
+      ts: ${{ steps.slack-started.outputs.ts }}
+    environment: ${{ vars.PRIMARY_UAT_STORE }}
+    steps:
+      - name: Post to a Slack channel (Started)
+        id: slack-started
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*UAT* Deployment started",
+                  "color": "#FFA500",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "In Progress"
+                    },
+                    {
+                      "title": "Store",
+                      "short": true,
+                      "value": "${{ vars.PRIMARY_UAT_STORE }}"
+                    },
+                    {
+                      "title": "Workflow Logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ],
+              "as_user": "MindArc Jane"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+
+  deploy:
+    name: Deploy Shopify Theme
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'UAT_')
+    runs-on: ubuntu-latest
+    environment: ${{ vars.PRIMARY_UAT_STORE }}
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+          bundler: latest
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@3.54.0 @shopify/theme@3.54.0
+
+      - name: Determine Theme Action
+        id: determine-theme-action
+        run: |
+          # Determine deployment configuration
+          # List themes, grep on unpublished themes, count and then remove any whitespace
+          themecount=$(shopify theme list | grep "unpublished" | wc -l | tr -d '[:space:]')
+          echo "Unpublished theme count: $themecount"
+
+          # Get the live theme id, grep on hash numbers and then remove the hash
+          liveid=$(shopify theme list --role live | grep -o '#[0-9]\+' | sed 's/#//')
+          echo "Live theme id: $liveid"
+          echo "LIVE_THEME_ID=$liveid" >> "$GITHUB_ENV"
+
+          # Check to ensure that there is enough space to publish a theme
+          if [ "$themecount" -gt "${{ vars.MAX_THEME_COUNT }}" ] && [ -z "${{ github.event.inputs.themename }}" ]; then
+              echo "The maximum allowed no. of themes has been reached, please login to ${{ github.event.inputs.environment }}, remove some unpublished themes and then try again"
+              exit 1
+          fi
+
+          # Check if theme name exists with repository variable PRIMARY_UAT_THEME
+          if [ -z "$vars.PRIMARY_UAT_THEME" ]; then
+            echo "Creating theme: Default UAT theme (since PRIMARY_UAT_THEME was not provided)"
+            echo "ACTION=create-default" >> "$GITHUB_ENV"
+          else
+            theme_id=$(shopify theme list --name "${{ vars.PRIMARY_UAT_THEME }}" | grep -o '#[0-9]\+' | sed 's/#//')
+            if [ $? -ne 0 ] || [ -z "$theme_id" ]; then
+              echo "Creating theme: ${{ vars.PRIMARY_UAT_THEME }}"
+              echo "ACTION=create" >> "$GITHUB_ENV"
+            else
+              echo "Updating theme: $theme_id - ${{ vars.PRIMARY_UAT_THEME }}"
+              echo "ACTION=update" >> "$GITHUB_ENV"
+              echo "TARGET_THEME_ID=$theme_id" >> "$GITHUB_ENV"
+            fi
+          fi
+        env:
+          SHOPIFY_FLAG_STORE: ${{ vars.PRIMARY_UAT_STORE }}
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          SHOPIFY_CLI_TTY: 0
+
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        if: ${{ vars.IS_ASTRO == '1' }}
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        if: ${{ vars.IS_ASTRO == '1' }}
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        if: ${{ vars.IS_ASTRO == '1' }}
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies and build
+        if: ${{ vars.IS_ASTRO == '1' }}
+        run: pnpm install && pnpm build-prod
+
+      - name: Install dependencies and build (Yarn)
+        if: ${{ vars.IS_ASTRO == '0' }}
+        run: yarn install && yarn run build-prod
+
+      - name: Create Theme (Default)
+        if: env.ACTION == 'create-default'
+        env:
+          SHOPIFY_FLAG_STORE: ${{ vars.PRIMARY_UAT_STORE }}
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          SHOPIFY_CLI_TTY: 0
+          SHOPIFY_CLI_STACKTRACE: 1
+        run: |
+          shopifyresponse=$(shopify theme push --path . --unpublished --theme "MindArc UAT" --ignore "config/*.json" --json | jq -r '.theme.preview_url')
+          echo $shopifyresponse
+          echo "SHOPIFY_RESPONSE=$shopifyresponse" >> "$GITHUB_ENV"
+
+      - name: Create Theme
+        if: env.ACTION == 'create'
+        env:
+          SHOPIFY_FLAG_STORE: ${{ vars.PRIMARY_UAT_STORE }}
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          SHOPIFY_CLI_TTY: 0
+          SHOPIFY_CLI_STACKTRACE: 1
+        run: |
+          shopifyresponse=$(shopify theme push --path . --unpublished --theme "${{ vars.PRIMARY_UAT_THEME }}" --ignore "config/*.json" --json | jq -r '.theme.preview_url')
+          echo $shopifyresponse
+          echo "SHOPIFY_RESPONSE=$shopifyresponse" >> "$GITHUB_ENV"
+
+      - name: Update Existing Theme
+        if: env.ACTION == 'update'
+        run: |
+          shopifyresponse=$(shopify theme push --path . --theme "$TARGET_THEME_ID" --ignore "config/*.json" --json | jq -r '.theme.preview_url')
+          echo $shopifyresponse
+          echo "SHOPIFY_RESPONSE=$shopifyresponse" >> "$GITHUB_ENV"
+        env:
+          SHOPIFY_FLAG_STORE: ${{ vars.PRIMARY_UAT_STORE }}
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          SHOPIFY_CLI_TTY: 0
+          SHOPIFY_CLI_STACKTRACE: 1
+
+      - name: Persist job status
+        if: always()
+        run: echo "SHOPIFY_RESPONSE=${{ env.SHOPIFY_RESPONSE }}" > shopify_response.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shopify-result-${{ matrix.runs-on }}
+          path: shopify_response.txt
+
+  notifyslackfinish:
+    name: Notify Slack Channel (Result)
+    runs-on: ubuntu-latest
+    needs: 
+      - notifyslackstart
+      - deploy
+    if: always()
+    environment: ${{ vars.PRIMARY_UAT_STORE }}
+    steps:
+      - name: Get Deployment variables
+        if: needs.deploy.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: shopify-result-*
+          merge-multiple: true
+
+      - name: Read Environment Variable
+        if: needs.deploy.result == 'success'
+        run: |
+          echo "$(cat shopify_response.txt)" >> "$GITHUB_ENV"
+
+      - name: Post to a Slack channel (Success)
+        if: needs.deploy.result == 'success'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          update-ts: ${{ needs.notifyslackstart.outputs.ts }}
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*UAT* Deployment complete",
+                  "color": "#36a64f",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "Success"
+                    },
+                    {
+                      "title": "Store",
+                      "short": true,
+                      "value": "${{ vars.PRIMARY_UAT_STORE }}"
+                    },
+                    {
+                      "title": "Workflow Logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    },
+                    {
+                      "title": "Preview Link",
+                      "short": true,
+                      "value": "<${{ env.SHOPIFY_RESPONSE }}|Preview Theme Link>"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ],
+              "as_user": "MindArc Jane"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+
+      - name: Post to a Slack channel (Failed)
+        if: needs.deploy.result == 'failure'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          update-ts: ${{ needs.notifyslackstart.outputs.ts }}
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*UAT* Deployment failed",
+                  "color": "#FF0000",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "Failed"
+                    },
+                    {
+                      "title": "Store",
+                      "short": true,
+                      "value": "${{ vars.PRIMARY_UAT_STORE }}"
+                    },
+                    {
+                      "title": "Workflow logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ],
+              "as_user": "MindArc Jane"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+
+      - name: Post to a Slack channel (Cancelled)
+        if: needs.deploy.result == 'cancelled'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          update-ts: ${{ needs.notifyslackstart.outputs.ts }}
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*UAT* Deployment cancelled",
+                  "color": "#FF0000",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "Cancelled"
+                    },
+                    {
+                      "title": "Store",
+                      "short": true,
+                      "value": "${{ vars.PRIMARY_UAT_STORE }}"
+                    },
+                    {
+                      "title": "Workflow logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}

@@ -1,0 +1,115 @@
+{% comment %}
+  QR code is rendered in `#QrCode`
+
+  `gift_card.pass_url` is true if apple wallet is enabled for the shop
+{% endcomment %}
+
+{% layout none %}
+
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="canonical" href="{{ canonical_url }}">
+
+  {% render 'head__favicon' %}
+
+  {%- assign formatted_initial_value = gift_card.initial_value | money_without_trailing_zeros: gift_card.currency -%}
+  {%- assign formatted_initial_value_stripped = formatted_initial_value | strip_html -%}
+  <title>{{ 'gift_cards.issued.title' | t: value: formatted_initial_value_stripped, shop: shop.name }}</title>
+
+  <meta name="description" content="{{ 'gift_cards.issued.subtext' | t }}">
+  
+  <script src="{{ 'gift_card.js' | asset_url }}" defer></script>
+
+  {{ content_for_header }}
+
+  {{ 'gift_card.css' | asset_url | stylesheet_tag }}
+</head>
+
+<body class="template-giftcard">
+  <main role="main" id="main-content" class="container flex items-center print:items-start p-4">
+    <div class="rounded-md border border-[#e1e1e1] bg-[#eee] md:w-1/2 text-center p-4 md:my-4 mx-auto animate-[slideup_0.8s_ease-in-out] shadow-[0_0_5px_1px_rgba(0,0,0,0.1)] print:max-w-[80%] print:p-0 print:border-none print:shadow-none print:bg-transparent">
+      <div class="rounded-md border border-[#e1e1e1] bg-white py-6 px-6 md:px-8 py-md-4 px-md-5 print:p-0 print:border-none">
+        <header role="banner">
+          <h1 class="mb-3 md:mb-4">
+            <a href="{{ shop.url }}" class="logo-image flex justify-center m-auto" title="{{ shop.name }}">
+              {% render 'icon', name: 'logo', class: 'max-w-[150px]' %}
+            </a>
+          </h1>
+          <div class="hidden print:block -mt-3 mb-3">{{ shop.url | escape }}</div>
+        </header>
+    
+        <section class="giftcard p-0 {% if gift_card.expired or gift_card.enabled != true %} giftcard--disabled{% endif %}">
+    
+          <h1 class="mb-4">{{ 'gift_cards.issued.subtext' | t }}</h1>
+    
+          <div class="relative mb-4 md:mb-5 
+            
+            before:absolute before:w-0 before:h-0 before:content-[''] before:z-10 before:lg:border-[length:var(--wrap-corner-size)]
+            before:top-0 before:left-0 before:border-[length:var(--wrap-corner-size--mobile)] before:border-white before:border-r-transparent before:border-b-transparent before:shadow-[-1px_-1px_1px_0px_rgba(0,0,0,0.1)]
+            
+            after:absolute after:w-0 after:h-0 after:content-[''] after:z-10 after:lg:border-[length:var(--wrap-corner-size)]
+            after:right-0 after:bottom-0 after:border-[length:var(--wrap-corner-size--mobile)] after:border-white after:border-t-transparent after:border-l-transparent after:shadow-[2px_2px_1px_0px_rgba(0,0,0,0.1)]
+            
+            print:before:hidden print:after:hidden
+          ">
+            <img src="{{ 'gift-card/card.jpg' | shopify_asset_url }}" alt="{{ 'gift_cards.issued.image_alt' | t }}" class="rounded-md lg:rounded-md">
+    
+            {% assign formatted_initial_value = gift_card.initial_value | money_without_trailing_zeros: gift_card.currency %}
+            <h2 class="absolute top-2 right-2 text-white text-lg font-bold lg:top-4 lg:right-4 lg:text-4xl">
+              <span class="sr-only">{{ 'gift_cards.issued.initial_value' | t }}</span>
+              {{ formatted_initial_value }}
+            </h2>
+    
+            {%- assign code_size = gift_card.code | format_code | size -%}
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 p-1 bg-white rounded-md text-xs font-bold shadow-[0_0_0_1px_rgba(0,0,0,0.1)] whitespace-nowrap lg:bottom-4 lg:text-lg">
+              <div id="GiftCardDigits" class="border border-dashed border-[#ddd] p-2 leading-none" data-gift-card-digits>{{ gift_card.code | format_code }}</div>
+            </div>
+          </div>
+    
+          {% unless gift_card.enabled %}
+            <span class="block -mt-4 mb-4 text-error">{{ 'gift_cards.issued.disabled' | t }}</span>
+          {% endunless %}
+    
+          {% if gift_card.expired and gift_card.enabled %}
+            {%- assign gift_card_expiry_date = gift_card.expires_on | date: "%d/%m/%y" -%}
+            <span class="block -mt-4 mb-4 text-error">{{ 'gift_cards.issued.expired' | t: expiry: gift_card_expiry_date }}</span>
+          {% endif %}
+    
+          {% if gift_card.expired != true and gift_card.expires_on and gift_card.enabled %}
+            <span class="block -mt-4 mb-4 text-success">{{ 'gift_cards.issued.active' | t: expiry: gift_card_expiry_date }}</span>
+          {% endif %}
+    
+          {% if gift_card.balance != gift_card.initial_value %}
+            {% assign formatted_current_balance = gift_card.balance | money %}
+            <p>{{ 'gift_cards.issued.remaining_html' | t: balance: formatted_current_balance }}</p>
+          {% endif %}
+    
+          <p class="mb-2 md:mb-3">{{ 'gift_cards.issued.redeem' | t }}</p>
+    
+          <canvas id="QrCode" class="block mx-auto mb-2 md:mb-3" data-identifier="{{ gift_card.qr_identifier }}" data-gift-card-qr></canvas>
+        
+          {% if gift_card.pass_url %}
+            <a href="{{ gift_card.pass_url }}" class="apple-wallet block print:hidden mb-4">
+              <img class="block my-0 mx-auto" src="{{ 'gift-card/add-to-apple-wallet.svg' | shopify_asset_url }}" width="120" height="40" alt="{{ 'gift_cards.issued.add_to_apple_wallet' | t }}">
+            </a>
+          {% endif %}
+    
+          <div class="print:hidden">
+            <a href="{{ shop.url }}" class="button button--primary w-full max-w-[200px] mb-2 md:mb-3" target="_blank">{{ 'gift_cards.issued.shop_link' | t }}</a>
+          </div>
+    
+          <div class="print:hidden">
+            <button id="PrintGiftCard" class="button button--secondary w-full max-w-[200px]" data-gift-card-print>
+              {{ 'gift_cards.issued.print' | t }}
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

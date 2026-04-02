@@ -1,0 +1,21 @@
+<div class="wishlist-wrapper">
+    <div class="row">
+        <div class="col-md-4">
+            <h1 class="mt-md-4">{{pageTitle}}</h1>
+            {{sysMessage}}
+            <div class="rte">
+                <div class="mb-3">
+                    {{ 'apps.iwish.description' | t }}
+                </div>
+                {% unless customer %}
+                    <p>Wish list is not saved permanently yet. Please <a href="{{loginUrl}}">login</a> or <a href="{{registerUrl}}">create an account</a> to save it.</p>
+                {% endunless %}
+                <div>
+                    {{shareWishlist}}
+                </div>
+            </div>
+        </div>
+    
+        {{productSnippet}}
+    </div>
+</div>

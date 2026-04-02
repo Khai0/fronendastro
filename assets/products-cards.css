@@ -1,0 +1,127 @@
+.eyewear-cards {
+  padding: 38px 0 56px;
+  background: #efefef;
+}
+
+.eyewear-cards .container {
+  max-width: 1337px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.eyewear-cards__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(320px, 421px));
+  column-gap: 28px;
+  row-gap: 0;
+  justify-content: center;
+  align-items: start;
+}
+
+.eyewear-cards__item {
+  text-align: center;
+  max-width: 421px;
+  width: 100%;
+}
+
+.eyewear-cards__media {
+  background: #ddd6bf;
+  overflow: hidden;
+}
+
+.eyewear-cards__image,
+.eyewear-cards__placeholder {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 421 / 527;
+  object-fit: cover;
+}
+
+.eyewear-cards__title {
+  margin: 18px auto 18px;
+  max-width: 350px;
+  font-family: Assistant, sans-serif;
+  font-size: clamp(2.15rem, 2.05vw, 2.95rem);
+  font-weight: 400;
+  line-height: 1.22;
+  letter-spacing: 0;
+  color: #222;
+}
+
+.eyewear-cards__button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 280px;
+  min-height: 50px;
+  padding: 10px 28px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #202125 0%, #101114 100%);
+  color: #ffffff;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.eyewear-cards__button:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.24);
+}
+
+@media (max-width: 1023px) {
+  .eyewear-cards {
+    padding: 30px 0 46px;
+  }
+
+  .eyewear-cards .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .eyewear-cards__grid {
+    gap: 16px;
+  }
+
+  .eyewear-cards__title {
+    margin-top: 14px;
+    margin-bottom: 14px;
+    font-size: clamp(1.55rem, 2.8vw, 2rem);
+  }
+
+  .eyewear-cards__button {
+    min-width: 220px;
+    min-height: 42px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .eyewear-cards {
+    padding: 42px 0 50px;
+  }
+
+  .eyewear-cards__grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .eyewear-cards__title {
+    max-width: 100%;
+    margin: 14px auto 12px;
+    font-size: clamp(1.35rem, 6vw, 1.8rem);
+  }
+
+  .eyewear-cards__button {
+    width: 88%;
+    min-width: 0;
+    max-width: 300px;
+    min-height: 42px;
+    font-size: 12px;
+  }
+}

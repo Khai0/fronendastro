@@ -1,0 +1,35 @@
+<section>
+  <div class="customer">
+    <h1 class="customer__title">{{ 'customer.activate_account.title' | t }}</h1>
+    <p>{{ 'customer.activate_account.subtext' | t }}</p>
+
+    {% form 'activate_customer_password' %}
+      {{ form.errors | default_errors }}
+
+      <div class="field {%- if form.errors contains 'password' %} field--error {%- endif %}">
+        <label for="password">{{ 'customer.activate_account.password' | t }}</label>
+        <input 
+          type="password"
+          name="customer[password]"
+          id="password"
+          placeholder="{{ 'general.misc.generic_placeholder' | t }}"
+        >
+      </div>
+
+      <div class="field {%- if form.errors contains 'password_confirmation' %} field--error {%- endif %}">
+        <label for="password_confirmation">{{ 'customer.activate_account.password_confirm' | t }}</label>
+        <input 
+          type="password"
+          name="customer[password_confirmation]"
+          id="password_confirmation"
+          placeholder="{{ 'general.misc.generic_placeholder' | t }}"
+        >
+      </div>
+
+      <div class="customer__buttons">
+        <button type="submit" class="button button--primary mb-2">{{ 'customer.activate_account.submit' | t }}</button>
+        <button type="submit" class="button button--secondary" name="decline">{{ 'customer.activate_account.cancel' | t }}</button>
+      </div>
+    {% endform %}
+  </div>
+</section>

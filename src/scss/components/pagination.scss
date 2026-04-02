@@ -1,0 +1,60 @@
+$pagination-box-size: 32px;
+
+.pagination {
+  @apply flex justify-center;
+
+  > * {
+    @apply relative flex items-center justify-center min-w-[2.5rem] min-h-[2.5rem] px-3 rounded-full leading-none cursor-pointer overflow-hidden;
+
+    transition: 
+      transform 0.2s ease,
+      color 0.25s ease;
+
+    + * {
+      @apply ml-2;
+    }
+
+    a {
+      @apply flex items-center justify-center w-full h-full text-current relative z-10;
+    }
+
+    /* nền animation */
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      border-radius: 999px;
+      transform: scale(0);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* hover mượt */
+    &:hover {
+      @apply text-white;
+      transform: translateY(-2px);
+    }
+
+    &:hover::before {
+      transform: scale(1);
+    }
+
+    /* active */
+    &.current {
+      @apply text-white;
+    }
+
+    &.current::before {
+      transform: scale(1);
+    }
+
+    /* click */
+    &:active {
+      transform: scale(0.9);
+    }
+
+    &.deco {
+      @apply pointer-events-none;
+    }
+  }
+}

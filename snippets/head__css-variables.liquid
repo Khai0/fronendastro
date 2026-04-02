@@ -1,0 +1,25 @@
+{% style %}
+  :root {
+      --img-aspect-ratio-padding: {{ settings.aspect_ratio_padding }}%;
+  }
+
+  {%- if settings.is_aspect_ratio_forced %}
+    .product-image {
+      position: relative;
+      display: block;
+      padding-bottom: var(--img-aspect-ratio-padding, 100%);
+      background: #fff;
+    }
+
+    .product-image > img:not(.zoom),
+    .product-image > .placeholder-svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+    } 
+  {% endif %}
+{% endstyle %}

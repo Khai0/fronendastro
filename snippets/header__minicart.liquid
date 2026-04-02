@@ -1,0 +1,86 @@
+<transition name="fade">
+  <div v-if="flyouts.minicart" class="mask mask--dark" @click="toggleFlyout('minicart')"></div>
+</transition>
+
+<transition name="slide-down">
+  <minicart inline-template v-show="flyouts.minicart">
+    <div class="minicart cart absolute top-full right-0 w-full lg:max-w-[320px] max-h-screen p-4 bg-white overflow-y-auto">
+
+      <div v-if="cart && cart.item_count">
+        <div class="minicart__items space-y-4">
+          <div v-for="(item, index) in cart.items" :key="item.key" class="relative">
+            <div class="mask mask--loading" v-if="item.isLoading"><span class="spinner">{{ 'general.misc.loading' | t }}</span></div>
+            <div class="flex gap-4">
+              <div class="minicart__item__image basis-5/12">
+                <a :href="item.url" :title="item.product_title">
+                  {%- comment -%}
+                  .product-image class used for forced aspect ratio settings
+                  {%- endcomment -%}
+                  <div class="product-image">
+                    <responsive-image
+                      v-if="item.image"
+                      :src="item.image.src | imageSize(128)"
+                      :base-width="128"
+                      :base-height="128 / item.image.aspect_ratio"
+                      sizes="128px"
+                      :alt="item.image.alt"
+                    ></responsive-image>
+                    <template v-else>{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</template>
+                  </div>
+                </a>
+              </div>
+              <div class="basis-7/12 space-y-2">
+                <div class="product-name">
+                  <a :href="item.url" :title="item.product_title">
+                    {%- comment -%}
+                    v-html used to render product_title incase of escaped characters. See template/cata.data.liquid
+                    {%- endcomment -%}
+                    <strong v-html="item.product_title"></strong>
+                  </a>
+                </div>
+                <div v-if="item.has_variant">
+                  <div v-for="option in item.options_with_values" :key="option.name">
+                    <strong>${ option.name }</strong>: <span>${ option.value }</span>
+                  </div>
+                </div>
+                <div v-if="Object.keys(publicProperties(item)).length">
+                  <div v-for="(value, key) in publicProperties(item)" class="minicart-item flex-column mb-1">
+                    <strong class="break-word minicart-item__label">${ key }:</strong> <span class="break-word minicart-item__value" v-html="value"></span>
+                  </div>
+                </div>
+                <div>
+                  <span class="price" :class="{ 'price--sale': item.compare_at_price }">${ item.final_price | currencyFromCents }</span>
+                  <s v-if="item.compare_at_price" class="price price--old">${ item.compare_at_price | currencyFromCents }</s>
+                </div>
+                <quantity-field :value="item.quantity" @update-quantity="value => updateItem(item, item.quantity = value)" :is-zero-allowed="true" style-modifier="compact"></quantity-field>
+                <div v-if="item.message">
+                  <small class="cart__item__message cart__item__message--error">${ item.message }</small>
+                </div>
+                <button @click="updateItem(item, 0)" class="cart__item__remove"><small>{{ 'cart.general.remove' | t }}</small></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <div class="subtotal"><strong>{{ 'cart.general.subtotal' | t }}</strong></div>
+            <div><strong>${ cart.total_price | currencyFromCents }</strong></div>
+          </div>
+    
+          <a href="{{ routes.cart_url }}" class="button button--secondary w-full">
+            <span>{{ 'cart.general.view_cart' | t }}</span>
+          </a>
+    
+          <a href="/checkout" class="button button--primary w-full">
+            <span>{{ 'cart.general.checkout' | t }}</span>
+          </a>
+        </div>
+      </div>
+      <div v-else class="cart__empty text-center">
+        <p class="mb-3">{{ 'cart.general.empty' | t }}</p>
+        <button class="button" @click="toggleFlyout('minicart')">{{ 'cart.general.continue_browsing' | t }}</button>
+      </div>
+    </div>
+  </minicart>
+</transition>

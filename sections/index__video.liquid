@@ -1,0 +1,90 @@
+<div
+  vue-init
+  v-cloak
+>
+  {% for block in section.blocks %}
+    {% if block.type == 'video' %}
+      {%- capture sources_data -%}
+        {%- assign video_sources = block.settings.video.sources | where: "format", "mp4" -%}
+        {%- for video_source in video_sources -%}
+          '{{ video_source.url }}'{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+      {% if block.settings.video.id %}
+        <video-wrapper
+          :is-lazy-loaded="{{ block.settings.lazyload }}"
+          video-type="html"
+          video-id="{{ block.settings.video.id }}"
+          aspect-ratio="100%"
+          :is-autoplay="true"
+          :is-mute="true"
+          :sources="[{{ sources_data }}]"
+          thumbnail="{{ block.settings.video.preview_image }}"
+          thumbnail-alt="{{ block.settings.video.alt }}"
+          classes="w-full"
+        ></video-wrapper>
+      {% endif %}
+    {% else %}
+      {% if block.settings.video_url.id %}
+        <video-wrapper
+        video-type="{{ block.settings.video_url.type }}"
+        video-id="{{ block.settings.video_url.id }}"
+        aspect-ratio="100%"
+        :is-autoplay="true"
+        :is-mute="true"
+      ></video-wrapper>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% schema %}
+  {
+    "name": "Video",
+    "tag": "section",
+    "settings": [
+    ],
+    "max_blocks": 1,
+    "blocks": [
+      {
+        "type": "video",
+        "name": "Shopify-hosted video",
+        "settings": [
+          {
+            "type": "video",
+            "id": "video",
+            "label": "A Shopify-hosted video",
+            "info": "To optimize performance, use .mp4 format, compress the file while maintaining quality, and remove sound if unnecessary."
+          },
+          {
+            "type": "checkbox",
+            "id": "lazyload",
+            "label": "Lazy load video?",
+            "default": true
+          }
+        ]
+      },
+      {
+        "type": "video_url",
+        "name": "Youtube or Vimeo",
+        "settings": [
+          {
+            "type": "video_url",
+            "id": "video_url",
+            "label": "A Youtube or Vimeo URL",
+            "accept": [
+              "youtube",
+              "vimeo"
+            ]
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Video",
+        "category": "Video"
+      }
+    ]
+  }
+{% endschema %}

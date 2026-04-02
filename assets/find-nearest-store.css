@@ -1,0 +1,86 @@
+.find-nearest-store {
+  background: linear-gradient(90deg, #1a1c20 0%, #191b1f 100%);
+  color: #fff;
+  padding: 72px 0;
+}
+
+.find-nearest-store__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.find-nearest-store__heading {
+  margin: 0;
+  white-space: pre-line;
+  line-height: 1.15;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.find-nearest-store__subheading {
+  margin: 18px 0 0;
+  color: #f4f4f5;
+  font-size: 33px;
+}
+
+.find-nearest-store__description {
+  color: #ededed;
+  font-size: 22px;
+  line-height: 1.55;
+}
+
+.find-nearest-store__description p {
+  margin: 0;
+}
+
+.find-nearest-store__button {
+  margin-top: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0f172a;
+  text-decoration: none;
+  padding: 0 24px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.find-nearest-store__button:hover {
+  transform: translateY(-1px);
+  opacity: 0.94;
+}
+
+@media (max-width: 991px) {
+  .find-nearest-store {
+    padding: 58px 0;
+  }
+
+  .find-nearest-store__inner {
+    gap: 30px;
+  }
+
+  .find-nearest-store__subheading,
+  .find-nearest-store__description {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 767px) {
+  .find-nearest-store {
+    padding: 44px 0;
+  }
+
+  .find-nearest-store__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}

@@ -1,0 +1,149 @@
+
+{% comment %}
+  Renders facets (filtering and sorting)
+  
+  Accepts:
+  - results: {Object} Collection or Search object
+  
+  Usage:
+  {% render 'facets', results: collection %}
+{% endcomment %}
+
+<div class="active-filters">
+  {%- assign is_filtered = false -%}
+  {%- for filter in results.filters -%}
+    {%- if filter.type == "price_range" -%}
+      {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+        {%- assign is_filtered = true -%}
+        <a class="active-filters__remove-filter" href="{{ filter.url_to_remove }}">
+          {%- assign min_value = filter.min_value.value | default: 0 -%}
+          {%- assign max_value = filter.max_value.value | default: filter.range_max -%}
+          {{ min_value | money }} - {{ max_value | money }} &times;
+        </a>
+      {%- endif -%}
+    {%- else -%}
+      {%- for filter_value in filter.active_values -%}
+        {%- assign is_filtered = true -%}
+        <a class="active-filters__remove-filter" href="{{ filter_value.url_to_remove }}">
+          {{ filter_value.label }} &times;
+        </a>
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+</div>
+
+{%- if is_filtered -%}
+  <div class="my-3">
+    {%- liquid 
+      assign sort_query = ''
+      if results.sort_by != blank
+        assign sort_query = '?sort_by=' | append: results.sort_by
+      endif
+    -%}
+    <a href="{{ results.url | append: sort_query }}" class="link">{{ 'collections.sidebar.clear_all' | t }}</a>
+  </div>
+{%- endif -%}
+
+<vue-collapsible :is-desktop-disabled="true">
+  <template v-slot:title>
+    <h2>{{ 'collections.sidebar.filter_by' | t }}</h2>
+  </template>
+  <template>
+    <form ref="filtersForm">
+      <input type="hidden" name="sort_by" :value="sortBy">
+      {% if template == 'search' %}
+        <input type="hidden" name="q" value="{{ search.terms }}" />
+        <input type="hidden" name="type" value="product" />
+        <input type="hidden" name="options[prefix]" value="last">
+      {% endif %}
+
+      {%- for filter in results.filters -%}
+        <div class="collection__filter mb-4">
+          <div>
+            <h3>{{ filter.label }}</h3>
+
+            {%- if filter.active_values.size > 0 -%}
+              <span>{{ 'collections.sidebar.active_filters_selected_count' | t: filter: filter.active_values.size }}</span>
+
+              <div class="actions mt-3">        
+                <a href="{{ filter.url_to_remove }}" class="link">{{ 'collections.sidebar.reset_filter' | t }}</a>
+              </div>
+            {%- endif -%}
+          </div>
+      
+          {%- case filter.type -%}
+            {%- when 'list' -%}
+              <ul>
+                {%- for filter_value in filter.values -%}
+                  <li class="my-2">
+                    <input type="checkbox"
+                      @change="submitFilters"
+                      name="{{ filter_value.param_name }}"
+                      value="{{ filter_value.value }}"
+                      id="Filter-{{ filter.param_name }}-{{ forloop.index }}"
+                      {% if filter_value.active -%}checked{%- endif %}
+                      {% if filter_value.count == 0 and filter_value.active == false -%}disabled{%- endif %}
+                    >
+                    <label 
+                      for="Filter-{{ filter.param_name }}-{{ forloop.index }}"
+                      {% if filter_value.count == 0 and filter_value.active == false -%}class="text-muted"{%- endif %}
+                    >
+                      <span>{{ filter_value.label }}</span>
+                      {% if filter_value.count > 0 %}
+                        <span class="d-inline-block ml-2">({{ filter_value.count }})</span>
+                      {% endif %}
+                    </label>
+                  </li>
+                {%- endfor -%}
+              </ul>
+
+            {%- when 'price_range' -%}
+              <div class="price-range flex items-center">
+                <div>
+                  <div class="flex items-center">
+                    <input name="{{ filter.min_value.param_name }}"
+                      id="Filter-{{ filter.min_value.param_name }}"
+                      {% if filter.min_value.value -%}
+                        value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                      {%- endif %}
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      class="price-range__input"
+                    >
+                  </div>
+
+                  <label for="Filter-{{ filter.min_value.param_name }}" class="sr-only">{{ 'collections.sidebar.price_range.from' | t }}</label>
+                </div>
+
+                <div class="mx-2">-</div>
+                
+                <div>
+                  <div class="flex items-center">
+                    <input name="{{ filter.max_value.param_name }}"
+                      id="Filter-{{ filter.max_value.param_name }}"
+                      {% if filter.max_value.value -%}
+                        value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                      {%- endif %}
+                      type="number"
+                      placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      min="0"
+                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      class="price-range__input"
+                    >
+                  </div>
+
+                  <label for="Filter-{{ filter.max_value.param_name }}" class="sr-only">{{ 'collections.sidebar.price_range.to' | t }}</label>
+                </div>
+
+                <div class="actions ml-3">
+                  <input type="submit" value="{{ 'collections.sidebar.price_range.submit' | t }}" class="button">
+                </div>
+              </div>
+          {%- endcase -%}
+        </div>
+      {%- endfor -%}
+    </form>
+  </template>
+</vue-collapsible>

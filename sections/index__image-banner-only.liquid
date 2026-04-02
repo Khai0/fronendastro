@@ -1,0 +1,60 @@
+<section class="image-banner-only image-banner-only--{{ section.id }}">
+  {%- capture banner_content -%}
+    {%- if section.settings.banner_image != blank -%}
+      {{
+        section.settings.banner_image
+        | image_url: width: 2200
+        | image_tag:
+          class: 'image-banner-only__img',
+          alt: section.settings.alt_text,
+          loading: 'lazy',
+          widths: '768,1024,1440,1920,2200',
+          sizes: '100vw'
+      }}
+    {%- else -%}
+      {{ 'lifestyle-2' | placeholder_svg_tag: 'image-banner-only__placeholder' }}
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- if section.settings.banner_link != blank -%}
+    <a href="{{ section.settings.banner_link }}" class="image-banner-only__link">
+      {{ banner_content }}
+    </a>
+  {%- else -%}
+    {{ banner_content }}
+  {%- endif -%}
+</section>
+
+{{ 'image-banner-only.css' | asset_url | stylesheet_tag }}
+
+{% schema %}
+  {
+    "name": "Image banner only",
+    "tag": "section",
+    "class": "section-image-banner-only",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "banner_image",
+        "label": "Banner image"
+      },
+      {
+        "type": "text",
+        "id": "alt_text",
+        "label": "Alt text",
+        "default": "Promotional banner"
+      },
+      {
+        "type": "url",
+        "id": "banner_link",
+        "label": "Banner link"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Image banner only",
+        "category": "Image"
+      }
+    ]
+  }
+{% endschema %}

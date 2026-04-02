@@ -1,0 +1,148 @@
+{% if paginate.pages > 1 %}
+  <nav class="pagination">
+    <ul class="pagination__list">
+
+      {% if paginate.previous %}
+        <li>
+          <a href="{{ paginate.previous.url }}" class="pagination__item pagination__arrow">
+            <span>←</span>
+          </a>
+        </li>
+      {% endif %}
+
+      {% for part in paginate.parts %}
+        {% if part.is_link %}
+          <li>
+            <a href="{{ part.url }}" class="pagination__item">
+              <span>{{ part.title }}</span>
+            </a>
+          </li>
+        {% else %}
+          <li>
+            <span class="pagination__item is-active">
+              <span>{{ part.title }}</span>
+            </span>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if paginate.next %}
+        <li>
+          <a href="{{ paginate.next.url }}" class="pagination__item pagination__arrow">
+            <span>→</span>
+          </a>
+        </li>
+      {% endif %}
+
+    </ul>
+  </nav>
+{% endif %}
+<script>
+  document.addEventListener('click', function(e) {
+  const link = e.target.closest('.pagination a')
+  if (!link) return
+
+  e.preventDefault()
+
+  document.body.classList.add('page-loading')
+
+  setTimeout(() => {
+    window.location.href = link.href
+  }, 150)
+})
+</script>
+{% stylesheet %}
+ .pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.pagination__list {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* item */
+.pagination__item {
+  position: relative;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  color: #0f172a; /* 🔥 chữ đen */
+  cursor: pointer;
+  overflow: hidden;
+
+  transition: transform 0.2s ease, color 0.25s ease;
+}
+
+/* text */
+.pagination__item span {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.25s ease;
+}
+
+.pagination__item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #ffffff !important; /* ✅ FIX */
+  border-radius: inherit;
+
+  transform: scale(0);
+  transition: transform 0.3s ease;
+  z-index: 1;
+
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* hover */
+.pagination__item:hover {
+  color: #000; /* giữ chữ đen */
+  transform: translateY(-2px);
+}
+
+.pagination__item:hover::before {
+  transform: scale(1);
+  box-shadow: 
+    0 4px 12px rgba(0,0,0,0.1),
+    0 0 0 1px rgba(0,0,0,0.08);
+}
+
+.pagination__item:hover span {
+  transform: translateY(-1px);
+}
+
+/* active */
+.pagination__item.is-active {
+  color: #000;
+}
+
+.pagination__item.is-active::before {
+  transform: scale(1);
+}
+
+/* click */
+.pagination__item:active {
+  transform: scale(0.92);
+}
+
+/* arrow */
+.pagination__arrow {
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.pagination__arrow:hover {
+  opacity: 1;
+}
+{% endstylesheet %}

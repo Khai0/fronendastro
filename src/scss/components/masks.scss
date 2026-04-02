@@ -1,0 +1,11 @@
+.mask {
+  @apply fixed inset-0;
+
+  &--dark {
+    @apply bg-black/40;
+  }
+
+  &--loading {
+    @apply absolute flex items-center justify-center bg-white/50 text-body tracking-wide uppercase pointer-events-none;
+  }
+}

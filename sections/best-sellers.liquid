@@ -1,0 +1,202 @@
+<section class="best-sellers best-sellers--{{ section.id }}">
+  <div class="container best-sellers__container">
+
+    <!-- TITLE -->
+   
+
+    <!-- TABS -->
+    <div class="best-sellers__tabs">
+      <button class="tab-btn active" data-tab="tab-1">
+        {{ section.settings.tab1_label }}
+      </button>
+      <button class="tab-btn" data-tab="tab-2">
+        {{ section.settings.tab2_label }}
+      </button>
+    </div>
+
+    {%- assign take = section.settings.limit | default: 3 | plus: 0 -%}
+
+    <!-- TAB 1 -->
+    <div class="best-sellers__grid tab-content active" id="tab-1">
+      {%- assign coll1 = section.settings.collection_1 -%}
+      {%- if coll1 != blank and coll1.products_count > 0 -%}
+        {%- for product in coll1.products limit: take -%}
+
+          <a href="{{ product.url }}" class="best-sellers__card">
+            <div class="best-sellers__image-wrap">
+              {{ product.featured_image | image_url: width: 320 | image_tag:
+                  class: 'best-sellers__image',
+                  alt: product.title,
+                  width: 320,
+                  height: 320 }}
+            </div>
+
+            <div class="best-sellers__meta">
+              <h3 class="best-sellers__vendor">{{ product.vendor }}</h3>
+              <p class="best-sellers__product-title">{{ product.title }}</p>
+
+              <div class="best-sellers__price-row">
+                {%- if product.compare_at_price > product.price -%}
+                  <s class="best-sellers__price--compare">
+                    {{ product.compare_at_price | money }}
+                  </s>
+                {%- endif -%}
+                <span class="best-sellers__price">
+                  {{ product.price | money }}
+                </span>
+              </div>
+            </div>
+          </a>
+
+        {%- endfor -%}
+      {%- else -%}
+        <p>No products</p>
+      {%- endif -%}
+    </div>
+
+    <!-- TAB 2 -->
+    <div class="best-sellers__grid tab-content" id="tab-2">
+      {%- assign coll2 = section.settings.collection_2 -%}
+      {%- if coll2 != blank and coll2.products_count > 0 -%}
+        {%- for product in coll2.products limit: take -%}
+
+          <a href="{{ product.url }}" class="best-sellers__card">
+            <div class="best-sellers__image-wrap">
+              {{ product.featured_image | image_url: width: 320 | image_tag:
+                  class: 'best-sellers__image',
+                  alt: product.title,
+                  width: 320,
+                  height: 320 }}
+            </div>
+
+            <div class="best-sellers__meta">
+              <h3 class="best-sellers__vendor">{{ product.vendor }}</h3>
+              <p class="best-sellers__product-title">{{ product.title }}</p>
+
+              <div class="best-sellers__price-row">
+                {%- if product.compare_at_price > product.price -%}
+                  <s class="best-sellers__price--compare">
+                    {{ product.compare_at_price | money }}
+                  </s>
+                {%- endif -%}
+                <span class="best-sellers__price">
+                  {{ product.price | money }}
+                </span>
+              </div>
+            </div>
+          </a>
+
+        {%- endfor -%}
+      {%- else -%}
+        <p>No products</p>
+      {%- endif -%}
+    </div>
+
+    <!-- BUTTON -->
+    <div class="best-sellers__actions">
+      <a href="{{ section.settings.btn1_link | default: '#' }}"
+         class="best-sellers__button">
+        {{ section.settings.btn1_label }}
+      </a>
+      <a href="{{ section.settings.btn2_link | default: '#' }}"
+         class="best-sellers__button">
+        {{ section.settings.btn2_label }}
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- CSS -->
+{{ 'best-seller.css' | asset_url | stylesheet_tag }}
+
+<!-- JS -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const tabs = document.querySelectorAll(".tab-btn");
+  const contents = document.querySelectorAll(".tab-content");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+
+      tabs.forEach(t => t.classList.remove("active"));
+      contents.forEach(c => c.classList.remove("active"));
+
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.tab).classList.add("active");
+    });
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "Best Sellers Tabs",
+  "settings": [
+    
+
+    {
+      "type": "text",
+      "id": "tab1_label",
+      "label": "Tab 1 label",
+      "default": "SNOWBOARD"
+    },
+    {
+      "type": "collection",
+      "id": "collection_1",
+      "label": "Collection 1"
+    },
+
+    {
+      "type": "text",
+      "id": "tab2_label",
+      "label": "Tab 2 label",
+      "default": "SKATEBOARD"
+    },
+    {
+      "type": "collection",
+      "id": "collection_2",
+      "label": "Collection 2"
+    },
+
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Products to show",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 3
+    },
+
+    {
+      "type": "text",
+      "id": "btn1_label",
+      "label": "Button 1 label",
+      "default": "Shop Snowboard"
+    },
+    {
+      "type": "url",
+      "id": "btn1_link",
+      "label": "Button 1 link"
+    },
+
+    {
+      "type": "text",
+      "id": "btn2_label",
+      "label": "Button 2 label",
+      "default": "Shop Skateboard"
+    },
+    {
+      "type": "url",
+      "id": "btn2_link",
+      "label": "Button 2 link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Best Sellers Tabs"
+    }
+  ]
+}
+{% endschema %}

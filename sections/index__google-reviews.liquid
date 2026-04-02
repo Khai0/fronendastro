@@ -1,0 +1,276 @@
+﻿{{ 'google-reviews.css' | asset_url | stylesheet_tag }}
+
+<section
+  class="google-reviews google-reviews--{{ section.id }}"
+  data-google-reviews-section="{{ section.id }}"
+  data-api-key="{{ section.settings.google_maps_api_key | escape }}"
+  data-place-id="{{ section.settings.google_place_id | escape }}"
+  data-review-count="{{ section.settings.review_count }}"
+  data-min-rating="{{ section.settings.min_rating }}">
+  <div class="container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="google-reviews__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.subheading != blank -%}
+      <p class="google-reviews__subheading">{{ section.settings.subheading }}</p>
+    {%- endif -%}
+
+    <div class="google-reviews__summary" hidden>
+      <div>
+        <p class="google-reviews__place-name"></p>
+        <p class="google-reviews__rating">
+          <span class="google-reviews__rating-value"></span>
+          <span class="google-reviews__stars" aria-hidden="true"></span>
+          <span class="google-reviews__total"></span>
+        </p>
+      </div>
+      <a
+        class="btn google-reviews__cta"
+        target="_blank"
+        rel="noopener noreferrer">
+        {{ section.settings.cta_label }}
+      </a>
+    </div>
+
+    <div class="google-reviews__grid" aria-live="polite"></div>
+    <p class="google-reviews__status"></p>
+  </div>
+</section>
+
+<script>
+  (function() {
+    var sectionId = "{{ section.id }}";
+    var root = document.querySelector('[data-google-reviews-section="' + sectionId + '"]');
+
+    if (!root) return;
+
+    var apiKey = root.getAttribute('data-api-key');
+    var placeId = root.getAttribute('data-place-id');
+    var reviewCount = parseInt(root.getAttribute('data-review-count'), 10) || 4;
+    var minRating = parseInt(root.getAttribute('data-min-rating'), 10) || 1;
+    var locale = "{{ request.locale.iso_code | replace: '_', '-' }}";
+
+    var summaryEl = root.querySelector('.google-reviews__summary');
+    var placeNameEl = root.querySelector('.google-reviews__place-name');
+    var ratingValueEl = root.querySelector('.google-reviews__rating-value');
+    var starsEl = root.querySelector('.google-reviews__stars');
+    var totalEl = root.querySelector('.google-reviews__total');
+    var listEl = root.querySelector('.google-reviews__grid');
+    var statusEl = root.querySelector('.google-reviews__status');
+    var ctaEl = root.querySelector('.google-reviews__cta');
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function escapeHtml(value) {
+      if (!value) return '';
+      return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatDate(unixTime) {
+      if (!unixTime) return '';
+      return new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }).format(new Date(unixTime * 1000));
+    }
+
+    function renderStars(rating) {
+      var rounded = Math.round(Number(rating) || 0);
+      return '\u2605\u2605\u2605\u2605\u2605'.slice(0, rounded) + '\u2606\u2606\u2606\u2606\u2606'.slice(0, Math.max(0, 5 - rounded));
+    }
+
+    function updateSummary(place) {
+      var reviewUrl = place.url || ('https://search.google.com/local/writereview?placeid=' + encodeURIComponent(placeId));
+
+      if (placeNameEl) placeNameEl.textContent = place.name || '';
+      if (ratingValueEl) ratingValueEl.textContent = Number(place.rating || 0).toFixed(1);
+      if (starsEl) starsEl.textContent = renderStars(place.rating);
+      if (totalEl) totalEl.textContent = '(' + (place.user_ratings_total || 0) + ' Google reviews)';
+      if (ctaEl) ctaEl.href = reviewUrl;
+
+      if (summaryEl) summaryEl.hidden = false;
+    }
+
+    function renderReviews(reviews) {
+      var filtered = (reviews || [])
+        .filter(function(review) {
+          return (review.rating || 0) >= minRating;
+        })
+        .sort(function(a, b) {
+          return (b.time || 0) - (a.time || 0);
+        })
+        .slice(0, reviewCount);
+
+      if (!filtered.length) {
+        setStatus('No Google reviews are available yet for this filter.');
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(function(review) {
+        var profilePhoto = review.profile_photo_url
+          ? '<img class="google-reviews__avatar" src="' + escapeHtml(review.profile_photo_url) + '" alt="' + escapeHtml(review.author_name || 'Reviewer') + '" loading="lazy" width="40" height="40">'
+          : '<div class="google-reviews__avatar google-reviews__avatar--fallback" aria-hidden="true">' + escapeHtml((review.author_name || '?').charAt(0).toUpperCase()) + '</div>';
+
+        return '' +
+          '<article class="google-reviews__card">' +
+            '<header class="google-reviews__card-header">' +
+              profilePhoto +
+              '<div>' +
+                '<p class="google-reviews__author">' + escapeHtml(review.author_name || 'Google user') + '</p>' +
+                '<p class="google-reviews__meta">' +
+                  '<span>' + renderStars(review.rating) + '</span>' +
+                  '<span>' + escapeHtml(formatDate(review.time)) + '</span>' +
+                '</p>' +
+              '</div>' +
+            '</header>' +
+            '<p class="google-reviews__text">' + escapeHtml(review.text || '') + '</p>' +
+          '</article>';
+      }).join('');
+
+      setStatus('');
+    }
+
+    function getDetails() {
+      var service = new window.google.maps.places.PlacesService(document.createElement('div'));
+      service.getDetails({
+        placeId: placeId,
+        fields: ['name', 'rating', 'user_ratings_total', 'reviews', 'url']
+      }, function(place, status) {
+        if (status !== window.google.maps.places.PlacesServiceStatus.OK || !place) {
+          setStatus('Unable to load Google reviews. Please verify your API key and Place ID.');
+          return;
+        }
+
+        updateSummary(place);
+        renderReviews(place.reviews);
+      });
+    }
+
+    function initSection() {
+      if (!apiKey || !placeId) {
+        setStatus('Add your Google Maps API key and Place ID in this section settings.');
+        return;
+      }
+
+      if (/^https?:\/\//i.test(apiKey)) {
+        setStatus('Google Maps API key looks invalid. Paste only the key value, not a URL.');
+        return;
+      }
+
+      if (window.google && window.google.maps && window.google.maps.places) {
+        getDetails();
+        return;
+      }
+
+      window.__googleReviewsQueue = window.__googleReviewsQueue || [];
+      window.__googleReviewsQueue.push(getDetails);
+
+      if (window.__googleReviewsScriptLoading) {
+        return;
+      }
+
+      window.__googleReviewsScriptLoading = true;
+      window.__googleReviewsScriptReady = function() {
+        window.__googleReviewsScriptLoaded = true;
+        var queue = window.__googleReviewsQueue || [];
+        while (queue.length) {
+          var fn = queue.shift();
+          try {
+            fn();
+          } catch (error) {
+            setStatus('Google reviews loaded with an error. Please refresh and try again.');
+          }
+        }
+      };
+
+      var script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(apiKey) + '&libraries=places&v=weekly&callback=__googleReviewsScriptReady';
+      script.async = true;
+      script.defer = true;
+      script.onerror = function() {
+        setStatus('Google Maps script failed to load. Check key/domain restrictions.');
+      };
+      document.head.appendChild(script);
+
+      window.setTimeout(function() {
+        if (!window.__googleReviewsScriptLoaded) {
+          setStatus('Google Maps API key was rejected or blocked for this domain.');
+        }
+      }, 5000);
+    }
+
+    initSection();
+  })();
+</script>
+
+{% schema %}
+  {
+    "name": "Google reviews",
+    "tag": "section",
+    "class": "section-google-reviews",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "What customers say"
+      },
+      {
+        "type": "text",
+        "id": "subheading",
+        "label": "Subheading",
+        "default": "Live reviews from Google Maps"
+      },
+      {
+        "type": "text",
+        "id": "google_maps_api_key",
+        "label": "Google Maps API key",
+        "info": "Enable Places API and restrict this key to your storefront domain."
+      },
+      {
+        "type": "text",
+        "id": "google_place_id",
+        "label": "Google Place ID"
+      },
+      {
+        "type": "range",
+        "id": "review_count",
+        "label": "Reviews to show",
+        "default": 4,
+        "min": 1,
+        "max": 8,
+        "step": 1
+      },
+      {
+        "type": "range",
+        "id": "min_rating",
+        "label": "Minimum rating",
+        "default": 4,
+        "min": 1,
+        "max": 5,
+        "step": 1
+      },
+      {
+        "type": "text",
+        "id": "cta_label",
+        "label": "Button label",
+        "default": "Review us on Google"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Google reviews",
+        "category": "Text"
+      }
+    ]
+  }
+{% endschema %}

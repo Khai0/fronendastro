@@ -1,0 +1,100 @@
+﻿{{ 'collection-product-list.css' | asset_url | stylesheet_tag }}
+
+<div class="container catalog-page" vue-init v-cloak>
+  {% assign sort_by = collection.sort_by | default: collection.default_sort_by %}
+  <product-list-and-filtering inline-template default-sort="{{ sort_by }}">
+    <div class="catalog-layout md:flex">
+      <aside class="catalog-filters md:basis-1/4">
+        {% render 'facets', results: collection %}
+      </aside>
+
+      <div class="catalog-content md:basis-3/4">
+        <aside class="catalog-toolbar md:flex items-center justify-between mb-5">
+          <span class="catalog-toolbar__count">{{ 'collections.general.products_count' | t: count: collection.products_count }}</span>
+
+          <div class="catalog-toolbar__sort">
+            <label for="sort-by">{{ 'collections.sorting.title' | t }}</label>
+            <select v-model="sortBy" name="sort_by" id="sort-by" @change="submitFilters">
+              {% for option in collection.sort_options %}
+                <option value="{{ option.value }}">{{ option.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </aside>
+
+        <section>
+          {%- paginate collection.products by 4 -%}
+            {%- if collection.products.size == 0 -%}
+              <p class="catalog-empty">{{ 'collections.general.no_matches' | t }}</p>
+            {%- else -%}
+              <div class="relative">
+                <ul class="catalog-grid grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {% for product in collection.products %}
+                    <li class="catalog-grid__item">
+                      <a class="catalog-card" href="{{ product.url | within: collection }}" title="{{ product.title | escape }}">
+                        <div class="catalog-card__media">
+                          {% if product.featured_image %}
+                            {{
+                              product.featured_image
+                              | image_url: width: 640
+                              | image_tag:
+                                class: 'catalog-card__img',
+                                alt: product.featured_image.alt | default: product.title,
+                                loading: 'lazy',
+                                widths: '320,480,640',
+                                sizes: '(max-width: 767px) 50vw, (max-width: 1440px) 25vw, 300px'
+                            }}
+                          {% else %}
+                            {{ 'product-1' | placeholder_svg_tag: 'catalog-card__placeholder' }}
+                          {% endif %}
+                        </div>
+
+                        <div class="catalog-card__body">
+                          {% if product.vendor != blank %}
+                            <p class="catalog-card__vendor">{{ product.vendor }}</p>
+                          {% endif %}
+
+                          <h3 class="catalog-card__title">{{ product.title }}</h3>
+
+                          <div class="catalog-card__price">
+                            {% if product.compare_at_price > product.price %}
+                              <s class="catalog-card__price-old">{{ product.compare_at_price | money }}</s>
+                              <span class="catalog-card__price-now">{{ product.price | money }}</span>
+                            {% else %}
+                              <span class="catalog-card__price-now">{{ product.price | money }}</span>
+                            {% endif %}
+                          </div>
+
+                          {% if product.available %}
+                            <span class="catalog-card__badge">In stock</span>
+                          {% else %}
+                            <span class="catalog-card__badge catalog-card__badge--soldout">Sold out</span>
+                          {% endif %}
+                        </div>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+
+                {%- if paginate.pages > 1 -%}
+                  {% render 'pagination', paginate: paginate %}
+                {%- endif -%}
+
+                <div v-if="isLoading" class="mask mask--loading">
+                  <div class="text-center">
+                    <p class="lead">{{ 'collections.general.loading_products' | t }}</p>
+                    <div class="loading-animation">
+                      <div class="bounce1"></div>
+                      <div class="bounce2"></div>
+                      <div class="bounce3"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endpaginate -%}
+        </section>
+      </div>
+    </div>
+  </product-list-and-filtering>
+</div>

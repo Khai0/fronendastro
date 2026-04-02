@@ -1,0 +1,44 @@
+﻿{{ 'collection-product-list.css' | asset_url | stylesheet_tag }}
+
+<section class="collection-hero">
+  <div class="collection-hero__media">
+    {% assign banner_image = section.settings.custom_image | default: collection.image %}
+    {% if banner_image %}
+      {{
+        banner_image
+        | image_url: width: 2200
+        | image_tag:
+          class: 'collection-hero__img',
+          alt: collection.title,
+          loading: 'eager',
+          widths: '768,1200,1600,2200',
+          sizes: '100vw'
+      }}
+    {% else %}
+      <div class="collection-hero__fallback"></div>
+    {% endif %}
+  </div>
+</section>
+
+<div class="container collection-heading">
+  <div class="collection-heading__crumbs">{% render 'breadcrumbs' %}</div>
+  <h1 class="collection-heading__title">{{ collection.title | escape }}</h1>
+
+  {% if collection.description != blank %}
+    <div class="collection-heading__description rte">{{ collection.description }}</div>
+  {% endif %}
+</div>
+
+{% schema %}
+  {
+    "name": "Collection Banner",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "custom_image",
+        "label": "Banner image override"
+      }
+    ]
+  }
+{% endschema %}

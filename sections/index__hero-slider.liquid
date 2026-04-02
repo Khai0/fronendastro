@@ -1,0 +1,111 @@
+<div
+  vue-init
+  v-cloak
+  class="hero-slider">
+  {%- if section.blocks.size > 0 -%}
+    <keen-slider
+      :arrows="true"
+      pagination="(max-width: 767px)"
+      :options="{
+              slides: {
+                spacing: 30
+              }
+            }">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'slide' -%}
+
+          {%- liquid 
+            if block.settings.mobile_image
+              assign mobile_image = block.settings.mobile_image
+            else
+              assign mobile_image = block.settings.image
+            endif 
+          -%}
+
+          {%- capture content -%}
+            {%- if block.settings.image != blank -%}
+              <picture>
+                <source
+                  media="(max-width: 767px)"
+                  srcset="{{ mobile_image | image_url: width: 767 }}"
+                  alt="{{ mobile_image.alt }}"
+                  width="{{ mobile_image.width }}"
+                  height="{{ mobile_image.height }}">
+                <source media="(max-width: 1440px)" srcset="{{ block.settings.image | image_url: width: 1440 }}">
+                <img
+                  {%- unless section.settings.is_above_the_fold and forloop.index == 1 %}
+                  loading="lazy"
+                  {%- endunless %}
+                  src="{{ block.settings.image | image_url: width: 1920 }}"
+                  class="w-full"
+                  width="{{ block.settings.image.width }}"
+                  height="{{ block.settings.image.height }}"
+                  alt="{{ block.settings.image.alt }}">
+              </picture>
+            {%- else -%}
+              {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--wide' }}
+            {%- endif -%}
+          {%- endcapture -%}
+
+          <div>
+            {%- if block.settings.url != blank -%}
+              <a href="{{ block.settings.url }}" title="{{ block.settings.title }}">
+                {{ content }}
+              </a>
+            {%- else -%}
+              {{ content }}
+            {%- endif -%}
+          </div>
+
+        {%- endif -%}
+      {%- endfor -%}
+    </keen-slider>
+  {%- endif -%}
+</div>
+
+{% schema %}
+  {
+    "name": "Hero Slider",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "is_above_the_fold",
+        "label": "Above the fold?",
+        "default": false,
+        "info": "If this section is 'above the fold', mark as true. The first image will not be lazy loaded, to improve performance."
+      }
+    ],
+    "blocks": [
+      {
+        "type": "slide",
+        "name": "Slide",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          }, {
+            "type": "image_picker",
+            "id": "mobile_image",
+            "label": "Mobile Image"
+          }, {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+          }, {
+            "type": "url",
+            "id": "url",
+            "label": "Link"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Hero Slider",
+        "category": "Images"
+      }
+    ]
+  }
+{% endschema %}

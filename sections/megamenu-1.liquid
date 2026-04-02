@@ -1,0 +1,217 @@
+{%- if section.settings.attach_to != blank -%}
+  {% assign parent_handle = section.settings.attach_to | handleize %}
+  {% assign menu_handle = section.settings.menu | default: parent_handle %}
+  {% assign menu = linklists[menu_handle] %}
+  {{ 'megamenu-1.css' | asset_url | stylesheet_tag }}
+
+  <transition name="megamenu">
+    <div v-show="megamenuToggles['{{ parent_handle }}']" @mouseleave="closeAllMegamenus" parent-item="{{ parent_handle }}" class="megamenu megamenu--featured-1">
+      <div class="container">
+        <div class="megamenu-1-layout">
+          <div class="megamenu-1-left">
+            {% if section.settings.title != blank %}
+              <p class="megamenu-1-left__title">{{ section.settings.title }}</p>
+            {% endif %}
+
+            {% if menu.links.size > 0 %}
+              <ul class="megamenu-1-left__links" role="list">
+                {% for link in menu.links %}
+                  <li>
+                    <a href="{{ link.url }}">{{ link.title }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+
+          <div class="megamenu-1-middle">
+            <div class="megamenu-1-middle__grid">
+              {% for block in section.blocks %}
+                {% if block.type == 'brand' %}
+                  <article class="megamenu-1-brand" {{ block.shopify_attributes }}>
+                    {% if block.settings.url != blank %}
+                      <a class="megamenu-1-brand__inner" href="{{ block.settings.url }}">
+                    {% else %}
+                      <div class="megamenu-1-brand__inner">
+                    {% endif %}
+
+                    {% if block.settings.image != blank %}
+                      <img
+                        src="{{ block.settings.image | image_url: width: 260 }}"
+                        alt="{{ block.settings.title | escape }}"
+                        loading="lazy"
+                        width="260"
+                        height="100"
+                      >
+                    {% endif %}
+
+                    {% if block.settings.title != blank %}
+                      <p class="megamenu-1-brand__label">{{ block.settings.title }}</p>
+                    {% endif %}
+
+                    {% if block.settings.url != blank %}
+                      </a>
+                    {% else %}
+                      </div>
+                    {% endif %}
+                  </article>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            {% if section.settings.view_all_label != blank and section.settings.view_all_url != blank %}
+              <a class="megamenu-1-middle__cta" href="{{ section.settings.view_all_url }}">{{ section.settings.view_all_label }}</a>
+            {% endif %}
+          </div>
+
+          <div class="megamenu-1-right">
+            {% for block in section.blocks %}
+              {% if block.type == 'hero' %}
+                <article class="megamenu-1-hero" {{ block.shopify_attributes }}>
+                  {% if block.settings.url != blank %}
+                    <a href="{{ block.settings.url }}">
+                  {% endif %}
+
+                  {% if block.settings.image != blank %}
+                    <img
+                      src="{{ block.settings.image | image_url: width: 520 }}"
+                      alt="{{ block.settings.title | escape }}"
+                      loading="lazy"
+                      width="520"
+                      height="430"
+                    >
+                  {% endif %}
+
+                  <div class="megamenu-1-hero__content">
+                    {% if block.settings.eyebrow != blank %}
+                      <p class="megamenu-1-hero__eyebrow">{{ block.settings.eyebrow }}</p>
+                    {% endif %}
+                    {% if block.settings.title != blank %}
+                      <h3>{{ block.settings.title }}</h3>
+                    {% endif %}
+                    {% if block.settings.subtitle != blank %}
+                      <p class="megamenu-1-hero__subtitle">{{ block.settings.subtitle }}</p>
+                    {% endif %}
+                    {% if block.settings.button_label != blank and block.settings.url != blank %}
+                      <span class="megamenu-1-hero__button">{{ block.settings.button_label }}</span>
+                    {% endif %}
+                  </div>
+
+                  {% if block.settings.url != blank %}
+                    </a>
+                  {% endif %}
+                </article>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Megamenu 1",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Settings"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Glasses Frames"
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "Middle CTA label",
+      "default": "VIEW ALL BRANDS"
+    },
+    {
+      "type": "url",
+      "id": "view_all_url",
+      "label": "Middle CTA link"
+    },
+    {
+      "type": "text",
+      "id": "attach_to",
+      "label": "Parent menu item",
+      "info": "This should be a unique menu item from the parent menu."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Middle Brand",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Logo image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Brand"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "hero",
+      "name": "Right Hero Image",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow",
+          "default": "SHOP"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "BLISS"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "Blue Light Filter Glasses Frames"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "SHOP NOW"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

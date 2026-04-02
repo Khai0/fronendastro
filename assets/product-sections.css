@@ -1,0 +1,226 @@
+﻿.product-main {
+  padding-bottom: 2rem;
+  padding-top: 0.5rem;
+}
+
+.product-main__layout {
+  align-items: start;
+}
+
+.product-main__media {
+  background: linear-gradient(180deg, #fafafa 0%, #f4f6f8 100%);
+  border: 1px solid #eceff3;
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.product-main__info {
+  background: #ffffff;
+  border: 1px solid #eceff3;
+  border-radius: 14px;
+  padding: 1.25rem;
+  position: sticky;
+  top: 88px;
+}
+
+.product-main__title {
+  color: #0f172a;
+  font-size: clamp(1.45rem, 2.3vw, 2rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+.product-main__price {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.product-main__price .price {
+  color: #0f172a;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  font-weight: 700;
+}
+
+.product-main__price .price--old {
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.product-main__description {
+  border-top: 1px solid #eef2f7;
+  color: #334155;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  padding-top: 0.85rem;
+}
+
+.product-main__form {
+  border: 1px solid #edf1f5;
+  border-radius: 10px;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.product-main__options .field {
+  margin-bottom: 0.75rem;
+}
+
+.product-main__options label {
+  color: #334155;
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.product-main__options select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  min-height: 42px;
+  width: 100%;
+}
+
+.product-main__qty .label {
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.product-main__atc {
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(2, 132, 199, 0.18);
+}
+
+.product-main__accordion {
+  border-top: 1px solid #eef2f7;
+  margin-top: 1rem;
+  padding-top: 0.65rem;
+}
+
+.product-main__accordion .collapsible {
+  border-bottom: 1px solid #edf2f7;
+  padding: 0.25rem 0;
+}
+
+.product-main__accordion .h3 {
+  color: #0f172a;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.product-related {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border-top: 1px solid #e8edf3;
+  margin-top: 2.5rem;
+  padding: 2rem 0 2.4rem;
+}
+
+.product-related__container {
+  position: relative;
+}
+
+.product-related__tabs-nav {
+  margin-bottom: 1rem;
+}
+
+.product-related .tabs__nav,
+.product-related [role='tablist'] {
+  border-bottom: 1px solid #dbe4ee;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  overflow-x: auto;
+}
+
+.product-related .tabs__nav button,
+.product-related [role='tab'] {
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.1rem 0.65rem;
+  text-transform: uppercase;
+}
+
+.product-related .tabs__nav button[aria-selected='true'],
+.product-related [role='tab'][aria-selected='true'] {
+  border-color: #0891b2;
+  color: #0f172a;
+}
+
+.product-related__slide .product-item {
+  background: #fff;
+  border: 1px solid #e8edf3;
+  border-radius: 12px;
+  height: 100%;
+  padding: 0.85rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.product-related__slide .product-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.09);
+  transform: translateY(-4px);
+}
+
+.product-related__slide .product-item__image {
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 0.65rem;
+  overflow: hidden;
+}
+
+.product-related__slide .product-item h3 {
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  min-height: 2.6em;
+}
+
+.product-related__slide .product-item .price {
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.product-related__slide .product-item .price--old {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.product-related .keen-slider__arrow {
+  background: #ffffff;
+  border: 1px solid #dbe4ee;
+  border-radius: 999px;
+  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.12);
+}
+
+@media screen and (max-width: 1023px) {
+  .product-main__info {
+    position: static;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .product-main__media,
+  .product-main__info {
+    border-radius: 10px;
+    padding: 0.9rem;
+  }
+
+  .product-main__form {
+    padding: 0.8rem;
+  }
+
+  .product-related {
+    margin-top: 1.75rem;
+    padding: 1.5rem 0 1.8rem;
+  }
+}

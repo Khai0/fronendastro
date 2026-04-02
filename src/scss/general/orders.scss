@@ -1,0 +1,10 @@
+.order-table {
+  tbody, 
+  tfoot {
+    @media (min-width: 1024px) {
+      tr:last-child td {
+        @apply border-b-2 border-border;
+      }
+    }
+  }
+}

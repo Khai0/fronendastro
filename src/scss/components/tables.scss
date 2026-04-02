@@ -1,0 +1,63 @@
+table {
+  @apply w-full;
+
+  th, td {
+    @apply py-2 px-0 text-left;
+
+    @media (min-width: 1024px) {
+      @apply py-3 px-2;
+
+      &:first-child {
+        @apply pl-0;
+      }
+
+      &:last-child {
+        @apply pr-0;
+      }
+    }
+  }
+
+  th {
+    @extend .label;
+
+    @media (min-width: 1024px) {
+      @apply border-b border-border;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    td {
+      @apply border-b border-gray-300;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .responsive-table {
+    @apply w-full;
+
+    thead {
+      @apply hidden;
+    }
+  
+    tr {
+      @apply block mb-2 pb-2 border-b border-gray-300;
+    }
+    
+    th,
+    td {
+      @apply block m-0 text-right;
+    }
+  
+    td {
+      &:before {
+        @apply float-left pr-2 content-[attr(data-label)] text-sm text-body-secondary;
+      }
+
+      &:empty:after {
+        // @apply content-['\00a0'];
+        @apply content-['\e912'];
+      }
+    }
+  }
+}

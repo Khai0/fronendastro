@@ -1,0 +1,932 @@
+{%- liquid
+  assign section_id = 'location-form-' | append: section.id
+  assign store_options = section.settings.store_options | split: ','
+-%}
+
+<section id="{{ section_id }}" class="location-form-page">
+  <div class="container location-form-page__container">
+    <div class="location-form-page__top">
+      <h2 class="location-form-page__store-title">{{ section.settings.store_title }}</h2>
+    </div>
+
+    <div class="location-form-page__overview">
+      <div class="location-form-page__store-info">
+        {%- if section.settings.cta_label != blank and section.settings.cta_link != blank -%}
+          <a class="location-form-page__btn" href="{{ section.settings.cta_link }}">{{ section.settings.cta_label }}</a>
+        {%- endif -%}
+
+        {%- if section.settings.store_intro != blank -%}
+          <div class="location-form-page__copy">{{ section.settings.store_intro }}</div>
+        {%- endif -%}
+
+        {%- if section.settings.address != blank -%}
+          <div class="location-form-page__meta">
+            <strong>Address:</strong> {{ section.settings.address }}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.phone != blank -%}
+          <div class="location-form-page__meta">
+            <strong>Contact:</strong>
+            <a href="tel:{{ section.settings.phone | replace: ' ', '' }}">{{ section.settings.phone }}</a>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.email != blank -%}
+          <div class="location-form-page__meta">
+            <strong>Email:</strong>
+            <a href="mailto:{{ section.settings.email }}">{{ section.settings.email }}</a>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.trading_hours != blank -%}
+          <div class="location-form-page__meta">
+            <strong>Trading Hours:</strong>
+            <div class="location-form-page__hours">{{ section.settings.trading_hours }}</div>
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="location-form-page__map-wrap">
+        <div class="location-form-page__map">
+          {{ section.settings.map_embed }}
+        </div>
+        {%- if section.settings.map_button_label != blank and section.settings.map_button_link != blank -%}
+          <a class="location-form-page__btn location-form-page__btn--small" href="{{ section.settings.map_button_link }}">
+            {{ section.settings.map_button_label }}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="location-form-page__contact">
+      <div class="location-form-page__form-col">
+        <h3 class="location-form-page__heading">{{ section.settings.contact_heading }}</h3>
+        {%- if section.settings.contact_intro != blank -%}
+          <div class="location-form-page__copy">{{ section.settings.contact_intro }}</div>
+        {%- endif -%}
+        {%- if section.settings.contact_notice != blank -%}
+          <p class="location-form-page__notice">{{ section.settings.contact_notice }}</p>
+        {%- endif -%}
+
+        {% form 'contact', class: 'location-form-page__form' %}
+          {% if form.posted_successfully? %}
+            <p class="location-form-page__success">{{ 'contact.form.post_success' | t }}</p>
+          {% endif %}
+
+          {{ form.errors | default_errors }}
+
+          <div class="location-form-page__fields">
+            <div class="location-form-page__field">
+              <label for="LocationInquiryType-{{ section.id }}">Type Of Inquiry</label>
+              <select id="LocationInquiryType-{{ section.id }}" name="contact[type_of_inquiry]">
+                {%- for option in store_options -%}
+                  {%- assign option_clean = option | strip -%}
+                  {%- if option_clean != blank -%}
+                    <option value="{{ option_clean }}">{{ option_clean }}</option>
+                  {%- endif -%}
+                {%- endfor -%}
+              </select>
+            </div>
+
+            <div class="location-form-page__field">
+              <label for="LocationStore-{{ section.id }}">Store To Contact</label>
+              <select id="LocationStore-{{ section.id }}" name="contact[store]">
+                {%- for option in store_options -%}
+                  {%- assign option_clean = option | strip -%}
+                  {%- if option_clean != blank -%}
+                    <option value="{{ option_clean }}">{{ option_clean }}</option>
+                  {%- endif -%}
+                {%- endfor -%}
+              </select>
+            </div>
+
+            <div class="location-form-page__field">
+              <label for="LocationName-{{ section.id }}">Name</label>
+              <input id="LocationName-{{ section.id }}" type="text" name="contact[name]" value="{{ form.name }}">
+            </div>
+
+            <div class="location-form-page__field">
+              <label for="LocationEmail-{{ section.id }}">Email Address</label>
+              <input id="LocationEmail-{{ section.id }}" type="email" name="contact[email]" value="{{ form.email }}" required>
+            </div>
+          </div>
+
+          <div class="location-form-page__field">
+            <label for="LocationMessage-{{ section.id }}">Message</label>
+            <textarea id="LocationMessage-{{ section.id }}" name="contact[body]" rows="6">{{ form.body }}</textarea>
+          </div>
+
+          <button class="location-form-page__btn location-form-page__btn--submit" type="submit">Submit</button>
+        {% endform %}
+      </div>
+
+      <div class="location-form-page__image-col">
+        {%- if section.settings.contact_image != blank -%}
+          {{ section.settings.contact_image | image_url: width: 900 | image_tag: loading: 'lazy', class: 'location-form-page__image', alt: section.settings.store_title }}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="location-form-page__quick-info">
+      <div class="location-form-page__quick-item">
+        <h4>{{ section.settings.info_col_1_title }}</h4>
+        <p>{{ section.settings.info_col_1_text }}</p>
+      </div>
+      <div class="location-form-page__quick-item">
+        <h4>{{ section.settings.info_col_2_title }}</h4>
+        <p>{{ section.settings.info_col_2_text }}</p>
+      </div>
+      <div class="location-form-page__quick-item">
+        <h4>{{ section.settings.info_col_3_title }}</h4>
+        <p>{{ section.settings.info_col_3_text }}</p>
+      </div>
+    </div>
+
+    {%- if section.settings.center_map_button_label != blank and section.settings.center_map_button_link != blank -%}
+      <div class="location-form-page__quick-cta">
+        <a class="location-form-page__btn location-form-page__btn--small" href="{{ section.settings.center_map_button_link }}">
+          {{ section.settings.center_map_button_label }}
+        </a>
+      </div>
+    {%- endif -%}
+
+    <div class="location-form-page__faq">
+      <h3 class="location-form-page__heading">{{ section.settings.faq_heading }}</h3>
+      <div class="location-form-page__faq-list">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'faq' -%}
+            <details class="location-form-page__faq-item" {{ block.shopify_attributes }}>
+              <summary>{{ block.settings.question }}</summary>
+              <div class="location-form-page__faq-answer">{{ block.settings.answer }}</div>
+            </details>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="location-form-page__optometrist">
+      <h3 class="location-form-page__heading">{{ section.settings.optometrist_heading }}</h3>
+      {%- if section.settings.optometrist_image != blank -%}
+        {{ section.settings.optometrist_image | image_url: width: 320 | image_tag: loading: 'lazy', class: 'location-form-page__optometrist-image', alt: section.settings.optometrist_name }}
+      {%- endif -%}
+      <h4 class="location-form-page__optometrist-name">{{ section.settings.optometrist_name }}</h4>
+      <p class="location-form-page__optometrist-role">{{ section.settings.optometrist_role }}</p>
+      <div class="location-form-page__copy">{{ section.settings.optometrist_bio }}</div>
+      {%- if section.settings.optometrist_button_label != blank and section.settings.optometrist_button_link != blank -%}
+        <a class="location-form-page__btn location-form-page__btn--small" href="{{ section.settings.optometrist_button_link }}">
+          {{ section.settings.optometrist_button_label }}
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="location-form-page__services">
+      <h3 class="location-form-page__heading">{{ section.settings.services_heading }}</h3>
+      <div class="location-form-page__copy">{{ section.settings.services_intro }}</div>
+      <div class="location-form-page__services-grid">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'service' -%}
+            <div class="location-form-page__service-item" {{ block.shopify_attributes }}>
+              <h4>{{ block.settings.title }}</h4>
+              <p>{{ block.settings.text }}</p>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="location-form-page__brands">
+      <h3 class="location-form-page__heading">{{ section.settings.brands_heading }}</h3>
+      <div class="location-form-page__brands-grid">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'brand' -%}
+            <article class="location-form-page__brand-card" {{ block.shopify_attributes }}>
+              {%- if block.settings.logo != blank -%}
+                {{ block.settings.logo | image_url: width: 260 | image_tag: loading: 'lazy', class: 'location-form-page__brand-logo', alt: block.settings.title }}
+              {%- else -%}
+                <h4 class="location-form-page__brand-title">{{ block.settings.title }}</h4>
+              {%- endif -%}
+
+              {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}
+                <a class="location-form-page__btn location-form-page__btn--small" href="{{ block.settings.button_link }}">
+                  {{ block.settings.button_label }}
+                </a>
+              {%- endif -%}
+
+              {%- if block.settings.caption != blank -%}
+                <p class="location-form-page__brand-caption">{{ block.settings.caption }}</p>
+              {%- endif -%}
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% style %}
+  #{{ section_id }} {
+    background: {{ section.settings.bg_color }};
+    color: {{ section.settings.text_color }};
+    padding: 2.5rem 0 3rem;
+  }
+
+  #{{ section_id }} a {
+    color: inherit;
+  }
+
+  #{{ section_id }} .location-form-page__container {
+    max-width: 1260px;
+  }
+
+  #{{ section_id }} .location-form-page__top {
+    border-bottom: 1px solid #cfcfcf;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  #{{ section_id }} .location-form-page__store-title {
+    margin: 0;
+    font-size: 1.6rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  #{{ section_id }} .location-form-page__overview {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 1.5rem;
+    margin-bottom: 2.25rem;
+  }
+
+  #{{ section_id }} .location-form-page__store-info {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  #{{ section_id }} .location-form-page__copy,
+  #{{ section_id }} .location-form-page__copy p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  #{{ section_id }} .location-form-page__meta {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  #{{ section_id }} .location-form-page__meta strong {
+    display: inline-block;
+    min-width: 86px;
+  }
+
+  #{{ section_id }} .location-form-page__hours p {
+    margin: 0.2rem 0;
+  }
+
+  #{{ section_id }} .location-form-page__map-wrap {
+    display: grid;
+    gap: 0.85rem;
+    align-content: start;
+  }
+
+  #{{ section_id }} .location-form-page__map iframe {
+    width: 100%;
+    min-height: 360px;
+    border: 0;
+  }
+
+  #{{ section_id }} .location-form-page__heading {
+    margin: 0 0 0.9rem;
+    font-size: 1.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  #{{ section_id }} .location-form-page__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: 0.4rem 1.35rem;
+    border-radius: 6px;
+    border: 0;
+    text-decoration: none;
+    background: {{ section.settings.button_bg }};
+    color: {{ section.settings.button_text }};
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  #{{ section_id }} .location-form-page__btn:hover {
+    opacity: 0.88;
+  }
+
+  #{{ section_id }} .location-form-page__btn--small {
+    min-height: 2.25rem;
+    padding: 0.35rem 1rem;
+    font-size: 0.85rem;
+    justify-self: center;
+  }
+
+  #{{ section_id }} .location-form-page__contact {
+    border-top: 1px solid #cfcfcf;
+    border-bottom: 1px solid #cfcfcf;
+    padding: 2rem 0;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 1.4rem;
+  }
+
+  #{{ section_id }} .location-form-page__notice {
+    margin: 0.6rem 0 1rem;
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+
+  #{{ section_id }} .location-form-page__form {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  #{{ section_id }} .location-form-page__fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+  }
+
+  #{{ section_id }} .location-form-page__field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  #{{ section_id }} .location-form-page__field label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  #{{ section_id }} .location-form-page__field input,
+  #{{ section_id }} .location-form-page__field select,
+  #{{ section_id }} .location-form-page__field textarea {
+    width: 100%;
+    min-height: 2.4rem;
+    border: 1px solid #c8c8c8;
+    background: transparent;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    color: inherit;
+  }
+
+  #{{ section_id }} .location-form-page__field textarea {
+    resize: vertical;
+    min-height: 110px;
+  }
+
+  #{{ section_id }} .location-form-page__btn--submit {
+    justify-self: center;
+    min-width: 120px;
+  }
+
+  #{{ section_id }} .location-form-page__success {
+    margin: 0;
+    color: #2e7d32;
+    font-weight: 600;
+  }
+
+  #{{ section_id }} .location-form-page__image {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  #{{ section_id }} .location-form-page__quick-info {
+    padding: 1.4rem 0 0.8rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  #{{ section_id }} .location-form-page__quick-item h4 {
+    margin: 0 0 0.55rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+  }
+
+  #{{ section_id }} .location-form-page__quick-item p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  #{{ section_id }} .location-form-page__quick-cta {
+    padding-bottom: 1.4rem;
+    border-bottom: 1px solid #cfcfcf;
+  }
+
+  #{{ section_id }} .location-form-page__faq,
+  #{{ section_id }} .location-form-page__optometrist,
+  #{{ section_id }} .location-form-page__services,
+  #{{ section_id }} .location-form-page__brands {
+    padding: 2rem 0;
+    border-bottom: 1px solid #cfcfcf;
+  }
+
+  #{{ section_id }} .location-form-page__faq-list {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  #{{ section_id }} .location-form-page__faq-item {
+    border-bottom: 1px solid #d8d8d8;
+    padding-bottom: 0.55rem;
+  }
+
+  #{{ section_id }} .location-form-page__faq-item summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.45rem 0;
+  }
+
+  #{{ section_id }} .location-form-page__faq-answer {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    padding: 0.25rem 0 0.7rem;
+  }
+
+  #{{ section_id }} .location-form-page__optometrist {
+    text-align: center;
+  }
+
+  #{{ section_id }} .location-form-page__optometrist-image {
+    width: 116px;
+    height: 116px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 0.85rem;
+  }
+
+  #{{ section_id }} .location-form-page__optometrist-name {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  #{{ section_id }} .location-form-page__optometrist-role {
+    margin: 0.3rem 0 0.7rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  #{{ section_id }} .location-form-page__services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  #{{ section_id }} .location-form-page__service-item {
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+    padding: 0.9rem;
+  }
+
+  #{{ section_id }} .location-form-page__service-item h4 {
+    margin: 0 0 0.45rem;
+    font-size: 0.95rem;
+  }
+
+  #{{ section_id }} .location-form-page__service-item p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  #{{ section_id }} .location-form-page__brands-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  #{{ section_id }} .location-form-page__brand-card {
+    text-align: center;
+    display: grid;
+    gap: 0.8rem;
+    align-content: start;
+  }
+
+  #{{ section_id }} .location-form-page__brand-logo {
+    width: 100%;
+    max-width: 180px;
+    height: 50px;
+    object-fit: contain;
+    margin: 0 auto;
+  }
+
+  #{{ section_id }} .location-form-page__brand-title {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  #{{ section_id }} .location-form-page__brand-caption {
+    margin: 0;
+    font-size: 0.83rem;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 1023px) {
+    #{{ section_id }} .location-form-page__overview,
+    #{{ section_id }} .location-form-page__contact {
+      grid-template-columns: 1fr;
+    }
+
+    #{{ section_id }} .location-form-page__services-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    #{{ section_id }} .location-form-page__brands-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 767px) {
+    #{{ section_id }} {
+      padding: 1.6rem 0 2rem;
+    }
+
+    #{{ section_id }} .location-form-page__store-title {
+      font-size: 1.2rem;
+    }
+
+    #{{ section_id }} .location-form-page__fields,
+    #{{ section_id }} .location-form-page__quick-info,
+    #{{ section_id }} .location-form-page__services-grid,
+    #{{ section_id }} .location-form-page__brands-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Location Form",
+  "settings": [
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background",
+      "default": "#f2f2f2"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1d1d1f"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#62bbce"
+    },
+    {
+      "type": "color",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "text",
+      "id": "store_title",
+      "label": "Store title",
+      "default": "OPTOMETRIST IN BONDI - WESTFIELD"
+    },
+    {
+      "type": "richtext",
+      "id": "store_intro",
+      "label": "Store intro",
+      "default": "<p>Looking for a trusted optometrist in Bondi Junction? Add your store introduction here.</p>"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Top button label",
+      "default": "Book an Eye Test"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Top button link"
+    },
+    {
+      "type": "textarea",
+      "id": "address",
+      "label": "Address",
+      "default": "Shop 1015, Level 1, Westfield Bondi Junction, 500 Oxford Street, Bondi Junction, NSW 2022"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Phone",
+      "default": "(02) 9297 1911"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "Email",
+      "default": "westfield@1001optical.com.au"
+    },
+    {
+      "type": "richtext",
+      "id": "trading_hours",
+      "label": "Trading hours",
+      "default": "<p>Monday: 9:30am - 6:00pm<br/>Tuesday: 9:30am - 6:00pm<br/>Wednesday: 9:30am - 6:00pm</p>"
+    },
+    {
+      "type": "html",
+      "id": "map_embed",
+      "label": "Map embed iframe",
+      "default": "<iframe src=\"https://www.google.com/maps?q=Bondi%20Junction&output=embed\" loading=\"lazy\"></iframe>"
+    },
+    {
+      "type": "text",
+      "id": "map_button_label",
+      "label": "Map button label",
+      "default": "Get Directions"
+    },
+    {
+      "type": "url",
+      "id": "map_button_link",
+      "label": "Map button link"
+    },
+    {
+      "type": "header",
+      "content": "Contact form"
+    },
+    {
+      "type": "text",
+      "id": "contact_heading",
+      "label": "Contact heading",
+      "default": "Contact Our Store"
+    },
+    {
+      "type": "richtext",
+      "id": "contact_intro",
+      "label": "Contact intro",
+      "default": "<p>We would love to hear from you! Let us know what you think or if you have general feedback or inquiries.</p>"
+    },
+    {
+      "type": "text",
+      "id": "contact_notice",
+      "label": "Contact notice",
+      "default": "For all email enquiries, we will get back to you within 48 hours."
+    },
+    {
+      "type": "textarea",
+      "id": "store_options",
+      "label": "Dropdown options (comma separated)",
+      "default": "General inquiry, Bondi, Online Orders"
+    },
+    {
+      "type": "image_picker",
+      "id": "contact_image",
+      "label": "Contact image"
+    },
+    {
+      "type": "header",
+      "content": "Info columns"
+    },
+    {
+      "type": "text",
+      "id": "info_col_1_title",
+      "label": "Info column 1 title",
+      "default": "Centre Information"
+    },
+    {
+      "type": "textarea",
+      "id": "info_col_1_text",
+      "label": "Info column 1 text",
+      "default": "Enter your centre information."
+    },
+    {
+      "type": "text",
+      "id": "info_col_2_title",
+      "label": "Info column 2 title",
+      "default": "Parking"
+    },
+    {
+      "type": "textarea",
+      "id": "info_col_2_text",
+      "label": "Info column 2 text",
+      "default": "Enter your parking information."
+    },
+    {
+      "type": "text",
+      "id": "info_col_3_title",
+      "label": "Info column 3 title",
+      "default": "Public Transport"
+    },
+    {
+      "type": "textarea",
+      "id": "info_col_3_text",
+      "label": "Info column 3 text",
+      "default": "Enter your public transport information."
+    },
+    {
+      "type": "text",
+      "id": "center_map_button_label",
+      "label": "Centre map button label",
+      "default": "View Centre Map"
+    },
+    {
+      "type": "url",
+      "id": "center_map_button_link",
+      "label": "Centre map button link"
+    },
+    {
+      "type": "header",
+      "content": "FAQ and optometrist"
+    },
+    {
+      "type": "text",
+      "id": "faq_heading",
+      "label": "FAQ heading",
+      "default": "Appointment FAQs"
+    },
+    {
+      "type": "text",
+      "id": "optometrist_heading",
+      "label": "Optometrist heading",
+      "default": "Meet Our Optometrists"
+    },
+    {
+      "type": "image_picker",
+      "id": "optometrist_image",
+      "label": "Optometrist image"
+    },
+    {
+      "type": "text",
+      "id": "optometrist_name",
+      "label": "Optometrist name",
+      "default": "Margaret Lam"
+    },
+    {
+      "type": "text",
+      "id": "optometrist_role",
+      "label": "Optometrist role",
+      "default": "Head Optometrist"
+    },
+    {
+      "type": "richtext",
+      "id": "optometrist_bio",
+      "label": "Optometrist bio",
+      "default": "<p>Add qualifications and profile summary here.</p>"
+    },
+    {
+      "type": "text",
+      "id": "optometrist_button_label",
+      "label": "Optometrist button label",
+      "default": "See Profile"
+    },
+    {
+      "type": "url",
+      "id": "optometrist_button_link",
+      "label": "Optometrist button link"
+    },
+    {
+      "type": "header",
+      "content": "Services and brands"
+    },
+    {
+      "type": "text",
+      "id": "services_heading",
+      "label": "Services heading",
+      "default": "Services Available At This Store"
+    },
+    {
+      "type": "richtext",
+      "id": "services_intro",
+      "label": "Services intro",
+      "default": "<p>Use this area to describe your services and in-store specialties.</p>"
+    },
+    {
+      "type": "text",
+      "id": "brands_heading",
+      "label": "Brands heading",
+      "default": "Shop these popular brands in store today!"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq",
+      "name": "FAQ item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "How much does an eye test cost?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Enter your FAQ answer here.</p>"
+        }
+      ]
+    },
+    {
+      "type": "service",
+      "name": "Service item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Service title",
+          "default": "Contact Lens Assessment"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Service description",
+          "default": "Add your service description here."
+        }
+      ]
+    },
+    {
+      "type": "brand",
+      "name": "Brand card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Brand logo"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Brand title",
+          "default": "Brand name"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "textarea",
+          "id": "caption",
+          "label": "Caption",
+          "default": "Add a short supporting caption."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Location Form",
+      "blocks": [
+        {
+          "type": "faq"
+        },
+        {
+          "type": "faq"
+        },
+        {
+          "type": "service"
+        },
+        {
+          "type": "service"
+        },
+        {
+          "type": "service"
+        },
+        {
+          "type": "brand"
+        },
+        {
+          "type": "brand"
+        },
+        {
+          "type": "brand"
+        },
+        {
+          "type": "brand"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

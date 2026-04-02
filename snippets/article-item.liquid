@@ -1,0 +1,59 @@
+{% comment %}
+  Articles are best represented by <article> tags, for more information read here https://web.dev/learn/html/headings-and-sections/#lessasidegreater
+{% endcomment %}
+
+<article>
+  <h3>
+    <a href="{{ article.url }}">{{ article.title }}</a>
+  </h3>
+
+  <p>
+    {% assign date = article.published_at | time_tag: format: 'month_day_year' %}
+    {{ 'blogs.article.author_on_date_html' | t: author: article.author, date: date }}
+  </p>
+
+  <a
+    href="{{ article.url }}"
+    title="{{ article.title }}"
+    class="block">
+    {% if article.image %}
+      {{ article.image | image_url: width: 1024 | image_tag: widths: '460, 768, 1024', loading: 'lazy' }}
+    {% else %}
+      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+    {% endif %}
+  </a>
+
+  <div class="rte">
+    {% if article.excerpt.size > 0 %}
+      {{ article.excerpt }}
+    {% else %}
+      <p>{{ article.content | strip_html | truncatewords: 30 }}</p>
+    {% endif %}
+  </div>
+
+  {% if blog.comments_enabled? or article.tags.size > 0 %}
+    <ul>
+      {% if blog.comments_enabled? %}
+        <li>
+          <a href="{{ article.url }}#comments">
+            {{ 'blogs.comments.with_count' | t: count: article.comments_count }}
+          </a>
+        </li>
+      {% endif %}
+
+      {% if article.tags.size > 0 %}
+        {% for tag in article.tags %}
+          <li>
+            <a href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag }}</a>
+            {% unless forloop.last %},
+            {% endunless %}
+          </li>
+        {% endfor %}
+      {% endif %}
+    </ul>
+  {% endif %}
+
+  <p>
+    <a href="{{ article.url }}">{{ 'blogs.article.read_more' | t }} &rarr;</a>
+  </p>
+</article>

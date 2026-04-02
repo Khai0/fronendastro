@@ -1,0 +1,15 @@
+.placeholder-svg {
+  @apply block w-full h-full fill-black bg-light-background;
+
+  &--portrait {
+    @apply py-[16.67%] px-0;
+  }
+  
+  &--landscape {
+    @apply py-0 px-[16.67%];
+  }
+  
+  &--wide {
+    @apply py-0 px-[33.33%];
+  }
+}

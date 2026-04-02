@@ -1,0 +1,52 @@
+{% layout none %}
+{%- comment -%}
+Replaced cart.js because compare_at_price was not available.
+Only necessary fields have been included, for the full list check: 
+  - https://shopify.dev/docs/themes/liquid/reference/objects/line_item/#line_item-image
+  - {{ cart | json }} - doesn't match exactly
+{%- endcomment -%}
+{
+  "currency": {{ cart.currency.iso_code | json }},
+  "item_count": {{ cart.item_count }},
+  "items": [
+    {%- for line_item in cart.items -%}
+      {
+        "compare_at_price": {% if line_item.variant.compare_at_price and line_item.variant.compare_at_price > line_item.final_price %}{{ line_item.variant.compare_at_price }}{% else %}null{% endif %},
+        "final_line_price": {{ line_item.final_line_price }},
+        "final_price": {{ line_item.final_price }},
+        "id": {{ line_item.id }},
+        {% if line_item.image %}
+          "image": {
+            "alt": {{ line_item.image.alt | json }},
+            "src": {{ line_item.image.src | image_url | json }},
+            "aspect_ratio": {{ line_item.image.aspect_ratio | json }}
+          },
+        {% else %}
+          "image": null,
+        {% endif %}
+        "key": {{ line_item.key | json }},
+        "options_with_values": {{ line_item.options_with_values | json }},
+        "product_title": {{ line_item.product.title | json }},
+        "product_type": {{ line_item.product.type | json }},
+        {%- liquid
+          assign properties_string = ''
+          for property in line_item.properties
+              assign key = property | first
+              assign value = property | last | json
+              assign properties_string = properties_string | append: '"' | append: key | append: '": ' | append: value | append: "^"
+          endfor
+        -%}
+        "properties": {% unless properties_string == empty %}{
+          {{ properties_string | split: '^' | join: ',' }}
+        }{% else %}null{% endunless %},
+        "quantity": {{ line_item.quantity }},
+        "has_variant": {% if line_item.variant.title != 'Default Title' %}true{% else %}false{% endif %},
+        "url": {{ line_item.url | json }}
+      }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ],
+  "items_subtotal_price": {{ cart.items_subtotal_price }},
+  "note": {{ cart.note | json }},
+  "original_total_price": {{ cart.original_total_price }},
+  "total_price": {{ cart.total_price }}
+}

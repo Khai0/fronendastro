@@ -1,0 +1,17 @@
+.tabs {
+  &__nav {
+    @apply flex items-center justify-center;
+  }
+
+  &__link {
+    @apply relative inline-block my-0 mx-4 py-4 px-8 text-body-secondary text-center transition-colors;
+
+    @media (max-width: 767px) {
+      @apply py-2 px-4;
+    }
+
+    &--active {
+      @apply text-primary;
+    }
+  }
+}

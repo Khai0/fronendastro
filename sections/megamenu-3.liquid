@@ -1,0 +1,92 @@
+{%- if section.settings.attach_to != blank -%}
+  {% assign parent_handle = section.settings.attach_to | handleize %}
+  {{ 'megamenu-1.css' | asset_url | stylesheet_tag }}
+
+  <transition name="megamenu">
+    <div v-show="megamenuToggles['{{ parent_handle }}']" @mouseleave="closeAllMegamenus" parent-item="{{ parent_handle }}" class="megamenu megamenu--featured-3">
+      <div class="container">
+
+        <div class="megamenu-3-only">
+          {% for block in section.blocks limit: 1 %}
+            {% if block.type == 'cta' %}
+              <article class="megamenu-3-image" {{ block.shopify_attributes }}>
+                {% if block.settings.url != blank %}
+                  <a href="{{ block.settings.url }}">
+                {% endif %}
+
+                {% if block.settings.image != blank %}
+                  <img
+                    src="{{ block.settings.image | image_url: width: 520 }}"
+                    alt="{{ block.settings.title | escape }}"
+                    loading="lazy"
+                    width="520"
+                    height="430"
+                  >
+                {% endif %}
+
+                {% if block.settings.title != blank %}
+                  <p>{{ block.settings.title }}</p>
+                {% endif %}
+
+                {% if block.settings.url != blank %}
+                  </a>
+                {% endif %}
+              </article>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+  </transition>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Megamenu 3",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Settings"
+    },
+    {
+      "type": "text",
+      "id": "attach_to",
+      "label": "Parent menu item",
+      "info": "This should be a unique menu item from the parent menu."
+    },
+    {
+      "type": "header",
+      "content": "Call To Actions"
+    },
+    {
+      "type": "paragraph",
+      "content": "Add image blocks with links."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "cta",
+      "name": "Call To Action",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

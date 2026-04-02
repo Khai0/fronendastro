@@ -1,0 +1,60 @@
+{{ 'theme.css' | asset_url | stylesheet_tag }}
+<section class="mb-4">
+  <div class="md:w-1/2">
+    {% form 'contact' %}
+
+      {% if form.posted_successfully? %}
+        <p class="form-success">
+          {{ 'contact.form.post_success' | t }}
+        </p>
+      {% endif %}
+
+      {{ form.errors | default_errors }}
+
+      <div class="field">
+        <label for="ContactFormName">{{ 'contact.form.name' | t }}</label>
+        <input type="text"
+          name="contact[name]"
+          id="ContactFormName"
+          placeholder="{{ 'contact.form.name' | t }}"
+          value="{% if form[name] %}{{ form[name] }}{% elsif customer %}{{ customer.name }}{% endif %}">
+      </div>
+
+      <div class="field">
+        <label for="ContactFormEmail">{{ 'contact.form.email' | t }}</label>
+        <input type="email"
+          name="contact[email]"
+          id="ContactFormEmail"
+          placeholder="{{ 'contact.form.email' | t }}"
+          value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+          spellcheck="false"
+          autocomplete="off"
+          autocapitalize="off">
+      </div>
+
+      <div class="field">
+        <label for="ContactFormPhone">{{ 'contact.form.phone' | t }}</label>
+        <input type="tel"
+          name="contact[phone]"
+          id="ContactFormPhone"
+          placeholder="{{ 'contact.form.phone' | t }}"
+          value="{% if form[phone] %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+          pattern="[0-9\-]*">
+      </div>
+
+      <div class="field field--textarea">
+        <label for="ContactFormMessage">{{ 'contact.form.message' | t }}</label>
+        <textarea rows="10"
+          name="contact[body]"
+          id="ContactFormMessage">
+          {%- if form.body -%}
+            {{- form.body -}}
+          {%- endif -%}
+        </textarea>
+      </div>
+
+      <input type="submit" class="button button--primary" value="{{ 'contact.form.send' | t }}">
+
+    {% endform %}
+  </div>
+</section>

@@ -1,0 +1,54 @@
+{% comment %} 
+Customer Privacy API - https://shopify.dev/api/consent-tracking
+---
+To use the Customer Privacy API, the merchant must limit data collection in their online store settings for the target regions.
+{% endcomment %}
+<div consent-tracking class="hidden fixed inset-0">
+  <div class="flex items-center justify-center h-full">
+    <div class="p-5 bg-white drop-shadow">
+      <h2 class="h3 mb-3">{{ settings.consent_tracking_title }}</h2>
+      <div class="rte mb-5">{{ settings.consent_tracking_message }}</div>
+      <div class="flex justify-end space-x-4">
+        <button
+          type="button"
+          class="button button--secondary"
+          onclick="handleConsentResponse(false)">{{ settings.consent_tracking_deny_label }}</button>
+        <button
+          type="button"
+          class="button button--primary"
+          onclick="handleConsentResponse(true)">{{ settings.consent_tracking_allow_label }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.Shopify.loadFeatures([
+    {
+      name: 'consent-tracking-api',
+      version: '0.1'
+    }
+  ], error => {
+    if (error) {
+      console.log('consent-tracking-api loading error:', error)
+    }
+
+    if (window.Shopify.customerPrivacy.shouldShowBanner()) {
+
+      const prompt = document.querySelector('[consent-tracking]')
+      prompt.classList.remove('hidden')
+    }
+  })
+
+  function handleConsentResponse(hasConsentedToTracking) {
+    window.Shopify.customerPrivacy.setTrackingConsent(hasConsentedToTracking, function() {
+      const prompt = document.querySelector('[consent-tracking]')
+      prompt.classList.add('hidden')
+    })
+
+// document
+// .addEventListener("trackingConsentAccepted", function() {
+// console.log("trackingConsentAccepted event fired")
+// });
+  }
+</script>

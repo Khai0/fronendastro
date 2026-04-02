@@ -1,0 +1,27 @@
+{%- assign header_menu_handle = menu_handle | default: section.settings.main_menu -%}
+
+<nav class="site-header__nav-wrap" aria-label="Primary navigation">
+  <ul class="site-header__nav" role="list">
+    {%- for link in linklists[header_menu_handle].links -%}
+      <li
+        class="nav-item"
+        v-init-megamenu="'{{ link.handle }}'"
+        :class="{ 'is-open': megamenuToggles['{{ link.handle }}'] }">
+        <a
+          class="nav-item__link"
+          href="{{ link.url }}"
+          :class="{ 'menu-link--active': megamenuToggles['{{ link.handle }}'] }">
+          {{ link.title | escape }}
+        </a>
+
+        {%- if link.links.size > 0 -%}
+          <div class="nav-item__chevron" aria-hidden="true">
+            <span class="menu-arrow" :class="{ 'menu-arrow--active': megamenuToggles['{{ link.handle }}'] }">
+              {% render 'icon', name: 'arrow-down' %}
+            </span>
+          </div>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+</nav>

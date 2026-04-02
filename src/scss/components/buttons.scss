@@ -1,0 +1,64 @@
+.button {
+  $self: &;
+
+  @apply inline-flex items-center justify-center py-2 px-4 border border-primary rounded bg-transparent text-primary tracking-wide text-center transition-colors;
+
+  &:focus,
+  &:hover {
+    @apply bg-primary text-white;
+  }
+
+  &--dark {
+    @apply border-white text-white;
+
+    &:focus,
+    &:hover {
+      @apply bg-white text-primary;
+    }
+  }
+
+  &--primary {
+    @apply bg-primary text-white;
+
+    &:focus,
+    &:hover {
+      @apply bg-white text-primary;
+    }
+
+    &#{ $self }--dark {
+      @apply bg-white border-white text-primary;
+
+      &:focus,
+      &:hover {
+        @apply bg-primary text-white;
+      }
+    }
+  }
+
+  &--secondary {
+    @apply bg-transparent text-primary;
+
+    &:focus,
+    &:hover {
+      @apply bg-primary text-white;
+    }
+
+    &#{ $self }--dark {
+      @apply text-white border-white;
+
+      &:focus,
+      &:hover {
+        @apply bg-white text-primary;
+      }
+    }
+  }
+
+  &:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
+
+.shopify-challenge__button {
+  @extend .button;
+  @extend .button--primary;
+}

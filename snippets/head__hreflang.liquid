@@ -1,0 +1,53 @@
+{% comment %} 
+  Determine the type of the current page
+{% endcomment %}
+{%- if product -%}
+  {%- assign current_page = product -%}
+{%- elsif collection -%}
+  {%- assign current_page = collection -%}
+{%- elsif page -%}
+  {%- assign current_page = page -%}
+{%- endif -%}
+
+{% comment %} 
+  Check metafields to see if current document has SEO.Hidden set
+{% endcomment %}
+{%- assign is_seo_hidden_value = current_page.metafields.seo.hidden -%}
+{%- assign is_seo_hidden_parsed = false -%}
+
+{% comment %} 
+  To be true, the metafield must be set in the first place (ie. not blank), and, as per the documentation, have a value of 1
+{% endcomment %}
+{%- if is_seo_hidden_value == 1 -%}
+  {%- assign is_seo_hidden_parsed = true -%}
+{%- endif -%}
+
+{% comment %} Check the Canonical Url to see if it includes a page= value; if it does, it is a paginated page {% endcomment %} 
+{%- assign is_paginated = false -%}
+{%- if canonical_url contains 'page=' -%}
+  {%- assign is_paginated = true -%}
+{%- endif -%}
+
+{% comment %} If the SEO.Hidden metafield is TRUE, or the page is paginated, do not show the hreflang {% endcomment %}
+{%- unless is_seo_hidden_parsed or is_paginated -%}
+  
+  {%- comment -%}
+    Delete extra unused settings below as appropriate
+    Also remove from the SEO section of config/settings_schema.json
+  {%- endcomment -%}
+
+  {% assign url_handle = canonical_url | remove: shop.url  | remove_first: "/" %}
+  {%- if settings.hreflang_us != blank -%}
+    <link rel="alternate" hreflang="{{settings.hreflang_us_language}}" href="{{ settings.hreflang_us }}/{{ url_handle }}" />
+  {%- endif -%}
+  {%- if settings.hreflang_au != blank -%}
+    <link rel="alternate" hreflang="{{settings.hreflang_au_language}}" href="{{ settings.hreflang_au }}/{{ url_handle }}" />
+  {%- endif -%}
+  {%- if settings.hreflang_nz != blank -%}
+    <link rel="alternate" hreflang="{{settings.hreflang_nz_language}}" href="{{ settings.hreflang_nz }}/{{ url_handle }}" />
+  {%- endif -%}
+  {%- if settings.hreflang_int != blank -%}
+    <link rel="alternate" hreflang="{{settings.hreflang_int_language}}" href="{{ settings.hreflang_int }}/{{ url_handle }}" />
+  {%- endif -%}
+
+{%- endunless -%}

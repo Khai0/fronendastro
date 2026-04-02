@@ -1,0 +1,16 @@
+<div class="iwishItem product-item col-md-4">
+    {{form}}
+        <a class="product-item__image" href="{{productLink}}">
+            {% if productImgSrc %}
+                <img loading="lazy" src="{{productImgSrc}}" alt="{{productTitle}}" />
+            {% else %}
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+            {% endif %}
+        </a>
+        <div class="flex justify-between">
+            <div class="product-item__name product-name"><a href="{{productLink}}">{{productTitle}}</a></div>
+            <a class="iwishRemoveBtn remove" href="{{removeWishLink}}" title="Remove from wish list">X REMOVE</a>
+        </div>
+        <div>{{productPrice}}</div>
+    {{/form}}
+</div>

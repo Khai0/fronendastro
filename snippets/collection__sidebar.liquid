@@ -1,0 +1,84 @@
+<div class="mb-4">
+  {% assign sidebar_menu = linklists[section.settings.filter_menu] %}
+  {% if sidebar_menu != blank %}
+    <h2>{{ sidebar_menu.title }}</h2>
+    <ul>
+      {% for link in sidebar_menu.links %}
+        <li class="my-2">
+          <a href="{{ link.url }}" {%- if link.active %} class="font-weight-bold"{% endif %}>
+            {{ link.title }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <h2>Menu title</h2>
+    <p>{{ 'general.onboarding.no_content' | t }}</p>
+  {% endif %}
+</div>
+
+{% if section.blocks.size > 0 %}
+
+  <h2 class="mb-3">{{ 'collections.sidebar.filter_by' | t }}</h2>
+  {% for block in section.blocks %}
+    {% if block.type == 'filter' %}
+
+      {% comment %} 
+      Cleanse user input. Requires forloop for stripping spaces.
+      {% endcomment %}
+      {% assign split_filter_tags = block.settings.filter_tags | downcase | split: ',' %}
+      {%- capture filter_tags -%}
+        {%- for tag in split_filter_tags -%}
+          {{ tag | strip }}{%- unless forloop.last -%}^{%- endunless -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+      {% assign filter_tags = filter_tags | split: '^' %}
+
+
+      {% assign all_tags = collection.all_tags | join: '^' | downcase | split: '^' %}
+
+      {% comment %} 
+      Check if this filter block is applicable to this collection, otherwise, don't show it
+      {% endcomment %}
+      {% assign has_filter = false %}
+      {% for tag in filter_tags %}
+        {% if all_tags contains tag %}
+          {% assign has_filter = true %}
+          {% break %}
+        {%- endif %}
+      {% endfor %}
+
+      {% if has_filter %}
+        <div class="collection__filter">
+
+          <h3>{{ block.settings.title }}</h3>
+          <ul v-init-filter="'{{ block.settings.title | handleize }}'">
+            {% for tag in filter_tags %}
+              {% if all_tags contains tag %}
+                <li class="my-2">
+                  {% comment %}
+                  Product tag naming convention: <filter code>|<value with spaces replaced with underscore (_)> 
+                  {% endcomment %}
+                  {% assign split = tag | replace: '_', ' ' | split: '|' %}
+                  {%- if split[1] != blank -%}
+                    {% assign value = split[1] %}
+                  {%- else -%}
+                    {% assign value = split[0] %}
+                  {%- endif -%}
+                  <input v-model="filters['{{ block.settings.title | handleize }}']" @change="filter()"
+                         type="checkbox" id="{{ tag }}" name="{{ block.settings.title | handleize }}" value="{{ tag }}" /><label for="{{ tag }}">{{ value }}</label>
+                </li>
+              {% endif %}
+            {% endfor %}       
+          </ul>
+        </div>
+      {% endif %}
+
+
+    {% endif %}
+  {% endfor %}
+
+  {% if current_tags %}
+    <a href="{{ collection.url }}" class="h6">X {{ 'collections.sidebar.clear_all' | t }}</a>
+  {% endif %}
+{% endif %}

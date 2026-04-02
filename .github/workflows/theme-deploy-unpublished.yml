@@ -1,0 +1,377 @@
+name: Deploy Unpublished Theme
+
+defaults:
+  run:
+    working-directory: .
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Choose a Shopify store to deploy to:"
+        type: environment
+        required: true
+      themeid:
+        description: "Update: Enter Existing Theme Id"
+        type: string
+        required: false
+        default: ""
+      themename:
+        description: "Create: Enter New Theme Name (Leave Theme Id blank)"
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  notifyslackstart:
+    name: Notify Slack Channel (Job Start)
+    runs-on: ubuntu-latest
+    outputs:
+      ts: ${{ steps.slack-started.outputs.ts }}
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Post to a Slack channel (Started)
+        id: slack-started
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*Unpublished* Deployment started",
+                  "color": "#FFA500",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "In Progress"
+                    },
+                    {
+                      "title": "Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.environment }}"
+                    },
+                    {
+                      "title": "Workflow Logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ],
+              "as_user": "MindArc Jane"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+
+  deploy:
+    name: Deploy Shopify Theme
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+          bundler: latest
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@3.54.0 @shopify/theme@3.54.0
+
+      - name: Determine Theme Action
+        id: determine-theme-action
+        run: |
+          # Determine deployment configuration
+          # List themes, grep on unpublished themes, count and then remove any whitespace
+          themecount=$(shopify theme list | grep "unpublished" | wc -l | tr -d '[:space:]')
+          echo "Unpublished theme count: $themecount"
+
+          # Get the live theme id
+          liveid=$(shopify theme list --role live | grep -o '#[0-9]\+' | sed 's/#//')
+          echo "Live theme id: $liveid"
+          echo "LIVE_THEME_ID=$liveid" >> "$GITHUB_ENV"
+
+          # Check to ensure that there is enough space to publish a theme
+          if [ "$themecount" -gt "${{ vars.MAX_THEME_COUNT }}" ] && [ -z "${{ github.event.inputs.themename }}" ]; then
+              echo "The maximum allowed no. of themes has been reached, please login to ${{ github.event.inputs.environment }}, remove some unpublished themes and then try again"
+              exit 1
+          fi
+
+          # Check to ensure that the themeid does not match the live deployed theme
+          if [ "${{ github.event.inputs.themeid }}" = "$liveid" ]; then
+              echo "The entered theme id matches the live deployment, please check your theme id input"
+              exit 1
+          fi
+
+          # Determine whether the workflow has been initiated without a themeid (create) or update using id provided by input box
+          if [ -z "${{ github.event.inputs.themeid }}" ]; then
+            echo "ACTION=create" >> "$GITHUB_ENV"
+          else
+            echo "ACTION=update" >> "$GITHUB_ENV"
+          fi
+        env:
+          SHOPIFY_FLAG_STORE: ${{ github.event.inputs.environment }}
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          SHOPIFY_CLI_TTY: 0
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+            
+      - uses: actions/checkout@v3
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies and build
+        run: pnpm install && pnpm build-prod
+
+      - name: Generate Theme Name
+        run: |
+          echo "THEME_NAME=${{ github.event.inputs.themename }}" >> "$GITHUB_ENV"
+
+      - name: Create Theme
+        if: env.ACTION == 'create'
+        env:
+          SHOPIFY_FLAG_STORE: ${{ github.event.inputs.environment }}
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          SHOPIFY_CLI_TTY: 0
+          SHOPIFY_CLI_STACKTRACE: 1
+        run: |
+          shopifyresponse=$(shopify theme push --path . --unpublished --theme "$THEME_NAME" --ignore "config/*.json" --json | jq -r '.theme.preview_url')
+          echo $shopifyresponse
+          echo "SHOPIFY_RESPONSE=$shopifyresponse" >> "$GITHUB_ENV"
+
+      - name: Update Existing Theme
+        if: env.ACTION == 'update' && github.event.inputs.themeid != env.LIVE_THEME_ID
+        env:
+          SHOPIFY_FLAG_STORE: ${{ github.event.inputs.environment }}
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          SHOPIFY_CLI_TTY: 0
+          SHOPIFY_CLI_STACKTRACE: 1
+        run: |
+          shopifyresponse=$(shopify theme push --path . --theme ${{ github.event.inputs.themeid }} --ignore "config/*.json" --json | jq -r '.theme.preview_url')
+          echo $shopifyresponse
+          echo "SHOPIFY_RESPONSE=$shopifyresponse" >> "$GITHUB_ENV"
+
+      - name: Persist job status
+        if: always()
+        run: echo "SHOPIFY_RESPONSE=${{ env.SHOPIFY_RESPONSE }}" > shopify_response.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shopify-result-${{ matrix.runs-on }}
+          path: shopify_response.txt
+
+  notifyslackfinish:
+    name: Notify Slack Channel (Result)
+    runs-on: ubuntu-latest
+    needs: 
+      - notifyslackstart
+      - deploy
+    if: always()
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Get Deployment variables
+        if: needs.deploy.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: shopify-result-*
+          merge-multiple: true
+
+      - name: Read Environment Variable
+        if: needs.deploy.result == 'success'
+        run: |
+          echo "$(cat shopify_response.txt)" >> "$GITHUB_ENV"
+
+      - name: Post to a Slack channel (Success)
+        if: needs.deploy.result == 'success'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          update-ts: ${{ needs.notifyslackstart.outputs.ts }}
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*Unpublished* Deployment complete",
+                  "color": "#36a64f",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "Success"
+                    },
+                    {
+                      "title": "Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.environment }}"
+                    },
+                    {
+                      "title": "Workflow Logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    },
+                    {
+                      "title": "Preview Link",
+                      "short": true,
+                      "value": "<${{ env.SHOPIFY_RESPONSE }}|Preview Theme Link>"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ],
+              "as_user": "MindArc Jane"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+
+      - name: Post to a Slack channel (Failed)
+        if: needs.deploy.result == 'failure'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          update-ts: ${{ needs.notifyslackstart.outputs.ts }}
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*Unpublished* Deployment failed",
+                  "color": "#FF0000",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "Failed"
+                    },
+                    {
+                      "title": "Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.environment }}"
+                    },
+                    {
+                      "title": "Workflow logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ],
+              "as_user": "MindArc Jane"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+
+      - name: Post to a Slack channel (Cancelled)
+        if: needs.deploy.result == 'cancelled'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          update-ts: ${{ needs.notifyslackstart.outputs.ts }}
+          channel-id: ${{ vars.SLACK_BUILD_CHANNEL_ID }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "*Unpublished* Deployment cancelled",
+                  "color": "#FF0000",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "short": true,
+                      "value": "Cancelled"
+                    },
+                    {
+                      "title": "Store",
+                      "short": true,
+                      "value": "${{ github.event.inputs.environment }}"
+                    },
+                    {
+                      "title": "Workflow logs",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Link>"
+                    }
+                  ]
+                }
+              ],
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository*: <${{github.repositoryUrl}}|${{github.repository}}>" 
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Initiated By*: ${{ github.actor }}" 
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}

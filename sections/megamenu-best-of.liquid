@@ -1,0 +1,179 @@
+{%- if section.settings.attach_to != blank -%}
+  {% assign parent_handle = section.settings.attach_to | handleize %}
+  {% assign best_of_menu = linklists[section.settings.menu] %}
+  {{ 'megamenu-1.css' | asset_url | stylesheet_tag }}
+
+  <transition name="megamenu">
+    <div v-show="megamenuToggles['{{ parent_handle }}']" @mouseleave="closeAllMegamenus" parent-item="{{ parent_handle }}" class="megamenu megamenu--best-of">
+      <div class="container">
+        <div class="best-of-layout">
+          <div class="best-of-content">
+            {% if section.settings.eyebrow != blank %}
+              <p class="best-of-eyebrow">{{ section.settings.eyebrow }}</p>
+            {% endif %}
+
+            {% if section.settings.title != blank %}
+              <h3 class="best-of-title">{{ section.settings.title }}</h3>
+            {% endif %}
+
+            {% if section.settings.description != blank %}
+              <p class="best-of-description">{{ section.settings.description }}</p>
+            {% endif %}
+
+            {% if best_of_menu.links.size > 0 %}
+              <ul class="best-of-links" role="list">
+                {% for link in best_of_menu.links %}
+                  <li>
+                    <a href="{{ link.url }}">{{ link.title }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+            {% if section.settings.view_all_url != blank and section.settings.view_all_label != blank %}
+              <a class="best-of-view-all" href="{{ section.settings.view_all_url }}">{{ section.settings.view_all_label }}</a>
+            {% endif %}
+          </div>
+
+          <div class="best-of-cards">
+            {% for block in section.blocks %}
+              {% if block.type == 'item' %}
+                <article class="best-of-card" {{ block.shopify_attributes }}>
+                  {% if block.settings.url != blank %}
+                    <a class="best-of-card__link" href="{{ block.settings.url }}">
+                  {% endif %}
+
+                  <div class="best-of-card__media">
+                    {% if block.settings.image != blank %}
+                      <img
+                        src="{{ block.settings.image | image_url: width: 520 }}"
+                        alt="{{ block.settings.title | escape }}"
+                        loading="lazy"
+                        width="520"
+                        height="520"
+                      >
+                    {% endif %}
+
+                    {% if block.settings.badge != blank %}
+                      <span class="best-of-card__badge">{{ block.settings.badge }}</span>
+                    {% endif %}
+                  </div>
+
+                  <div class="best-of-card__body">
+                    {% if block.settings.title != blank %}
+                      <h4>{{ block.settings.title }}</h4>
+                    {% endif %}
+                    {% if block.settings.caption != blank %}
+                      <p>{{ block.settings.caption }}</p>
+                    {% endif %}
+                  </div>
+
+                  {% if block.settings.url != blank %}
+                    </a>
+                  {% endif %}
+                </article>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Megamenu Best Of",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Settings"
+    },
+    {
+      "type": "text",
+      "id": "attach_to",
+      "label": "Parent menu item",
+      "info": "This should be a unique menu item from the parent menu."
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Best of links menu"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Editor Picks"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Best Of"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Hand-picked favorites from our most-loved collections."
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "View all label",
+      "default": "View all picks"
+    },
+    {
+      "type": "url",
+      "id": "view_all_url",
+      "label": "View all link"
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "paragraph",
+      "content": "Add up to 4 featured cards."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Best of card",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge",
+          "default": "Best Seller"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Card title"
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "Caption",
+          "default": "Short supporting text"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
