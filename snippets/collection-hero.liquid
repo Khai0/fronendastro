@@ -1,0 +1,13 @@
+<div class="collection-hero">
+  <div class="collection-hero__inner">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a class="breadcrumb__link" href="{{ routes.root_url }}">Home</a>
+      <span class="breadcrumb__sep" aria-hidden="true">›</span>
+      <span class="breadcrumb__current">{{ collection.title }}</span>
+    </nav>
+    <h1 class="collection-hero__title">{{ collection.title }}</h1>
+    {%- if collection.description != blank -%}
+      <div class="collection-hero__desc">{{ collection.description }}</div>
+    {%- endif -%}
+  </div>
+</div>

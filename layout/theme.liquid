@@ -40,6 +40,8 @@
 
     <script src="{{ 'theme.vendors.js' | asset_url }}" defer></script>
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
+    <script src="{{ 'header.js' | asset_url }}" defer></script>
+    <script src="{{ 'announcement-bar.js' | asset_url }}" defer></script>
   </head>
 
   <body id="{{ page_title | handle }}" class="template-{{ template.name | handle }} hidden">
@@ -54,6 +56,11 @@
           {% section 'megamenu-1' %}
           {% section 'megamenu-2' %}
           {% section 'megamenu-3' %}
+          {% section 'megamenu-4' %}
+          {% section 'megamenu-5' %}
+          {% section 'megamenu-6' %}
+          {% section 'megamenu-7' %}
+          {% section 'megamenu-8' %}
           {% section 'megamenu-best-of' %}
         </div>
       </vue-header>

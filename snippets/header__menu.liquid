@@ -6,7 +6,9 @@
       <li
         class="nav-item"
         v-init-megamenu="'{{ link.handle }}'"
-        :class="{ 'is-open': megamenuToggles['{{ link.handle }}'] }">
+        :class="{ 'is-open': megamenuToggles['{{ link.handle }}'] }"
+        @mouseenter="openMegamenu('{{ link.handle }}')"
+        @mouseleave="scheduleMegamenuClose('{{ link.handle }}')">
         <a
           class="nav-item__link"
           href="{{ link.url }}"
@@ -14,13 +16,9 @@
           {{ link.title | escape }}
         </a>
 
-        {%- if link.links.size > 0 -%}
-          <div class="nav-item__chevron" aria-hidden="true">
-            <span class="menu-arrow" :class="{ 'menu-arrow--active': megamenuToggles['{{ link.handle }}'] }">
-              {% render 'icon', name: 'arrow-down' %}
-            </span>
-          </div>
-        {%- endif -%}
+        <div class="nav-item__chevron menu-arrow" aria-hidden="true">
+          {% render 'icon', name: 'arrow-down' %}
+        </div>
       </li>
     {%- endfor -%}
   </ul>

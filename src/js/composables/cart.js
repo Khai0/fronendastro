@@ -6,12 +6,37 @@ import { xhrRequestConfig } from '@/js/utils/api'
 const cart = ref(null)
 const isLoading = ref(false)
 
+async function fetchCart () {
+  isLoading.value = true
+
+  const root = window.Shopify?.routes?.root || '/'
+  // Add timestamp to prevent caching
+  const timestamp = new Date().getTime()
+  await axios.get(`${root}cart?view=data&_=${timestamp}`).then(({ data }) => {
+    console.log('Cart data fetched:', data)
+    cart.value = data
+    // Dispatch event for any non-Vue listeners
+    document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }))
+  }).catch(error => {
+    console.error('fetchCart error:', error)
+  })
+
+  isLoading.value = false
+}
+
+let cartRefreshListenerAttached = false
+
 export function useCart () {
   const isAddingToCart = ref(false)
   const error = ref(null)
 
   onMounted(() => {
     if (!cart.value && !isLoading.value) fetchCart()
+
+    if (!cartRefreshListenerAttached) {
+      document.addEventListener('cart:refresh', fetchCart)
+      cartRefreshListenerAttached = true
+    }
   })
 
   function publicProperties (item) {
@@ -109,19 +134,6 @@ export function useCart () {
         isLoading.value = false
         item.isLoading = false
       })
-  }
-
-  async function fetchCart () {
-    isLoading.value = true
-
-    const root = window.Shopify?.routes?.root || '/'
-    await axios.get(`${root}cart?view=data`).then(({ data }) => {
-      cart.value = data
-    }).catch(error => {
-      console.error('fetchCart error:', error.toJSON())
-    })
-
-    isLoading.value = false
   }
 
   return {

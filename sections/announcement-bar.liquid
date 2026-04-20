@@ -1,77 +1,173 @@
-{%- if section.settings.announcement_bar_enabled -%}
-  {%- if section.settings.announcement_bar_home_page_only == false or template.name == 'index' and section.blocks.size > 0 -%}
-    <div vue-init class="announcement-bar bg-light-background text-center py-1">
-      <keen-slider 
-        :options="{
-          loop: true,
-          vertical: true,
-          slides: {
-            perView: 1
-          }
-        }"
-        classes="h-[24px]"
-        {%- if section.settings.is_auto_scroll %}
-          :autoplay="{{ section.settings.announcement_autoplay_speed | times: 1000 }}"
-        {%- endif %}
-      >
+﻿{{ 'announcement-bar.css' | asset_url | stylesheet_tag }}
+
+{%- if section.blocks.size > 0 -%}
+  <div
+    class="announcement-bar"
+    id="announcement-bar"
+    role="region"
+    aria-label="Announcements"
+    data-autoplay="{{ section.settings.autoplay }}"
+    data-speed="{{ section.settings.autoplay_speed | times: 1000 }}"
+    style="--announcement-bg: {{ section.settings.bg_color }}; --announcement-text: {{ section.settings.text_color }};"
+  >
+    <div class="announcement-bar__inner">
+      {%- if section.blocks.size > 1 -%}
+        <button
+          class="announcement-bar__arrow announcement-bar__arrow--prev"
+          aria-label="Previous announcement"
+          type="button"
+        >
+          <img
+            src="{{ 'announcement-prev.svg' | asset_url }}"
+            width="50"
+            height="20"
+            loading="lazy"
+            alt=""
+          >
+        </button>
+      {%- endif -%}
+
+      <div class="announcement-bar__slider" role="list">
         {%- for block in section.blocks -%}
-          <div class="h-[25px]">
-            {{ block.settings.message | strip_newlines }}
-          </div>
+          {%- if block.type == 'announcement' -%}
+            <div
+              class="announcement-bar__slide{% if forloop.first %} is-active{% endif %}"
+              role="listitem"
+              aria-hidden="{% unless forloop.first %}true{% endunless %}"
+              {{ block.shopify_attributes }}
+            >
+              <div class="announcement-bar__content">
+                {%- if section.settings.show_icon -%}
+                  <img
+                    class="announcement-bar__icon"
+                    src="{{ 'announcement-sun.svg' | asset_url }}"
+                    width="20"
+                    height="20"
+                    loading="lazy"
+                    alt=""
+                  >
+                {%- endif -%}
+
+                {%- if block.settings.link != blank -%}
+                  <a class="announcement-bar__text" href="{{ block.settings.link }}">
+                    {{- block.settings.text -}}
+                  </a>
+                {%- else -%}
+                  <p class="announcement-bar__text">
+                    {{- block.settings.text -}}
+                  </p>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endif -%}
         {%- endfor -%}
-      </keen-slider>
+      </div>
+
+      {%- if section.blocks.size > 1 -%}
+        <button
+          class="announcement-bar__arrow announcement-bar__arrow--next"
+          aria-label="Next announcement"
+          type="button"
+        >
+          <img
+            src="{{ 'announcement-next.svg' | asset_url }}"
+            width="50"
+            height="20"
+            loading="lazy"
+            alt=""
+          >
+        </button>
+      {%- endif -%}
     </div>
-  {%- endif -%}
+  </div>
 {%- endif -%}
 
 {% schema %}
-  {
-    "name": "Announcement bar",
-    "tag":"section",
-    "class": "relative z-50",
-    "settings": [
-      {
-        "type": "checkbox",
-        "id": "announcement_bar_enabled",
-        "label": "Show announcement",
-        "default": false
-      },
-      {
-        "type": "checkbox",
-        "id": "announcement_bar_home_page_only",
-        "label": "Show on home page only",
-        "default": true
-      },
-      {
-        "type": "checkbox",
-        "id": "is_auto_scroll",
-        "label": "Auto scroll?",
-        "default": true
-      },
-      {
-        "type": "range",
-        "id": "announcement_autoplay_speed",
-        "label": "Scrolling speed",
-        "default": 4,
-        "min": 1,
-        "max": 10,
-        "step": 1,
-        "unit": "s"
-      }
-    ],
-    "blocks": [
-      {
-        "type": "announcement",
-        "name": "Announcement",
-        "settings": [
-          {
-            "type": "richtext",
-            "id": "message",
-            "label": "Announcement",
-            "default": "<p>Announce something here</p>"
+{
+  "name": "Announcement bar",
+  "tag": "section",
+  "class": "section-announcement-bar",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#7165A5"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show icon before text",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Slider"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-rotate slides",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Change slides every (seconds)",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "End Of Summer Sale -30% Off Designer"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement bar",
+      "blocks": [
+        {
+          "type": "announcement",
+          "settings": {
+            "text": "End Of Summer Sale -30% Off Designer"
           }
-        ]
-      }
-    ]
-  }
+        },
+        {
+          "type": "announcement",
+          "settings": {
+            "text": "Free shipping on orders over $99"
+        }
+        }
+      ]
+    }
+  ]
+}
 {% endschema %}

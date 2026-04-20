@@ -1,86 +1,73 @@
 <transition name="fade">
-  <div v-if="flyouts.minicart" class="mask mask--dark" @click="toggleFlyout('minicart')"></div>
+  <div v-if="flyouts.minicart" class="minicart-overlay" @click="toggleFlyout('minicart')"></div>
 </transition>
 
 <transition name="slide-down">
   <minicart inline-template v-show="flyouts.minicart">
-    <div class="minicart cart absolute top-full right-0 w-full lg:max-w-[320px] max-h-screen p-4 bg-white overflow-y-auto">
+    <div class="minicart">
+
+      <button class="minicart__close" @click="toggleFlyout('minicart')" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
 
       <div v-if="cart && cart.item_count">
-        <div class="minicart__items space-y-4">
-          <div v-for="(item, index) in cart.items" :key="item.key" class="relative">
+        <div class="minicart__items">
+          <div v-for="(item, index) in cart.items" :key="item.key" class="minicart__item">
             <div class="mask mask--loading" v-if="item.isLoading"><span class="spinner">{{ 'general.misc.loading' | t }}</span></div>
-            <div class="flex gap-4">
-              <div class="minicart__item__image basis-5/12">
-                <a :href="item.url" :title="item.product_title">
-                  {%- comment -%}
-                  .product-image class used for forced aspect ratio settings
-                  {%- endcomment -%}
-                  <div class="product-image">
-                    <responsive-image
-                      v-if="item.image"
-                      :src="item.image.src | imageSize(128)"
-                      :base-width="128"
-                      :base-height="128 / item.image.aspect_ratio"
-                      sizes="128px"
-                      :alt="item.image.alt"
-                    ></responsive-image>
-                    <template v-else>{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</template>
-                  </div>
-                </a>
+            <div class="minicart__item__inner">
+
+              <a class="minicart__item__img-wrap" :href="item.url">
+                <responsive-image
+                  v-if="item.image"
+                  :src="item.image.src | imageSize(96)"
+                  :base-width="96"
+                  :base-height="96 / item.image.aspect_ratio"
+                  sizes="96px"
+                  :alt="item.image.alt"
+                ></responsive-image>
+              </a>
+
+              <div class="minicart__item__info">
+                {%- comment -%} Left: product name {%- endcomment -%}
+                <div class="minicart__item__left">
+                  <a class="minicart__item__title" :href="item.url" v-html="item.product_title"></a>
+                  <div v-if="item.variant_title" class="minicart__item__variant">${ item.variant_title }</div>
+                </div>
+
+                {%- comment -%} Right: price + remove {%- endcomment -%}
+                <div class="minicart__item__right">
+                  <span class="minicart__item__price">${ item.final_line_price | currencyFromCents }</span>
+                  <button @click="updateItem(item, 0)" class="minicart__item__remove">Remove</button>
+                </div>
               </div>
-              <div class="basis-7/12 space-y-2">
-                <div class="product-name">
-                  <a :href="item.url" :title="item.product_title">
-                    {%- comment -%}
-                    v-html used to render product_title incase of escaped characters. See template/cata.data.liquid
-                    {%- endcomment -%}
-                    <strong v-html="item.product_title"></strong>
-                  </a>
-                </div>
-                <div v-if="item.has_variant">
-                  <div v-for="option in item.options_with_values" :key="option.name">
-                    <strong>${ option.name }</strong>: <span>${ option.value }</span>
-                  </div>
-                </div>
-                <div v-if="Object.keys(publicProperties(item)).length">
-                  <div v-for="(value, key) in publicProperties(item)" class="minicart-item flex-column mb-1">
-                    <strong class="break-word minicart-item__label">${ key }:</strong> <span class="break-word minicart-item__value" v-html="value"></span>
-                  </div>
-                </div>
-                <div>
-                  <span class="price" :class="{ 'price--sale': item.compare_at_price }">${ item.final_price | currencyFromCents }</span>
-                  <s v-if="item.compare_at_price" class="price price--old">${ item.compare_at_price | currencyFromCents }</s>
-                </div>
-                <quantity-field :value="item.quantity" @update-quantity="value => updateItem(item, item.quantity = value)" :is-zero-allowed="true" style-modifier="compact"></quantity-field>
-                <div v-if="item.message">
-                  <small class="cart__item__message cart__item__message--error">${ item.message }</small>
-                </div>
-                <button @click="updateItem(item, 0)" class="cart__item__remove"><small>{{ 'cart.general.remove' | t }}</small></button>
-              </div>
+
             </div>
           </div>
         </div>
 
-        <div class="space-y-2">
-          <div class="flex justify-between">
-            <div class="subtotal"><strong>{{ 'cart.general.subtotal' | t }}</strong></div>
-            <div><strong>${ cart.total_price | currencyFromCents }</strong></div>
+        <div class="minicart__footer">
+          <div class="minicart__subtotal">
+            <span>Subtotal:</span>
+            <span class="minicart__subtotal-price">${ cart.total_price | currencyFromCents }</span>
           </div>
-    
-          <a href="{{ routes.cart_url }}" class="button button--secondary w-full">
-            <span>{{ 'cart.general.view_cart' | t }}</span>
-          </a>
-    
-          <a href="/checkout" class="button button--primary w-full">
-            <span>{{ 'cart.general.checkout' | t }}</span>
-          </a>
+          <div class="minicart__actions">
+            <a href="{{ routes.cart_url }}" class="minicart__btn minicart__btn--secondary">
+              {{ 'cart.general.view_cart' | t }}
+            </a>
+            <a href="/checkout" class="minicart__btn minicart__btn--primary">
+              {{ 'cart.general.checkout' | t }}
+            </a>
+          </div>
         </div>
       </div>
-      <div v-else class="cart__empty text-center">
-        <p class="mb-3">{{ 'cart.general.empty' | t }}</p>
-        <button class="button" @click="toggleFlyout('minicart')">{{ 'cart.general.continue_browsing' | t }}</button>
+
+      <div v-else class="minicart__empty">
+        <p>{{ 'cart.general.empty' | t }}</p>
+        <button class="minicart__btn minicart__btn--secondary" @click="toggleFlyout('minicart')">{{ 'cart.general.continue_browsing' | t }}</button>
       </div>
+
     </div>
   </minicart>
 </transition>

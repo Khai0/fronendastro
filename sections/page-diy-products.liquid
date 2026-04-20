@@ -1,0 +1,577 @@
+{% comment %}
+  Section: page-diy-products.liquid
+  Replicates: koch.com.au/pages/diy-decor-floral-ideas/floral-decoration-gift-ideas (Images 2 & 3)
+  Features :
+    - Left-aligned H1 page title
+    - Breadcrumb: Home > DIY Projects > {Page Title}
+    - Sort-by dropdown  +  "X results" count  (right-aligned)
+    - Product grid: image (portrait) → SKU code above name → product name
+    - Clicking image OR name → product URL
+    - Responsive: 5 col desk / 3 tab / 2 mob
+{% endcomment %}
+
+{%- liquid
+  assign section_title   = section.settings.section_title
+  assign breadcrumb_home = section.settings.breadcrumb_home | default: 'Home'
+  assign breadcrumb_mid  = section.settings.breadcrumb_mid  | default: 'DIY Projects'
+  assign breadcrumb_mid_url = section.settings.breadcrumb_mid_url | default: '/pages/diy-decor-floral-ideas'
+  assign cols            = section.settings.columns_desktop | default: '5'
+  assign bg              = section.settings.section_bg_color | default: '#f7f7f7'
+  assign pt              = section.settings.section_padding_top    | default: 36
+  assign pb              = section.settings.section_padding_bottom | default: 60
+  assign total_blocks    = section.blocks.size
+-%}
+
+<style>
+  /* ── Tokens ─────────────────────────────────────────────── */
+  #diy-products-{{ section.id }} {
+    --cols-desk : {{ cols }};
+    --cols-tab  : 3;
+    --cols-mob  : 2;
+    --gap       : 24px;
+    --ease      : cubic-bezier(0.3, 0.66, 0.66, 1);
+    --dur       : 0.5s;
+    --ink       : #1a1a1a;
+    --muted     : #666;
+    --sku-color : #888;
+    font-family : var(--font-body-family, 'Helvetica Neue', Helvetica, sans-serif);
+    background  : {{ bg }};
+    padding-top : {{ pt }}px;
+    padding-bottom: {{ pb }}px;
+  }
+
+  #diy-products-{{ section.id }} .dp-wrap {
+    max-width     : 1440px;
+    margin-inline : auto;
+    padding-inline: clamp(16px, 3vw, 40px);
+  }
+
+  /* ── Page title ─────────────────────────────────────────── */
+  #diy-products-{{ section.id }} .dp-title {
+    font-family   : var(--font-heading-family, Georgia, serif);
+    font-size     : clamp(22px, 3vw, 34px);
+    font-weight   : 700;
+    color         : var(--ink);
+    margin        : 0 0 14px;
+    line-height   : 1.15;
+    letter-spacing: -.01em;
+  }
+
+  /* ── Breadcrumb ─────────────────────────────────────────── */
+  #diy-products-{{ section.id }} .dp-breadcrumb {
+    display    : flex;
+    flex-wrap  : wrap;
+    align-items: center;
+    gap        : 6px;
+    margin     : 0 0 28px;
+    list-style : none;
+    padding    : 0;
+  }
+
+  #diy-products-{{ section.id }} .dp-breadcrumb li {
+    display    : flex;
+    align-items: center;
+    gap        : 6px;
+    font-size  : 13px;
+    color      : var(--muted);
+  }
+
+  #diy-products-{{ section.id }} .dp-breadcrumb a {
+    color          : var(--muted);
+    text-decoration: none;
+  }
+
+  #diy-products-{{ section.id }} .dp-breadcrumb a:hover {
+    text-decoration: underline;
+    color          : var(--ink);
+  }
+
+  #diy-products-{{ section.id }} .dp-breadcrumb li + li::before {
+    content: '>';
+    color  : #bbb;
+  }
+
+  #diy-products-{{ section.id }} .dp-breadcrumb .dp-bc-current {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ── Toolbar (sort + results) ───────────────────────────── */
+  #diy-products-{{ section.id }} .dp-toolbar {
+    display        : flex;
+    align-items    : center;
+    justify-content: flex-end;
+    gap            : 16px;
+    margin-bottom  : 24px;
+    flex-wrap      : wrap;
+  }
+
+  #diy-products-{{ section.id }} .dp-results {
+    font-size  : 14px;
+    color      : var(--muted);
+    white-space: nowrap;
+  }
+
+  #diy-products-{{ section.id }} .dp-sort-wrap {
+    display    : flex;
+    align-items: center;
+    gap        : 8px;
+    font-size  : 14px;
+    color      : var(--muted);
+  }
+
+  #diy-products-{{ section.id }} .dp-sort-select {
+    appearance     : none;
+    -webkit-appearance: none;
+    border         : 1px solid #d0ccc8;
+    border-radius  : 4px;
+    padding        : 7px 32px 7px 12px;
+    font-size      : 14px;
+    color          : var(--ink);
+    background     : #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+    cursor         : pointer;
+    outline        : none;
+    transition     : border-color var(--dur) var(--ease);
+    min-width      : 170px;
+  }
+
+  #diy-products-{{ section.id }} .dp-sort-select:focus {
+    border-color: var(--ink);
+  }
+
+  /* ── Product grid ───────────────────────────────────────── */
+  #diy-products-{{ section.id }} .dp-grid {
+    display              : grid;
+    grid-template-columns: repeat(var(--cols-desk), 1fr);
+    gap                  : var(--gap);
+    list-style           : none;
+    margin               : 0;
+    padding              : 0;
+  }
+
+  /* ── Product card ───────────────────────────────────────── */
+  #diy-products-{{ section.id }} .dp-card {
+    display        : block;
+    text-decoration: none;
+    color          : var(--ink);
+  }
+
+  /* Card container */
+  #diy-products-{{ section.id }} .dp-card__container {
+    background   : #f0ede5;
+    border-radius: 6px;
+    overflow     : hidden;
+    box-shadow   : none;
+    transition   : box-shadow 0.3s ease;
+  }
+
+  #diy-products-{{ section.id }} .dp-card:hover .dp-card__container {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Image */
+  #diy-products-{{ section.id }} .dp-card__img-box {
+    position     : relative;
+    width        : 100%;
+    aspect-ratio : 0.85 / 1;
+    overflow     : hidden;
+    background   : transparent;
+    border-radius: 0;
+    box-shadow   : none;
+    margin       : 0;
+  }
+
+  #diy-products-{{ section.id }} .dp-card__img {
+    width        : 100%;
+    height       : 100%;
+    object-fit   : cover;
+    object-position: center;
+    display      : block;
+    transition   : transform 0.4s ease;
+  }
+
+  #diy-products-{{ section.id }} .dp-card:hover .dp-card__img {
+    transform: scale(1.08);
+  }
+
+  /* Placeholder */
+  #diy-products-{{ section.id }} .dp-card__placeholder {
+    width           : 100%;
+    height          : 100%;
+    display         : flex;
+    align-items     : center;
+    justify-content : center;
+    background      : linear-gradient(145deg,#ede8e2,#d0c8be);
+  }
+
+  /* Info box wrapper */
+  #diy-products-{{ section.id }} .dp-card__info {
+    background : #EBEBEB;
+    border-radius: 0;
+    padding    : 12px 8px;
+    margin     : 0;
+  }
+
+  /* SKU */
+  #diy-products-{{ section.id }} .dp-card__sku {
+    font-size  : 11px;
+    color      : #999;
+    margin     : 8px 0 4px;
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+    font-weight: 400;
+  }
+
+  /* Product name */
+  #diy-products-{{ section.id }} .dp-card__name {
+    font-size  : 14px;
+    font-weight: 400;
+    color      : var(--ink);
+    margin     : 0;
+    line-height: 1.5;
+    text-align : left;
+  }
+
+  /* ── Scroll Animation ─────────────────────────────────── */
+  .custom-anim-product {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .custom-anim-product.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity var(--dur) var(--ease), 
+                transform var(--dur) var(--ease);
+  }
+
+  /* Stagger delay for each card */
+  .custom-anim-product[data-stagger="0"] { --stagger-delay: 0ms; }
+  .custom-anim-product[data-stagger="1"] { --stagger-delay: 100ms; }
+  .custom-anim-product[data-stagger="2"] { --stagger-delay: 200ms; }
+  .custom-anim-product[data-stagger="3"] { --stagger-delay: 300ms; }
+  .custom-anim-product[data-stagger="4"] { --stagger-delay: 400ms; }
+  .custom-anim-product[data-stagger="5"] { --stagger-delay: 500ms; }
+  .custom-anim-product[data-stagger="6"] { --stagger-delay: 600ms; }
+  .custom-anim-product[data-stagger="7"] { --stagger-delay: 700ms; }
+  .custom-anim-product[data-stagger="8"] { --stagger-delay: 800ms; }
+  .custom-anim-product[data-stagger="9"] { --stagger-delay: 900ms; }
+  .custom-anim-product[data-stagger="10"] { --stagger-delay: 1000ms; }
+
+  .custom-anim-product.visible {
+    transition-delay: var(--stagger-delay);
+  }
+
+  /* ── Responsive ─────────────────────────────────────────── */
+  @media (max-width: 1100px) {
+    #diy-products-{{ section.id }} .dp-grid {
+      grid-template-columns: repeat(var(--cols-tab), 1fr);
+    }
+  }
+
+  @media (max-width: 700px) {
+    #diy-products-{{ section.id }} .dp-grid {
+      grid-template-columns: repeat(var(--cols-mob), 1fr);
+      gap: 16px;
+    }
+    #diy-products-{{ section.id }} .dp-card__name { font-size: 14px; }
+    #diy-products-{{ section.id }} .dp-card__sku  { font-size: 11px; }
+    #diy-products-{{ section.id }} .dp-toolbar { justify-content: flex-start; }
+    #diy-products-{{ section.id }} .dp-card__container {
+      border-radius: 6px;
+    }
+    #diy-products-{{ section.id }} .dp-card__img-box {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 0.85 / 1;
+    }
+    #diy-products-{{ section.id }} .dp-card__img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #diy-products-{{ section.id }} .dp-card__img,
+    #diy-products-{{ section.id }} .dp-card__img-box,
+    #diy-products-{{ section.id }} .dp-card__name { transition: none; }
+    .custom-anim-product {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<section id="diy-products-{{ section.id }}">
+  <div class="dp-wrap">
+
+    {%- comment %} ── Title ────────────────────────────────────── {% endcomment %}
+    {%- if section_title != blank -%}
+      <h1 class="dp-title">{{ section_title }}</h1>
+    {%- endif -%}
+
+    {%- comment %} ── Breadcrumb ───────────────────────────────── {% endcomment %}
+    <ol class="dp-breadcrumb" aria-label="Breadcrumb">
+      <li><a href="/">{{ breadcrumb_home }}</a></li>
+      {%- if breadcrumb_mid != blank -%}
+        <li><a href="{{ breadcrumb_mid_url }}">{{ breadcrumb_mid }}</a></li>
+      {%- endif -%}
+      {%- if section_title != blank -%}
+        <li><span class="dp-bc-current">{{ section_title }}</span></li>
+      {%- endif -%}
+    </ol>
+
+    {%- comment %} ── Toolbar ─────────────────────────────────── {% endcomment %}
+    <div class="dp-toolbar">
+      <div class="dp-sort-wrap">
+        <label for="dp-sort-{{ section.id }}">Sort by:</label>
+        <select id="dp-sort-{{ section.id }}" class="dp-sort-select" aria-label="Sort products">
+          <option value="newest">Newest to Oldest</option>
+          <option value="oldest">Oldest to Newest</option>
+          <option value="az">A–Z</option>
+          <option value="za">Z–A</option>
+        </select>
+      </div>
+      <span class="dp-results">{{ total_blocks }} results</span>
+    </div>
+
+    {%- comment %} ── Product grid ─────────────────────────────── {% endcomment %}
+    <ul class="dp-grid" id="dp-grid-{{ section.id }}" role="list">
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'product_item' -%}
+            {%- liquid
+              assign img   = block.settings.product_image
+              assign sku   = block.settings.product_sku
+              assign name  = block.settings.product_name
+              assign href  = block.settings.product_link | default: '#'
+            -%}
+            <li {{ block.shopify_attributes }} class="custom-anim-product" data-stagger="{{ forloop.index0 }}" data-name="{{ name | escape }}" data-sku="{{ sku | escape }}">
+              <a href="{{ href }}" class="dp-card" aria-label="{{ name | escape }}">
+
+                <div class="dp-card__container">
+                  <div class="dp-card__img-box">
+                    {%- if img != blank -%}
+                      {{
+                        img
+                        | image_url: width: 600
+                        | image_tag:
+                          class: 'dp-card__img',
+                          loading: 'lazy',
+                          alt: name,
+                          widths: '300,450,600',
+                          sizes: '(max-width:600px) 50vw,(max-width:1100px) 33vw,20vw'
+                      }}
+                    {%- else -%}
+                      <div class="dp-card__placeholder" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2"/>
+                          <circle cx="8.5" cy="8.5" r="1.5"/>
+                          <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                      </div>
+                    {%- endif -%}
+                  </div>
+
+                  <div class="dp-card__info">
+                    {%- if sku != blank -%}
+                      <p class="dp-card__sku">{{ sku }}</p>
+                    {%- endif -%}
+
+                    {%- if name != blank -%}
+                      <p class="dp-card__name">{{ name }}</p>
+                    {%- endif -%}
+                  </div>
+                </div>
+
+              </a>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        <li style="grid-column:1/-1;text-align:center;padding:60px 0;color:#999;">
+          Add product blocks in the Theme Editor to display items here.
+        </li>
+      {%- endif -%}
+    </ul>
+
+  </div>
+</section>
+
+<script>
+  (function () {
+    // Sort functionality
+    var sel   = document.getElementById('dp-sort-{{ section.id }}');
+    var grid  = document.getElementById('dp-grid-{{ section.id }}');
+    if (sel && grid) {
+      sel.addEventListener('change', function () {
+        var items = Array.from(grid.querySelectorAll('li[data-name]'));
+        items.sort(function (a, b) {
+          var na = a.dataset.name.toLowerCase();
+          var nb = b.dataset.name.toLowerCase();
+          var sa = a.dataset.sku.toLowerCase();
+          var sb = b.dataset.sku.toLowerCase();
+          switch (sel.value) {
+            case 'az'    : return na < nb ? -1 : na > nb ? 1 : 0;
+            case 'za'    : return na > nb ? -1 : na < nb ? 1 : 0;
+            case 'oldest': return sa < sb ? -1 : sa > sb ? 1 : 0;
+            default      : return sa > sb ? -1 : sa < sb ? 1 : 0; /* newest = highest SKU first */
+          }
+        });
+        items.forEach(function (li) { grid.appendChild(li); });
+      });
+    }
+
+    // Scroll reveal animation using IntersectionObserver
+    var section = document.getElementById('diy-products-{{ section.id }}');
+    if (section) {
+      var cards = section.querySelectorAll('.custom-anim-product');
+      if (cards.length > 0) {
+        var observerOptions = {
+          root: null,
+          rootMargin: '0px 0px -50px 0px',
+          threshold: 0
+        };
+        
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, observerOptions);
+        
+        cards.forEach(function (card) {
+          observer.observe(card);
+        });
+      }
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "DIY Product Listing",
+  "tag": "section",
+  "class": "section-diy-products",
+  "max_blocks": 50,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Page Header"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Page Title",
+      "default": "Floral Decoration & Gift Ideas"
+    },
+    {
+      "type": "header",
+      "content": "Breadcrumb"
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_home",
+      "label": "Home label",
+      "default": "Home"
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_mid",
+      "label": "Middle crumb label",
+      "default": "DIY Projects"
+    },
+    {
+      "type": "url",
+      "id": "breadcrumb_mid_url",
+      "label": "Middle crumb URL"
+    },
+    {
+      "type": "header",
+      "content": "Grid Settings"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns (Desktop)",
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" }
+      ],
+      "default": "5"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Background Color",
+      "default": "#f7f7f7"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Padding Top (px)",
+      "min": 0, "max": 120, "step": 4,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Padding Bottom (px)",
+      "min": 0, "max": 120, "step": 4,
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_item",
+      "name": "Product Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "product_image",
+          "label": "Product Image"
+        },
+        {
+          "type": "text",
+          "id": "product_sku",
+          "label": "SKU / Item Code",
+          "info": "e.g. KI.2450",
+          "default": "KI.0000"
+        },
+        {
+          "type": "text",
+          "id": "product_name",
+          "label": "Product Name",
+          "default": "Product Name"
+        },
+        {
+          "type": "url",
+          "id": "product_link",
+          "label": "Product URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "DIY Product Listing",
+      "settings": {
+        "section_title": "Floral Decoration & Gift Ideas",
+        "breadcrumb_mid": "DIY Projects",
+        "columns_desktop": "5"
+      },
+      "blocks": [
+        { "type": "product_item", "settings": { "product_sku": "KI.2450", "product_name": "Cerulean Sunset" } },
+        { "type": "product_item", "settings": { "product_sku": "KI.2452", "product_name": "Sunshine & Poppies" } },
+        { "type": "product_item", "settings": { "product_sku": "KI.2448", "product_name": "Tangerine Dream" } },
+        { "type": "product_item", "settings": { "product_sku": "KI.2446", "product_name": "Basket of Berries & Blooms" } },
+        { "type": "product_item", "settings": { "product_sku": "KI.2436", "product_name": "Blossoming Pastels" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

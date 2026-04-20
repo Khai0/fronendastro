@@ -1,0 +1,24 @@
+{%- assign custom_desc_plain = section.settings.collection_desc | strip_html | strip -%}
+{%- assign default_desc_plain = collection.description | strip_html | strip -%}
+{%- if custom_desc_plain != blank or default_desc_plain != blank -%}
+  {%- assign desc_content = section.settings.collection_desc -%}
+  {%- if custom_desc_plain == blank -%}
+    {%- assign desc_content = collection.description -%}
+  {%- endif -%}
+  <div class="collection-desc">
+    <div class="collection-desc__inner">
+      <h2 class="collection-desc__heading">{{ section.settings.desc_heading | default: collection.title }}</h2>
+      <div class="collection-desc__body" id="collection-desc-body">
+        <div class="collection-desc__text" id="collection-desc-text">
+          {{ desc_content }}
+        </div>
+        
+      </div>
+      <button class="collection-desc__toggle" id="desc-toggle" type="button" aria-controls="collection-desc-body" aria-expanded="false" hidden>
+          <span class="collection-desc__toggle-ellipsis" aria-hidden="true">...</span>
+          <span class="collection-desc__toggle-more">Read More</span>
+          <span class="collection-desc__toggle-less">Read Less</span>
+        </button>
+    </div>
+  </div>
+{%- endif -%}

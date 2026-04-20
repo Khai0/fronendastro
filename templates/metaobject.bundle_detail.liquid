@@ -1,0 +1,18 @@
+{% layout none %}
+
+<div class="bundle-detail">
+  <h1>{{ metaobject.title }}</h1>
+
+  {% if metaobject.products %}
+    <div class="bundle-products">
+      {% for product in metaobject.products.value %}
+        <div class="product-item">
+          <a href="{{ product.url }}">
+            <img src="{{ product.featured_image | image_url: width: 400 }}">
+            <p>{{ product.title }}</p>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

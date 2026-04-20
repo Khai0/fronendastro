@@ -1,0 +1,758 @@
+{% comment %}
+  Section: page-set-product.liquid
+  
+  ═══════════════════════════════════════════════════════════════════
+  HOW IT WORKS (updated — no manual metafield setup required)
+  ═══════════════════════════════════════════════════════════════════
+  1. Create a bundle product using the Shopify Bundles app in admin.
+
+  2. Create a metaobject entry (type: bundle_detail):
+       - bundle_product → select the bundle product you just created
+       - (Other fields: title, skill_level, description, etc.)
+     → Only need to select the bundle, NO additional setup required.
+
+  3. This section will automatically:
+       a) Get bundle_product.id from the metaobject
+       b) Call the Storefront API GraphQL to fetch the component list
+          via ProductVariantComponentConnection
+          (https://shopify.dev/docs/api/storefront/latest/connections/ProductVariantComponentConnection)
+       c) Render each component with a quantity stepper + "Add All to Cart"
+
+  4. No need for the custom metafield "bundle_component_products" anymore.
+  ═══════════════════════════════════════════════════════════════════
+{% endcomment %}
+
+{%- liquid
+  assign pt = section.settings.section_padding_top | default: 40
+  assign pb = section.settings.section_padding_bottom | default: 60
+
+  assign bundle = metaobject
+
+  if bundle != blank
+    assign product_title    = bundle.product_title.value    | default: bundle.name.value
+    assign skill_level      = bundle.skill_level.value
+    assign skill_level_url  = bundle.skill_level_url.value
+    assign description      = bundle.description
+    assign hero_image       = bundle.hero_image.value
+    assign bc_l1_label      = bundle.bc_l1_label.value      | default: section.settings.bc_l1_label
+    assign bc_l1_url        = bundle.bc_l1_url.value        | default: section.settings.bc_l1_url
+    assign bc_l2_label      = bundle.bc_l2_label.value      | default: section.settings.bc_l2_label
+    assign bc_l2_url        = bundle.bc_l2_url.value        | default: section.settings.bc_l2_url
+    assign supplies_heading = bundle.supplies_heading.value | default: section.settings.supplies_heading | default: 'Supplies'
+    assign bundle_product   = bundle.bundle_product.value
+  else
+    assign product_title    = section.settings.product_title
+    assign skill_level      = section.settings.skill_level
+    assign skill_level_url  = section.settings.skill_level_url
+    assign description      = section.settings.description
+    assign hero_image       = section.settings.hero_image
+    assign bc_l1_label      = section.settings.bc_l1_label
+    assign bc_l1_url        = section.settings.bc_l1_url
+    assign bc_l2_label      = section.settings.bc_l2_label
+    assign bc_l2_url        = section.settings.bc_l2_url
+    assign supplies_heading = section.settings.supplies_heading | default: 'Supplies'
+  endif
+  assign bc_home = section.settings.bc_home | default: 'Home'
+-%}
+
+{{ 'page-set-product.css' | asset_url | stylesheet_tag }}
+
+<style>
+  #sp-{{ section.id }} {
+    padding-top: {{ pt }}px;
+  }
+  #sp-supplies-{{ section.id }} {
+    padding-top: 48px;
+    padding-bottom: {{ pb }}px;
+  }
+
+  /* Loading skeleton */
+  .sup-skeleton {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+  }
+  .sup-skeleton__card {
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+  .sup-skeleton__img {
+    width: 100%;
+    aspect-ratio: 1;
+    background: linear-gradient(90deg, #ececec 25%, #f5f5f5 50%, #ececec 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+  .sup-skeleton__text {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sup-skeleton__line {
+    height: 12px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #ececec 25%, #f5f5f5 50%, #ececec 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+  .sup-skeleton__line--short { width: 60%; }
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .sup-error {
+    padding: 16px 20px;
+    border: 1px solid #ffc9c9;
+    background: #fff5f5;
+    border-radius: 8px;
+    color: #c92a2a;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+</style>
+
+{%- if bundle == blank -%}
+  <section id="sp-{{ section.id }}" style="padding-top:{{ pt }}px; padding-bottom:{{ pb }}px;">
+    <div class="sp-wrap">
+      <div class="sup-notice">
+        <strong>Preview mode.</strong><br>
+        Truy cập qua URL <code>/pages/bundle-detail/&lt;handle&gt;</code> để xem đúng nội dung bundle.
+      </div>
+    </div>
+  </section>
+{%- else -%}
+
+<section id="sp-{{ section.id }}">
+  <div class="sp-wrap">
+    <div class="sp-hero">
+
+      {%- comment %} LEFT: Image {% endcomment %}
+      <div class="sp-img-box">
+        {%- if hero_image != blank -%}
+          {{
+            hero_image | image_url: width: 900
+            | image_tag: class: 'sp-img', loading: 'eager', alt: product_title, widths: '450,700,900'
+          }}
+        {%- elsif bundle_product and bundle_product.featured_image -%}
+          {{
+            bundle_product.featured_image | image_url: width: 900
+            | image_tag: class: 'sp-img', loading: 'eager', alt: product_title, widths: '450,700,900'
+          }}
+        {%- else -%}
+          <div class="sp-img-placeholder" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment %} RIGHT: Info {% endcomment %}
+      <div class="sp-info">
+
+        <h1 class="sp-title">{{ product_title }}</h1>
+
+        {%- comment %} Breadcrumb {% endcomment %}
+        <ol class="sp-bc" aria-label="Breadcrumb">
+          <li><a href="/">{{ bc_home }}</a></li>
+          {%- if bc_l1_label != blank -%}
+            <li>
+              {%- if bc_l1_url != blank -%}<a href="{{ bc_l1_url }}">{{ bc_l1_label }}</a>
+              {%- else -%}{{ bc_l1_label }}{%- endif -%}
+            </li>
+          {%- endif -%}
+          {%- if bc_l2_label != blank -%}
+            <li>
+              {%- if bc_l2_url != blank -%}<a href="{{ bc_l2_url }}">{{ bc_l2_label }}</a>
+              {%- else -%}{{ bc_l2_label }}{%- endif -%}
+            </li>
+          {%- endif -%}
+          <li><span class="current">{{ product_title }}</span></li>
+        </ol>
+
+        {%- comment %} CTAs {% endcomment %}
+        <div class="sp-btns">
+          <a
+            href="#sp-supplies-{{ section.id }}"
+            class="sp-btn sp-btn--fill"
+            onclick="event.preventDefault();document.getElementById('sp-supplies-{{ section.id }}').scrollIntoView({behavior:'smooth'});"
+          >View Supply List</a>
+          <button type="button" class="sp-btn sp-btn--outline" onclick="window.print();">
+            Print Project
+          </button>
+        </div>
+
+        <hr class="sp-hr">
+
+        {%- if skill_level != blank -%}
+          <p class="sp-skill">
+            <strong>Skill Level:</strong>
+            {%- if skill_level_url != blank -%}
+              <a href="{{ skill_level_url }}">{{ skill_level }}</a>
+            {%- else -%}{{ skill_level }}{%- endif -%}
+          </p>
+        {%- endif -%}
+
+        {%- if description != blank -%}
+          <div class="sp-desc">
+            {%- if bundle != blank -%}
+              {{ description | metafield_tag }}
+            {%- else -%}
+              {{ description }}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- assign share_url   = request.origin | append: request.path | url_encode -%}
+        {%- assign share_title = product_title | url_encode -%}
+        <div class="sp-share" aria-label="Share">
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url }}"
+             target="_blank" rel="noopener" class="sp-share__btn sp-share__btn--fb" aria-label="Facebook">
+            {%- render 'icon', icon: 'facebook' -%} Share
+          </a>
+          <a href="https://pinterest.com/pin/create/button/?url={{ share_url }}"
+             target="_blank" rel="noopener" class="sp-share__btn sp-share__btn--save" aria-label="Pinterest">
+            {%- render 'icon', icon: 'pinterest' -%} Save
+          </a>
+          <a href="https://twitter.com/intent/tweet?url={{ share_url }}&text={{ share_title }}"
+             target="_blank" rel="noopener" class="sp-share__btn sp-share__btn--x" aria-label="X">
+            {%- render 'icon', icon: 'twitter' -%} X Post
+          </a>
+          <button type="button" class="sp-share__btn sp-share__btn--print" onclick="window.print();" aria-label="Print">
+            {%- render 'icon', icon: 'print' -%} Print
+          </button>
+          <a href="mailto:?subject={{ share_title }}&body={{ share_url }}"
+             class="sp-share__btn sp-share__btn--email" aria-label="Email">
+            {%- render 'icon', icon: 'email' -%} Email
+          </a>
+        </div>
+
+      </div>{%- comment %} /.sp-info {% endcomment %}
+    </div>{%- comment %} /.sp-hero {% endcomment %}
+  </div>{%- comment %} /.sp-wrap {% endcomment %}
+</section>
+
+{%- comment %} ═══════════ SUPPLIES ═══════════ {% endcomment %}
+<div id="sp-supplies-{{ section.id }}">
+  <div class="sup-inner">
+
+    <h2 class="sup-heading">{{ supplies_heading }}</h2>
+
+    {%- if bundle_product -%}
+
+     {%- comment %}
+  ── Pass bundle product data to JS to fetch the Storefront API ─────
+  bundle_product.id returns a value like "gid://shopify/Product/1234567890"
+  The Storefront API accepts this exact GID in the query.
+{% endcomment %}
+
+      <button
+        type="button"
+        class="sup-add-all"
+        id="sup-add-all-{{ section.id }}"
+      >
+        Add All Materials To Cart
+      </button>
+
+      <p class="sup-status" id="sup-status-{{ section.id }}" aria-live="polite"></p>
+
+      {%- comment %} Container that JS will inject into {% endcomment %}
+      <div id="sup-grid-{{ section.id }}" data-loading="true">
+        {%- comment %} Skeleton loading — shown while JS fetches the API {% endcomment %}
+        <ul class="sup-skeleton" aria-hidden="true">
+          {%- for i in (1..6) -%}
+            <li class="sup-skeleton__card">
+              <div class="sup-skeleton__img"></div>
+              <div class="sup-skeleton__text">
+                <div class="sup-skeleton__line sup-skeleton__line--short"></div>
+                <div class="sup-skeleton__line"></div>
+                <div class="sup-skeleton__line sup-skeleton__line--short"></div>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+
+    {%- else -%}
+
+      <div class="sup-notice">
+        <strong>Bundle Product not linked.</strong><br><br>
+        Setup steps:<br>
+        1. Install the <strong>Shopify Bundles</strong> app → create a bundle product in admin.<br>
+        2. Open <strong>this metaobject entry</strong> in admin → find the <strong>Bundle Product</strong> field.<br>
+        3. Select the bundle product you created → Save.<br>
+        → The section will automatically display all components.
+      </div>
+
+    {%- endif -%}
+
+    {%- if bundle_product -%}
+      <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border);">
+        <button type="button" class="sup-add-all" id="sup-add-all-bottom-{{ section.id }}">
+          Add All Materials To Cart
+        </button>
+      </div>
+    {%- endif -%}
+
+  </div>
+</div>
+
+{%- if bundle_product -%}
+<script>
+(function () {
+  'use strict';
+
+  /* ─── Config ──────────────────────────────────────────────────── */
+  var SECTION_ID        = {{ section.id | json }};
+ 
+  var BUNDLE_PRODUCT_ID = "gid://shopify/Product/{{ bundle_product.id | split: '/' | last }}";
+  console.log('[Debug] BUNDLE_PRODUCT_ID =', BUNDLE_PRODUCT_ID);
+  console.log('[Debug] STOREFRONT_TOKEN =', STOREFRONT_TOKEN ? STOREFRONT_TOKEN.substring(0,8) + '...' : 'EMPTY');
+  var STOREFRONT_TOKEN  = {{ shop.metafields.custom.storefront_api_token.value | default: '' | json }};
+  var SHOP_DOMAIN       = {{ shop.permanent_domain | json }};
+
+  /* ─── Storefront API GraphQL query ────────────────────────────────
+     Uses ProductVariantComponentConnection to fetch:
+       - componentVariant.id        → numeric variant ID for add-to-cart
+       - componentVariant.product   → title, image, price, sku, url
+       - quantity                   → required quantity in the bundle
+     Ref: https://shopify.dev/docs/api/storefront/latest/connections/ProductVariantComponentConnection
+  ─────────────────────────────────────────────────────────────────── */
+  var GRAPHQL_QUERY = `
+    query BundleComponents($id: ID!) {
+      product(id: $id) {
+        id
+        title
+        variants(first: 1) {
+          nodes {
+            id
+            components(first: 30) {
+              nodes {
+                quantity
+                productVariant {
+                  id
+                  sku
+                  availableForSale
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  image {
+                    url(transform: { maxWidth: 400, maxHeight: 400 })
+                    altText
+                  }
+                  product {
+                    id
+                    title
+                    handle
+                    onlineStoreUrl
+                    featuredImage {
+                      url(transform: { maxWidth: 400, maxHeight: 400 })
+                      altText
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  /* ─── Helpers ─────────────────────────────────────────────────── */
+  function formatMoney(amount, currencyCode) {
+    try {
+      return new Intl.NumberFormat(document.documentElement.lang || 'en', {
+        style: 'currency',
+        currency: currencyCode || 'AUD'
+      }).format(parseFloat(amount));
+    } catch (e) {
+      return currencyCode + ' ' + parseFloat(amount).toFixed(2);
+    }
+  }
+
+  // Convert Storefront API GID → numeric ID for use with /cart/add.js
+  // "gid://shopify/ProductVariant/12345" → 12345
+  function gidToId(gid) {
+    if (!gid) return null;
+    var parts = gid.split('/');
+    return parseInt(parts[parts.length - 1], 10);
+  }
+
+  function svgPlaceholder() {
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"' +
+           ' fill="none" stroke="#bbb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+           '<rect x="3" y="3" width="18" height="18" rx="2"/>' +
+           '<circle cx="8.5" cy="8.5" r="1.5"/>' +
+           '<polyline points="21 15 16 10 5 21"/></svg>';
+  }
+
+  /* ─── Render component cards ──────────────────────────────────── */
+  function renderComponents(components) {
+    var gridEl = document.getElementById('sup-grid-' + SECTION_ID);
+    if (!gridEl) return;
+
+    if (!components || !components.length) {
+      gridEl.innerHTML = '<div class="sup-notice">' +
+        '<strong>Bundle chưa có components.</strong><br>' +
+        'Mở bundle product trong Shopify Bundles app và thêm sản phẩm vào.' +
+        '</div>';
+      return;
+    }
+
+    var html = '<ul class="sup-grid" role="list">';
+
+    components.forEach(function (node) {
+      var qty     = node.quantity || 1;
+      var variant = node.productVariant;
+      if (!variant) return;
+
+      var product    = variant.product || {};
+      var title      = product.title || 'Unknown Product';
+      var sku        = variant.sku || '';
+      var available  = variant.availableForSale;
+      var price      = variant.price || {};
+      var priceStr   = formatMoney(price.amount, price.currencyCode);
+      var productUrl = product.onlineStoreUrl || ('/products/' + (product.handle || ''));
+      var numericVariantId = gidToId(variant.id);
+
+      // Prefer variant image, fallback to product featured image
+      var imgObj  = variant.image || product.featuredImage;
+      var imgHtml = imgObj
+        ? '<img src="' + imgObj.url + '" alt="' + (imgObj.altText || title).replace(/"/g, '&quot;') + '" class="sup-card__img" loading="lazy">'
+        : svgPlaceholder();
+
+      html += '<li class="sup-card">';
+      html +=   '<div class="sup-card__img-box">' + imgHtml + '</div>';
+      if (sku)  html += '<p class="sup-card__sku">' + sku + '</p>';
+      html +=   '<p class="sup-card__name"><a href="' + productUrl + '">' + title + '</a></p>';
+      html +=   '<p class="sup-card__price">' + priceStr + '</p>';
+      html +=   '<p class="sup-card__qty-req">Bundle required quantity: <strong>' + qty + '</strong></p>';
+
+      if (available) {
+        html += '<div class="sup-card__stepper"' +
+                '  data-variant-id="' + numericVariantId + '"' +
+                '  data-required-qty="' + qty + '"' +
+                '  aria-label="Quantity for ' + title.replace(/"/g, '&quot;') + '">' +
+                '  <button type="button" class="stepper-btn stepper-dec" aria-label="Decrease">−</button>' +
+                '  <input type="number" class="stepper-input" value="' + qty + '" min="0" aria-label="Quantity">' +
+                '  <button type="button" class="stepper-btn stepper-inc" aria-label="Increase">+</button>' +
+                '</div>';
+      } else {
+        html += '<div class="sup-card__sold-out">Sold out</div>';
+      }
+
+      html += '</li>';
+    });
+
+    html += '</ul>';
+    gridEl.innerHTML = html;
+    gridEl.removeAttribute('data-loading');
+
+   // Bind stepper events after rendering is complete
+    initSteppers();
+  }
+
+  /* ─── Fetch Storefront API ────────────────────────────────────── */
+  function fetchBundleComponents() {
+    if (!STOREFRONT_TOKEN) {
+     // No token → fallback: try reading from window.Shopify if the theme exposes it
+      var shopifyObj = window.Shopify || {};
+      STOREFRONT_TOKEN = shopifyObj.storefrontToken || '';
+    }
+
+    if (!STOREFRONT_TOKEN) {
+      showFetchError(
+        'Chưa cấu hình Storefront API token.<br>' +
+        'Thêm metafield <code>custom.storefront_api_token</code> vào shop, ' +
+        'hoặc khai báo <code>window.SpStorefrontToken</code> trong theme.'
+      );
+      return;
+    }
+
+    fetch('https://' + SHOP_DOMAIN + '/api/2024-10/graphql.json', {
+      method : 'POST',
+      headers: {
+        'Content-Type'                    : 'application/json',
+        'X-Shopify-Storefront-Access-Token': STOREFRONT_TOKEN
+      },
+      body: JSON.stringify({
+        query    : GRAPHQL_QUERY,
+        variables: { id: BUNDLE_PRODUCT_ID }
+      })
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      if (data.errors && data.errors.length) {
+        throw new Error(data.errors[0].message);
+      }
+
+      var product  = data.data && data.data.product;
+      if (!product) throw new Error('Product not found: ' + BUNDLE_PRODUCT_ID);
+
+     // Get the first variant (bundle products usually have only one default variant)
+      var variants   = product.variants && product.variants.nodes;
+      var firstVar   = variants && variants[0];
+      var components = firstVar && firstVar.components && firstVar.components.nodes;
+
+      if (!components || !components.length) {
+        // The bundle does not have components set in the Bundles app yet
+        showFetchError(
+          'Bundle product <strong>' + product.title + '</strong> chưa có components.<br>' +
+          'Mở Shopify Bundles app → chọn bundle → thêm sản phẩm vào.'
+        );
+        return;
+      }
+
+      renderComponents(components);
+    })
+    .catch(function (err) {
+      console.error('[BundleComponents] Fetch error:', err);
+      showFetchError('Không thể tải danh sách vật liệu.<br>Chi tiết: ' + err.message);
+    });
+  }
+
+  function showFetchError(msg) {
+    var gridEl = document.getElementById('sup-grid-' + SECTION_ID);
+    if (gridEl) {
+      gridEl.innerHTML = '<div class="sup-error">⚠ ' + msg + '</div>';
+    }
+  }
+
+  /* ─── Stepper buttons ─────────────────────────────────────────── */
+  function initSteppers() {
+    document.querySelectorAll('#sp-supplies-' + SECTION_ID + ' .sup-card__stepper').forEach(function (stepper) {
+      var dec   = stepper.querySelector('.stepper-dec');
+      var inc   = stepper.querySelector('.stepper-inc');
+      var input = stepper.querySelector('.stepper-input');
+
+      if (!dec || !inc || !input) return;
+
+      dec.addEventListener('click', function () {
+        var v = parseInt(input.value, 10) || 0;
+        if (v > 0) {
+          input.value = v - 1;
+          input.dispatchEvent(new Event('change'));
+        }
+      });
+
+      inc.addEventListener('click', function () {
+        var v = parseInt(input.value, 10) || 0;
+        input.value = v + 1;
+        input.dispatchEvent(new Event('change'));
+      });
+
+      input.addEventListener('input', function () {
+        var v = parseInt(input.value, 10);
+        if (isNaN(v) || v < 0) input.value = 0;
+      });
+    });
+  }
+
+  /* ─── Add All Materials To Cart ───────────────────────────────── */
+  function collectItems() {
+    var quantityByVariant = {};
+    document.querySelectorAll('#sp-supplies-' + SECTION_ID + ' .sup-card__stepper').forEach(function (stepper) {
+      var variantId = parseInt(stepper.dataset.variantId, 10);
+      var inputEl   = stepper.querySelector('.stepper-input');
+      var qty       = parseInt((inputEl && inputEl.value) || 0, 10);
+      if (isNaN(qty) || qty < 0) qty = 0;
+      if (variantId && qty > 0) {
+        quantityByVariant[variantId] = (quantityByVariant[variantId] || 0) + qty;
+      }
+    });
+    return Object.keys(quantityByVariant).map(function (variantId) {
+      return { id: parseInt(variantId, 10), quantity: quantityByVariant[variantId] };
+    });
+  }
+
+  function setupAddButton(btn) {
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var status = document.getElementById('sup-status-' + SECTION_ID);
+      var items  = collectItems();
+
+      if (!items.length) {
+        if (status) status.textContent = 'No items to add.';
+        return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = 'Adding…';
+      if (status) status.textContent = '';
+
+      fetch('/cart/add.js', {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body   : JSON.stringify({ items: items })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        btn.disabled    = false;
+        btn.textContent = 'Add All Materials To Cart';
+        if (data.status) {
+          if (status) status.textContent = data.description || 'Could not add to cart.';
+        } else {
+          if (status) status.textContent = '✓ Added to cart!';
+          document.dispatchEvent(new CustomEvent('cart:refresh'));
+          setTimeout(function () { if (status) status.textContent = ''; }, 3000);
+        }
+      })
+      .catch(function () {
+        btn.disabled    = false;
+        btn.textContent = 'Add All Materials To Cart';
+        if (status) status.textContent = 'Something went wrong. Please try again.';
+      });
+    });
+  }
+
+  /* ─── Init ────────────────────────────────────────────────────── */
+  setupAddButton(document.getElementById('sup-add-all-' + SECTION_ID));
+  setupAddButton(document.getElementById('sup-add-all-bottom-' + SECTION_ID));
+
+  // Fetch components as soon as the DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fetchBundleComponents);
+  } else {
+    fetchBundleComponents();
+  }
+
+})();
+</script>
+{%- endif -%}
+
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Set Product Detail",
+  "tag": "section",
+  "class": "section-set-product",
+  "blocks": [],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product Info"
+    },
+    {
+      "type": "text",
+      "id": "product_title",
+      "label": "Product Title",
+      "default": "Cerulean Sunset"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Image",
+      "info": "Optional — nếu để trống sẽ dùng ảnh từ bundle product"
+    },
+    {
+      "type": "select",
+      "id": "skill_level",
+      "label": "Skill Level",
+      "options": [
+        { "value": "",             "label": "— None —"      },
+        { "value": "Beginner",     "label": "Beginner"      },
+        { "value": "Intermediate", "label": "Intermediate"  },
+        { "value": "Advanced",     "label": "Advanced"      }
+      ],
+      "default": "Beginner"
+    },
+    {
+      "type": "url",
+      "id": "skill_level_url",
+      "label": "Skill Level Link URL",
+      "info": "Tuỳ chọn — làm cho Skill Level có thể click được"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "header",
+      "content": "Breadcrumb"
+    },
+    {
+      "type": "text",
+      "id": "bc_home",
+      "label": "Home label",
+      "default": "Home"
+    },
+    {
+      "type": "text",
+      "id": "bc_l1_label",
+      "label": "Level 1 label",
+      "default": "DIY Projects"
+    },
+    {
+      "type": "url",
+      "id": "bc_l1_url",
+      "label": "Level 1 URL"
+    },
+    {
+      "type": "text",
+      "id": "bc_l2_label",
+      "label": "Level 2 label",
+      "default": "Floral Decoration & Gift Ideas"
+    },
+    {
+      "type": "url",
+      "id": "bc_l2_url",
+      "label": "Level 2 URL"
+    },
+    {
+      "type": "header",
+      "content": "Supplies Section"
+    },
+    {
+      "type": "text",
+      "id": "supplies_heading",
+      "label": "Supplies Heading",
+      "default": "Supplies"
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Padding Top (px)",
+      "min": 0, "max": 120, "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Padding Bottom (px)",
+      "min": 0, "max": 120, "step": 4,
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "Set Product Detail",
+      "settings": {
+        "product_title": "Cerulean Sunset",
+        "skill_level": "Beginner",
+        "bc_l1_label": "DIY Projects",
+        "bc_l1_url": "/pages/diy-decor-floral-ideas",
+        "bc_l2_label": "Floral Decoration & Gift Ideas",
+        "bc_l2_url": "/pages/diy-decor-floral-ideas/floral-decoration-gift-ideas",
+        "supplies_heading": "Supplies"
+      }
+    }
+  ]
+}
+{% endschema %}

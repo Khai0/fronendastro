@@ -1,0 +1,659 @@
+{{ 'collection.css' | asset_url | stylesheet_tag }}
+{% render 'collection-banner' %}
+
+{%- comment -%} ── 1. Hero: breadcrumb + title ── {%- endcomment -%}
+{% render 'collection-hero' %}
+
+{%- comment -%} ── 2. Sub-category pills ── {%- endcomment -%}
+{% render 'collection-subcategory' %}
+
+{%- comment -%} ── 3. Toolbar: filter toggle + sort ── {%- endcomment -%}
+{% render 'collection-toolbar' %}
+
+
+{%- comment -%} ── 4. Main layout: filter panel + product grid ── {%- endcomment -%}
+<div class="collection-layout" id="collection-layout">
+
+ 
+
+  <div class="product-grid-wrap" id="product-grid-wrap">
+    {%- paginate collection.products by section.settings.products_per_page -%}
+
+      {%- comment -%} 5. Product grid {%- endcomment -%}
+      {% render 'collection-product-grid', products: collection.products %}
+
+      {%- comment -%} 6. Pagination {%- endcomment -%}
+      {% render 'collection-pagination', paginate: paginate %}
+
+    {%- endpaginate -%}
+  </div>
+
+</div>
+
+{%- comment -%} ── 7. FAQs ── {%- endcomment -%}
+{% render 'collection-description' %}
+{% render 'collection-faqs' %}
+
+{%- comment -%} ── 8. VR Try-On Popup ── {%- endcomment -%}
+{% render 'collection-vr-popup' %}
+
+{%- comment -%} ── JavaScript ── {%- endcomment -%}
+<script>
+(function () {
+
+  /* ── Filter panel toggle ── */
+  var toggle = document.getElementById('filter-toggle');
+  var panel  = document.getElementById('filter-panel');
+  var layout = document.getElementById('collection-layout');
+  var label  = document.getElementById('filter-btn-label');
+
+  if (toggle && panel) {
+    function syncFilterPanelMetrics() {
+      panel.style.setProperty('--filter-panel-width', toggle.offsetWidth + 'px');
+    }
+
+    syncFilterPanelMetrics();
+    window.addEventListener('resize', syncFilterPanelMetrics);
+
+    toggle.addEventListener('click', function () {
+      syncFilterPanelMetrics();
+      var isOpen = panel.getAttribute('aria-hidden') === 'false';
+      panel.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
+      toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+      if (layout) layout.classList.toggle('filter-is-open', !isOpen);
+      if (label) label.textContent = isOpen ? 'Show filters' : 'Hide filters';
+    });
+  }
+
+  /* ── Filter form: auto-submit on checkbox change ── */
+  var filterForm = document.getElementById('filter-form');
+  if (filterForm) {
+    filterForm.addEventListener('change', function () {
+      var params = new URLSearchParams(new FormData(filterForm));
+      window.location.search = params.toString();
+    });
+    filterForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var params = new URLSearchParams(new FormData(filterForm));
+      window.location.search = params.toString();
+    });
+  }
+
+  /* ── Clear all filters ── */
+  var clearBtn = document.getElementById('filter-clear');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function () {
+      window.location.href = window.location.pathname;
+    });
+  }
+
+  /* ── Sort select ── */
+  var sortSelect = document.getElementById('sort-select');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', function () {
+      var url = new URL(window.location.href);
+      url.searchParams.set('sort_by', this.value);
+      window.location.href = url.toString();
+    });
+  }
+
+  /* ── Swatch: swap product card image ── */
+  document.querySelectorAll('.swatch').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var img    = this.getAttribute('data-variant-img');
+      var cardId = this.getAttribute('data-card-id');
+      if (!img || !cardId) return;
+      var card = document.querySelector('[data-product-id="' + cardId + '"]');
+      if (!card) return;
+      var primary = card.querySelector('.product-card__img--primary');
+      if (primary) primary.src = img;
+      card.querySelectorAll('.swatch').forEach(function (s) {
+        s.classList.remove('is-active');
+      });
+      this.classList.add('is-active');
+    });
+  });
+
+  /* ── VR Popup ── */
+  var vrOverlay = document.getElementById('vr-overlay');
+  var vrClose = document.getElementById('vr-close');
+  var vrPreview = document.getElementById('vr-preview');
+  var vrImg = document.getElementById('vr-product-img');
+  var vrVideo = document.getElementById('vr-camera-video');
+  var vrPhoto = document.getElementById('vr-photo-preview');
+  var vrGlasses = document.getElementById('vr-glasses-overlay');
+  var vrTitle = document.getElementById('vr-product-title');
+  var vrStatus = document.getElementById('vr-status');
+  var vrLabel = document.getElementById('vr-step-label');
+  var vrDesc = document.getElementById('vr-description');
+  var vrMethods = document.getElementById('vr-methods');
+  var vrUseCamera = document.getElementById('vr-use-camera');
+  var vrdisagree = document.getElementById('vr-disagree-method');
+  var vrUploadBtn = document.getElementById('vr-upload-btn');
+  var vrPhotoInput = document.getElementById('vr-photo-input');
+  var vrControls = document.getElementById('vr-manual-controls');
+  var vrChangeMethod = document.getElementById('vr-change-method');
+  var vrStopCamera = document.getElementById('vr-stop-camera');
+  var vrScale = document.getElementById('vr-scale');
+  var vrOffsetY = document.getElementById('vr-offset-y');
+  var vrRotate = document.getElementById('vr-rotate');
+  var vrSteps = document.querySelectorAll('[data-vr-step]');
+
+  var vrState = {
+    stream: null,
+    faceMesh: null,
+    faceMeshLoop: 0,
+    mediaPipePromise: null,
+    frameBusy: false,
+    photoUrl: '',
+    autoTracking: false
+  };
+
+  function setVRStep(step) {
+    if (!vrLabel) return;
+    vrLabel.textContent = 'Step ' + step + ' of 3';
+    vrSteps.forEach(function (el) {
+      var isActive = Number(el.getAttribute('data-vr-step')) <= step;
+      el.classList.toggle('vr-step--active', isActive);
+    });
+  }
+
+  function setVRStatus(message) {
+    if (vrStatus) vrStatus.textContent = message;
+  }
+
+  function stopCameraStream() {
+    if (vrState.faceMeshLoop) {
+      cancelAnimationFrame(vrState.faceMeshLoop);
+      vrState.faceMeshLoop = 0;
+    }
+    vrState.frameBusy = false;
+    if (vrState.stream) {
+      vrState.stream.getTracks().forEach(function (track) { track.stop(); });
+      vrState.stream = null;
+    }
+    if (vrVideo) vrVideo.srcObject = null;
+    vrState.autoTracking = false;
+  }
+
+  function cleanupPhotoUrl() {
+    if (vrState.photoUrl) {
+      URL.revokeObjectURL(vrState.photoUrl);
+      vrState.photoUrl = '';
+    }
+  }
+
+  function applyManualOverlay() {
+    if (!vrGlasses) return;
+    var scale = vrScale ? Number(vrScale.value) : 78;
+    var offsetY = vrOffsetY ? Number(vrOffsetY.value) : 34;
+    var rotate = vrRotate ? Number(vrRotate.value) : 0;
+    vrGlasses.style.width = scale + '%';
+    vrGlasses.style.left = '50%';
+    vrGlasses.style.top = offsetY + '%';
+    vrGlasses.style.transform = 'translate(-50%, -50%) rotate(' + rotate + 'deg)';
+  }
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[src="' + src + '"]');
+      if (existing) {
+        if (
+          existing.dataset.loaded === 'true' ||
+          (src.indexOf('face_mesh') > -1 && window.FaceMesh)
+        ) {
+          existing.dataset.loaded = 'true';
+          resolve();
+          return;
+        }
+        existing.addEventListener('load', function () { resolve(); }, { once: true });
+        existing.addEventListener('error', reject, { once: true });
+        return;
+      }
+
+      var script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.onload = function () {
+        script.dataset.loaded = 'true';
+        resolve();
+      };
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  function loadMediaPipe() {
+    if (vrState.faceMesh) return Promise.resolve(vrState.faceMesh);
+    if (vrState.mediaPipePromise) return vrState.mediaPipePromise;
+
+    vrState.mediaPipePromise = loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js')
+      .then(function () {
+        if (!window.FaceMesh) throw new Error('FaceMesh unavailable');
+        var mesh = new window.FaceMesh({
+          locateFile: function (file) {
+            return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/' + file;
+          }
+        });
+        mesh.setOptions({
+          maxNumFaces: 1,
+          refineLandmarks: true,
+          minDetectionConfidence: 0.6,
+          minTrackingConfidence: 0.6
+        });
+        mesh.onResults(handleFaceMeshResults);
+        vrState.faceMesh = mesh;
+        return mesh;
+      });
+
+    return vrState.mediaPipePromise;
+  }
+
+  function trackFaceWithLandmarks(landmarks) {
+    if (!vrVideo || !vrGlasses || !landmarks || !landmarks.length) return;
+
+    // Key landmarks for precise glasses placement
+    var leftEyeOuter  = landmarks[33];   // left eye outer corner (viewer's right side in mirror)
+    var rightEyeOuter = landmarks[263];  // right eye outer corner (viewer's left side in mirror)
+    var leftEyeInner  = landmarks[133];
+    var rightEyeInner = landmarks[362];
+    var noseBridge    = landmarks[6];    // glabella / nose bridge top
+    var noseRoot      = landmarks[168];  // between eyes
+
+    if (!leftEyeOuter || !rightEyeOuter) return;
+
+    var widthPx  = vrVideo.clientWidth;
+    var heightPx = vrVideo.clientHeight;
+    var srcWidth = vrVideo.videoWidth || widthPx;
+    var srcHeight = vrVideo.videoHeight || heightPx;
+
+    // The video uses object-fit: cover; map landmark coords into displayed/cropped space.
+    var scale = Math.max(widthPx / srcWidth, heightPx / srcHeight);
+    var renderWidth = srcWidth * scale;
+    var renderHeight = srcHeight * scale;
+    var offsetX = (widthPx - renderWidth) / 2;
+    var offsetY = (heightPx - renderHeight) / 2;
+
+    // VIDEO IS MIRRORED (scaleX(-1)), so X coords from MediaPipe must be mirrored too.
+    function mx(lm) {
+      var x = lm.x * renderWidth + offsetX;
+      return widthPx - x;
+    }
+    function my(lm) {
+      return lm.y * renderHeight + offsetY;
+    }
+
+    var leftX  = mx(leftEyeOuter);
+    var leftY  = my(leftEyeOuter);
+    var rightX = mx(rightEyeOuter);
+    var rightY = my(rightEyeOuter);
+
+    // Use both outer + inner corners when available for a more stable center anchor.
+    var centerX;
+    var centerY;
+    if (leftEyeInner && rightEyeInner) {
+      centerX = (leftX + rightX + mx(leftEyeInner) + mx(rightEyeInner)) / 4;
+      centerY = (leftY + rightY + my(leftEyeInner) + my(rightEyeInner)) / 4;
+    } else {
+      centerX = (leftX + rightX) / 2;
+      centerY = (leftY + rightY) / 2;
+    }
+
+    // Eye distance in px; scale frame width generously to cover temple-to-temple
+    var eyeDistance = Math.hypot(rightX - leftX, rightY - leftY);
+    var noseY = noseRoot ? my(noseRoot) : (noseBridge ? my(noseBridge) : centerY);
+    // Slightly bias down from eye center toward nose root so bridge sits naturally.
+    centerY = centerY * 0.82 + noseY * 0.18 + eyeDistance * 0.04;
+
+    // Frame width: enlarge to avoid undersized fit and clamp to viewport bounds.
+    var frameWidth = Math.min(widthPx * 0.98, Math.max(100, eyeDistance * 1.55));
+
+    // Tilt angle from eye line.
+    // Because X coordinates are mirrored, using right-left directly flips to ~180deg.
+    // Reverse vector direction so neutral face stays around 0deg.
+    var rotate = Math.atan2(leftY - rightY, leftX - rightX) * 180 / Math.PI;
+
+    vrGlasses.style.width     = frameWidth + 'px';
+    vrGlasses.style.left      = centerX + 'px';
+    vrGlasses.style.top       = centerY + 'px';
+    vrGlasses.style.transform = 'translate(-50%, -50%) rotate(' + rotate.toFixed(2) + 'deg)';
+  }
+
+  function handleFaceMeshResults(results) {
+    var face = results && results.multiFaceLandmarks && results.multiFaceLandmarks[0];
+    if (!face) {
+      setVRStep(2);
+      setVRStatus('Face not found. Keep your face centered in frame.');
+      return;
+    }
+    setVRStep(3);
+    setVRStatus('Live try-on active.');
+    trackFaceWithLandmarks(face);
+  }
+
+  function runFaceMeshLoop() {
+    if (!vrState.autoTracking || !vrState.faceMesh || !vrVideo || !vrState.stream) return;
+    if (vrVideo.readyState >= 2 && !vrState.frameBusy) {
+      vrState.frameBusy = true;
+      vrState.faceMesh.send({ image: vrVideo }).then(function () {
+        vrState.frameBusy = false;
+      }, function () {
+        vrState.frameBusy = false;
+        setVRStatus('Tracking paused. Adjust manually below.');
+      });
+    }
+    vrState.faceMeshLoop = requestAnimationFrame(runFaceMeshLoop);
+  }
+
+  function showMethodStep() {
+    stopCameraStream();
+    cleanupPhotoUrl();
+    if (vrPreview) vrPreview.classList.remove('is-camera', 'is-photo');
+    if (vrMethods) vrMethods.hidden = false;
+    if (vrControls) vrControls.hidden = true;
+    if (vrPhotoInput) vrPhotoInput.value = '';
+    if (vrDesc) vrDesc.textContent = 'Use your camera to see how these frames look on your face in real time.';
+    // Remove full-layout camera classes
+    var vrModal = document.querySelector('.vr-modal');
+    if (vrModal) vrModal.classList.remove('camera-active');
+    if (vrOverlay) vrOverlay.classList.remove('camera-active-overlay');
+    setVRStep(1);
+    setVRStatus('Choose a method to start try-on.');
+  }
+
+  function openVR(title, img, overlayImg, hasOverlay) {
+    if (vrTitle) vrTitle.textContent = title || '';
+    if (vrImg) vrImg.src = img || '';
+    if (vrGlasses) vrGlasses.src = overlayImg || img || '';
+    showMethodStep();
+    if (hasOverlay === 'false') {
+      setVRStatus('This product has no dedicated AR overlay yet. Result may look less accurate.');
+      if (vrDesc) vrDesc.textContent = 'For best try-on quality, add a transparent front-facing frame image to metafield custom.vr_overlay.';
+    }
+    if (!vrOverlay) return;
+    vrOverlay.setAttribute('aria-hidden', 'false');
+    vrOverlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeVR() {
+    if (!vrOverlay) return;
+    stopCameraStream();
+    cleanupPhotoUrl();
+    vrOverlay.setAttribute('aria-hidden', 'true');
+    vrOverlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  function startCameraMode() {
+    if (!vrPreview || !vrVideo || !vrMethods) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setVRStatus('Camera access is not supported on this browser.');
+      return;
+    }
+
+    stopCameraStream();
+    setVRStep(2);
+    setVRStatus('Requesting camera permission...');
+    vrMethods.hidden = true;
+    if (vrControls) vrControls.hidden = true;
+    if (vrDesc) vrDesc.textContent = 'Allow camera access, then keep your face centered.';
+
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    }).then(function (stream) {
+      vrState.stream = stream;
+      vrPreview.classList.remove('is-photo');
+      vrPreview.classList.add('is-camera');
+      vrVideo.srcObject = stream;
+      vrVideo.play().catch(function () {});
+
+      // Expand modal to full camera layout
+      var vrModal = document.querySelector('.vr-modal');
+      if (vrModal) vrModal.classList.add('camera-active');
+      if (vrOverlay) vrOverlay.classList.add('camera-active-overlay');
+
+      setVRStatus('Loading face tracking...');
+      loadMediaPipe().then(function () {
+        vrState.autoTracking = true;
+        if (vrControls) vrControls.hidden = true;
+        setVRStatus('Scanning your face...');
+        runFaceMeshLoop();
+      }).catch(function () {
+        vrState.autoTracking = false;
+        setVRStep(3);
+        setVRStatus('Tracking unavailable. Use sliders to align frames.');
+        if (vrDesc) vrDesc.textContent = 'Face tracking could not start in this browser, adjust manually below.';
+        if (vrControls) vrControls.hidden = false;
+        applyManualOverlay();
+      });
+    }).catch(function () {
+      setVRStatus('Camera permission denied. You can upload a photo instead.');
+      vrMethods.hidden = false;
+      if (vrControls) vrControls.hidden = true;
+    });
+  }
+
+  function startPhotoMode(file) {
+    if (!file || !vrPreview || !vrPhoto || !vrMethods) return;
+    stopCameraStream();
+    cleanupPhotoUrl();
+    vrState.photoUrl = URL.createObjectURL(file);
+    vrPreview.classList.remove('is-camera');
+    vrPreview.classList.add('is-photo');
+    vrPhoto.src = vrState.photoUrl;
+    vrMethods.hidden = true;
+    if (vrControls) vrControls.hidden = false;
+    if (vrDesc) vrDesc.textContent = 'Photo mode active. Adjust frames with sliders.';
+    setVRStep(3);
+    setVRStatus('Photo loaded. Fine tune the frame position.');
+    applyManualOverlay();
+  }
+
+  document.querySelectorAll('.vr-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      openVR(
+        this.getAttribute('data-product-title'),
+        this.getAttribute('data-product-img'),
+        this.getAttribute('data-product-vr-overlay'),
+        this.getAttribute('data-product-has-vr-overlay')
+      );
+    });
+  });
+
+  if (vrUseCamera) vrUseCamera.addEventListener('click', startCameraMode);
+  if (vrUploadBtn && vrPhotoInput) {
+    vrUploadBtn.addEventListener('click', function () { vrPhotoInput.click(); });
+  }
+  if (vrPhotoInput) {
+    vrPhotoInput.addEventListener('change', function () {
+      if (this.files && this.files[0]) startPhotoMode(this.files[0]);
+    });
+  }
+
+  if (vrChangeMethod) vrChangeMethod.addEventListener('click', showMethodStep);
+  if (vrStopCamera) vrStopCamera.addEventListener('click', function () {
+    stopCameraStream();
+    var vrModal = document.querySelector('.vr-modal');
+    if (vrModal) vrModal.classList.remove('camera-active');
+    if (vrOverlay) vrOverlay.classList.remove('camera-active-overlay');
+    if (vrMethods) vrMethods.hidden = false;
+    if (vrControls) vrControls.hidden = true;
+    if (vrPreview) vrPreview.classList.remove('is-camera', 'is-photo');
+    setVRStep(1);
+    setVRStatus('Camera stopped. Choose a method to continue.');
+  });
+
+  [vrScale, vrOffsetY, vrRotate].forEach(function (input) {
+    if (!input) return;
+    input.addEventListener('input', applyManualOverlay);
+  });
+
+  if (vrClose) vrClose.addEventListener('click', closeVR);
+  if (vrdisagree) vrdisagree.addEventListener('click', closeVR);
+
+  if (vrOverlay) {
+    vrOverlay.addEventListener('click', function (e) {
+      if (e.target === vrOverlay) closeVR();
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeVR();
+  });
+
+  /* Collapsible collection description */
+  var descBody = document.getElementById('collection-desc-body');
+  var descText = document.getElementById('collection-desc-text');
+  var descToggle = document.getElementById('desc-toggle');
+
+  if (descBody && descText && descToggle) {
+    var clampHeight = 52;
+    function syncDescToggle() {
+      var isExpanded = descToggle.getAttribute('aria-expanded') === 'true';
+      var plainTextLength = (descText.textContent || '').trim().length;
+      var hasOverflow = descText.scrollHeight > clampHeight + 4 || plainTextLength > 140;
+
+      if (!hasOverflow) {
+        descBody.classList.remove('is-collapsed', 'is-expanded');
+        descToggle.hidden = true;
+        descToggle.setAttribute('aria-expanded', 'false');
+        return;
+      }
+
+      descToggle.hidden = false;
+      if (isExpanded) {
+        descBody.classList.add('is-expanded');
+        descBody.classList.remove('is-collapsed');
+      } else {
+        descBody.classList.remove('is-expanded');
+        descBody.classList.add('is-collapsed');
+        descToggle.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    syncDescToggle();
+    window.addEventListener('load', syncDescToggle);
+    window.addEventListener('resize', syncDescToggle);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(syncDescToggle);
+    }
+
+    descToggle.addEventListener('click', function () {
+      var expanded = descBody.classList.toggle('is-expanded');
+      descBody.classList.toggle('is-collapsed', !expanded);
+      descToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+  }
+  /* ── FAQ accordion ── */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.faq-item').forEach(function (item) {
+    item.classList.remove('is-open');
+    var btn = item.querySelector('.faq-item__question');
+    var answer = item.querySelector('.faq-item__answer');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    if (answer) answer.setAttribute('aria-hidden', 'true');
+  });
+
+  document.querySelectorAll('.faq-item__question').forEach(function (btn) {
+    var item = btn.closest('.faq-item');
+    var answer = item ? item.querySelector('.faq-item__answer') : null;
+    if (!item || !answer) return;
+
+    function toggle() {
+      var isOpen = item.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(isOpen));
+      answer.setAttribute('aria-hidden', String(!isOpen));
+
+      if (isOpen) {
+        // Đo chiều cao thực tế, set chính xác
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      } else {
+        // Collapse: set về px cụ thể trước rồi về 0 (tránh transition skip)
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            answer.style.maxHeight = '0px';
+          });
+        });
+      }
+    }
+
+    btn.addEventListener('click', toggle);
+    btn.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  });
+});
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Collection — Glasses",
+  "tag": "section",
+  "class": "section-collection",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "Collection banner image"
+    },
+    {
+      "type": "header",
+      "content": "Description"
+    },
+    {
+      "type": "text",
+      "id": "desc_heading",
+      "label": "Description heading",
+      "default": "Glasses Frames Online Across Australia"
+    },
+    {
+      "type": "richtext",
+      "id": "collection_desc",
+      "label": "Custom description",
+      "info": "Leave blank to use collection description."
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "link_list",
+      "id": "subcategory_menu",
+      "label": "Sub-category menu"
+    },
+    {
+      "type": "header",
+      "content": "FAQs"
+    },
+    {
+      "type": "text",
+      "id": "faq_heading",
+      "label": "FAQ heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "metaobject_list",
+      "id": "faq_metaobject",
+      "label": "FAQ items",
+      "metaobject_type": "faq"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection — Glasses"
+    }
+  ]
+}
+{% endschema %}

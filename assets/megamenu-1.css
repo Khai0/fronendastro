@@ -20,18 +20,312 @@
   .megamenu--featured-2 .container,
   .megamenu--featured-3 .container,
   .megamenu--best-of .container {
+    width: 100%;
     max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
     padding-left: 0;
     padding-right: 0;
+    
   }
+
+  /* =============================================
+     MEGAMENU FEATURED-1
+     LEFT ~24% | MIDDLE flex grow | RIGHT ~24%
+     Tất cả co dãn theo viewport
+     ============================================= */
+
+  .megamenu--featured-1 .megamenu-1-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 24%) minmax(0, 1fr) minmax(280px, 26%);
+    min-height: 430px;
+    height: auto;
+    
+  }
+.megamenu--featured-1 {
+  border-radius: 0 0 20px 20px; 
+  overflow: hidden;
+}
+
+  /* =============================================
+     LEFT — nav links
+     ============================================= */
+
+  .megamenu--featured-1 .megamenu-1-left {
+    background: #F7F6F3;
+    border-right: 1px solid #d9d9d9;
+    padding: 28px 0 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .megamenu--featured-1 .megamenu-1-left__title {
+    margin: 0 0 8px;
+    padding: 0 24px 14px;
+    border-bottom: 1px solid #cfcfcf;
+    color: #252525;
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .megamenu--featured-1 .megamenu-1-left__links {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    flex: 1;
+  }
+
+  .megamenu--featured-1 .megamenu-1-left__links li {
+    margin: 0;
+  }
+
+  .megamenu--featured-1 .megamenu-1-left__links a {
+    display: block;
+    padding: 10px 24px;
+    color: #2f353c;
+    text-decoration: none;
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: 400;
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+
+  .megamenu--featured-1 .megamenu-1-left__links a:hover {
+    background-color: #00626E;
+    color: #fff;
+  }
+
+  /* =============================================
+     MIDDLE — brand logo grid
+     ============================================= */
+
+  .megamenu--featured-1 .megamenu-1-middle {
+    padding: 32px 40px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+  }
+
+  .megamenu--featured-1 .megamenu-1-middle__grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 32px;
+    align-items: center;
+    justify-items: center;
+  }
+
+  .megamenu--featured-1 .megamenu-1-brand {
+    width: 100%;
+    text-align: center;
+  }
+
+  .megamenu--featured-1 .megamenu-1-brand__inner {
+    color: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 72px;
+    border-radius: 8px;
+    padding: 12px 16px;
+    border: 1.5px solid transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+
+  .megamenu--featured-1 .megamenu-1-brand__inner:hover {
+    background: #fff;
+    border-color: #d8d8d8;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  }
+
+  .megamenu--featured-1 .megamenu-1-brand img {
+    width: auto;
+    max-width: 150px;
+    max-height: 40px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .megamenu--featured-1 .megamenu-1-brand__label {
+    margin: 0;
+    color: #101828;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    display: block;
+    text-align: center;
+  }
+
+  /* VIEW ALL BRANDS button */
+  .megamenu--featured-1 .megamenu-1-middle__cta {
+    margin-top: 28px;
+    color: #202020;
+    text-decoration: none;
+    border: 1.5px solid #2a2a2a;
+    border-radius: 999px;
+    min-height: 44px;
+    padding: 10px 32px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .megamenu--featured-1 .megamenu-1-middle__cta:hover {
+    background: #232323;
+    color: #fff;
+  }
+
+  /* =============================================
+     RIGHT — hero image, full height, flush right
+     ============================================= */
+
+  .megamenu--featured-1 .megamenu-1-right {
+    overflow: hidden;
+    position: relative;
+    align-self: stretch;
+    min-height: 430px;
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 430px;
+    position: relative;
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 430px;
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero img {
+    width: 100%;
+    height: 100%;
+    min-height: 430px;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.68);
+    position: absolute;
+    inset: 0;
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.5);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero__content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    color: #fff;
+    z-index: 2;
+    padding: 0 24px;
+    gap: 12px;
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero__eyebrow {
+    margin: 0 0 4px;
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    line-height: 30px;
+    color: rgb(17, 25, 12);
+    margin-bottom: 4px;
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero h3 {
+    margin: 0;
+    margin-bottom: 6px;
+    font-size: 64px;
+    line-height: 96px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: rgb(17, 25, 12);
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero__subtitle {
+    margin: 12px 0 0;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgb(17, 25, 12);
+    font-weight: 300;
+    margin-bottom: 12px;
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero__button {
+    margin: 18px auto 0;
+    margin-top: 6px;
+    min-height: 42px;
+    padding: 11px 28px;
+    border-radius: 999px;
+    background: #1e1f22;
+    color: #fff;
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 170px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    border: 1.5px solid transparent;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .megamenu--featured-1 .megamenu-1-hero__button:hover {
+    background: transparent;
+    color: #1e1f22;
+    border: 1.5px solid #1e1f22;
+    box-shadow: none;
+  }
+
+  /* =============================================
+     MEGAMENU FEATURED-2
+     ============================================= */
 
   .megamenu--featured-2 .megamenu-1-layout {
-    display: grid !important;
+    display: grid;
     grid-template-columns: minmax(0, 1fr) 360px;
     gap: 0;
+    border-radius: 50px;
+    overflow: hidden;
   }
 
-  .megamenu--featured-1 .megamenu-links,
   .megamenu--featured-2 .megamenu-links {
     display: grid;
     grid-template-columns: 330px repeat(3, minmax(0, 1fr));
@@ -43,7 +337,6 @@
     background: #f7f7f7;
   }
 
-  .megamenu--featured-1 .megamenu-links > li:first-child,
   .megamenu--featured-2 .megamenu-links > li:first-child {
     grid-column: 1;
     grid-row: 1 / span 20;
@@ -51,7 +344,6 @@
     border-right: 1px solid #d8d8d8;
   }
 
-  .megamenu--featured-1 .megamenu-links > li:first-child > a,
   .megamenu--featured-2 .megamenu-links > li:first-child > a {
     display: block;
     margin: 0 0 16px;
@@ -62,19 +354,16 @@
     font-weight: 700;
   }
 
-  .megamenu--featured-1 .megamenu-links > li:first-child > ul,
   .megamenu--featured-2 .megamenu-links > li:first-child > ul {
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .megamenu--featured-1 .megamenu-links > li:first-child > ul > li + li,
   .megamenu--featured-2 .megamenu-links > li:first-child > ul > li + li {
     margin-top: 10px;
   }
 
-  .megamenu--featured-1 .megamenu-links > li:first-child > ul > li > a,
   .megamenu--featured-2 .megamenu-links > li:first-child > ul > li > a {
     color: #2f353c;
     text-decoration: none;
@@ -82,7 +371,6 @@
     line-height: 1.2;
   }
 
-  .megamenu--featured-1 .megamenu-links > li:not(:first-child),
   .megamenu--featured-2 .megamenu-links > li:not(:first-child) {
     display: flex;
     align-items: center;
@@ -90,7 +378,6 @@
     text-align: center;
   }
 
-  .megamenu--featured-1 .megamenu-links > li:not(:first-child) > a,
   .megamenu--featured-2 .megamenu-links > li:not(:first-child) > a {
     color: #111827;
     text-decoration: none;
@@ -101,23 +388,27 @@
     line-height: 1.15;
   }
 
-  .megamenu--featured-1 .megamenu-links > li:not(:first-child) > ul,
   .megamenu--featured-2 .megamenu-links > li:not(:first-child) > ul {
     display: none;
   }
 
-  .megamenu--featured-1 .megamenu-image,
   .megamenu--featured-2 .megamenu-image {
     position: relative;
     height: 100%;
     min-height: 430px;
   }
 
+  /* =============================================
+     MEGAMENU FEATURED-3
+     ============================================= */
+
   .megamenu--featured-3 .megamenu-3-only {
     display: grid;
     justify-content: end;
     background: #f7f7f7;
     min-height: 430px;
+    border-radius: 50px;
+    overflow: hidden;
   }
 
   .megamenu--featured-3 .megamenu-image {
@@ -127,7 +418,7 @@
     margin-left: auto;
   }
 
-  .megamenu--featured-1 .megamenu-image a,
+  /* shared image styles featured-2/3 */
   .megamenu--featured-2 .megamenu-image a,
   .megamenu--featured-3 .megamenu-image a {
     display: block;
@@ -136,7 +427,6 @@
     text-decoration: none;
   }
 
-  .megamenu--featured-1 .megamenu-image img,
   .megamenu--featured-2 .megamenu-image img,
   .megamenu--featured-3 .megamenu-image img {
     width: 100%;
@@ -146,7 +436,6 @@
     filter: brightness(0.74);
   }
 
-  .megamenu--featured-1 .megamenu-image p,
   .megamenu--featured-2 .megamenu-image p,
   .megamenu--featured-3 .megamenu-image p {
     position: absolute;
@@ -167,230 +456,17 @@
     letter-spacing: 0.04em;
   }
 
-  .megamenu--featured-1 .megamenu-1-layout {
-    display: grid;
-    grid-template-columns: 420px minmax(0, 1fr) 430px;
-    min-height: 420px;
-    background: #f3f3f3;
-  }
-
-  .megamenu--featured-1 .megamenu-1-left {
-    border-right: 1px solid #d9d9d9;
-    padding: 30px 24px 26px;
-    background: #ececec;
-  }
-
-  .megamenu--featured-1 .megamenu-1-left__title {
-    margin: 0;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #cfcfcf;
-    color: #252525;
-    font-size: 18px;
-    line-height: 1.2;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-  }
-
-  .megamenu--featured-1 .megamenu-1-left__links {
-    list-style: none;
-    margin: 14px 0 0;
-    padding: 0;
-  }
-
-  .megamenu--featured-1 .megamenu-1-left__links li + li {
-    margin-top: 8px;
-  }
-
-  .megamenu--featured-1 .megamenu-1-left__links a {
-    color: #383838;
-    text-decoration: none;
-    font-size: 16px;
-    line-height: 1.35;
-    transition: color 0.18s ease, transform 0.18s ease;
-    display: inline-block;
-  }
-
-  .megamenu--featured-1 .megamenu-1-left__links a:hover {
-    color: #111;
-    transform: translateX(2px);
-  }
-
-  .megamenu--featured-1 .megamenu-1-middle {
-    padding: 26px 38px 18px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .megamenu--featured-1 .megamenu-1-middle__grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 32px 42px;
-    align-items: center;
-    justify-items: center;
-  }
-
-  .megamenu--featured-1 .megamenu-1-brand {
-    width: 100%;
-    text-align: center;
-    position: relative;
-  }
-
-  .megamenu--featured-1 .megamenu-1-brand__inner {
-    color: inherit;
-    text-decoration: none;
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    min-height: 68px;
-    border-radius: 12px;
-    padding: 4px 8px;
-    position: relative;
-    overflow: visible;
-    transition: transform 0.22s ease, background-color 0.22s ease, box-shadow 0.22s ease;
-    cursor: pointer;
-  }
-
-  .megamenu--featured-1 .megamenu-1-brand__inner:hover {
-    transform: translateY(-2px) scale(1.01);
-    background: rgba(255, 255, 255, 0.58);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-  }
-
-  .megamenu--featured-1 .megamenu-1-brand img {
-    width: auto;
-    max-width: 150px;
-    max-height: 38px;
-    object-fit: contain;
-    display: block;
-    transition: transform 0.18s ease;
-  }
-
-  .megamenu--featured-1 .megamenu-1-brand__label {
-    margin: 0;
-    color: #101828;
-    font-size: 16px;
-    line-height: 1.2;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    display: block;
-    padding: 0;
-    text-align: center;
-  }
-
-  .megamenu--featured-1 .megamenu-1-middle__cta {
-    margin-top: 24px;
-    color: #202020;
-    text-decoration: none;
-    border: 1px solid #2a2a2a;
-    border-radius: 999px;
-    min-height: 36px;
-    padding: 6px 20px;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-
-  .megamenu--featured-1 .megamenu-1-middle__cta:hover {
-    background: #232323;
-    color: #fff;
-  }
-
-  .megamenu--featured-1 .megamenu-1-right {
-    border-left: 1px solid #dddddd;
-    background: #ececec;
-  }
-
-  .megamenu--featured-1 .megamenu-1-hero,
-  .megamenu--featured-1 .megamenu-1-hero a {
-    display: block;
-    height: 100%;
-    position: relative;
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .megamenu--featured-1 .megamenu-1-hero img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    filter: brightness(0.74);
-  }
-
-  .megamenu--featured-1 .megamenu-1-hero__content {
-    position: absolute;
-    left: 26px;
-    right: 26px;
-    bottom: 22px;
-    text-align: center;
-    color: #171717;
-    z-index: 2;
-  }
-
-  .megamenu--featured-1 .megamenu-1-hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(255, 255, 255, 0.6) 18%, rgba(255, 255, 255, 0.06) 52%, rgba(0, 0, 0, 0.06) 100%);
-    z-index: 1;
-  }
-
-  .megamenu--featured-1 .megamenu-1-hero__eyebrow {
-    margin: 0 0 8px;
-    font-size: 31px;
-    font-weight: 700;
-    text-transform: uppercase;
-    line-height: 1;
-  }
-
-  .megamenu--featured-1 .megamenu-1-hero h3 {
-    margin: 0;
-    font-size: 54px;
-    line-height: 1;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .megamenu--featured-1 .megamenu-1-hero__subtitle {
-    margin: 10px 0 0;
-    font-size: 14px;
-    line-height: 1.45;
-  }
-
-  .megamenu--featured-1 .megamenu-1-hero__button {
-    margin: 16px auto 0;
-    min-height: 36px;
-    padding: 8px 20px;
-    border-radius: 999px;
-    background: #1e1f22;
-    color: #fff;
-    font-size: 14px;
-    line-height: 1;
-    font-weight: 700;
-    text-transform: uppercase;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 170px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
-  }
+  /* =============================================
+     MEGAMENU BEST-OF
+     ============================================= */
 
   .megamenu--best-of .best-of-layout {
     display: grid;
     grid-template-columns: 320px minmax(0, 1fr);
     min-height: 430px;
     background: #f7f7f7;
+    border-radius: 50px;
+    overflow: hidden;
   }
 
   .megamenu--best-of .best-of-content {
@@ -460,7 +536,7 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
-    padding: 18px 18px;
+    padding: 18px;
   }
 
   .megamenu--best-of .best-of-card {
@@ -522,5 +598,34 @@
     color: #6b7280;
     font-size: 12px;
     line-height: 1.5;
+  }
+    /* ENTER (hiện ra) */
+  .megamenu-enter-active {
+    transition: all 0.35s ease;
+  }
+
+  .megamenu-enter-from {
+    opacity: 0;
+    transform: translateY(10px); /* từ dưới lên nhẹ */
+  }
+
+  .megamenu-enter-to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* LEAVE (đóng lại) */
+  .megamenu-leave-active {
+    transition: all 0.25s ease;
+  }
+
+  .megamenu-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .megamenu-leave-to {
+    opacity: 0;
+    transform: translateY(8px);
   }
 }

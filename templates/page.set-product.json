@@ -1,0 +1,20 @@
+{
+  "sections": {
+    "set_product": {
+      "type": "page-set-product",
+      "settings": {
+        "product_title": "Cerulean Sunset",
+        "skill_level": "Beginner",
+        "bc_home": "Home",
+        "bc_l1_label": "DIY Projects",
+        "bc_l1_url": "/pages/diy-decor-floral-ideas",
+        "bc_l2_label": "Floral Decoration & Gift Ideas",
+        "bc_l2_url": "/pages/diy-decor-floral-ideas/floral-decoration-gift-ideas",
+        "supplies_heading": "Supplies",
+        "section_padding_top": 40,
+        "section_padding_bottom": 60
+      }
+    }
+  },
+  "order": ["set_product"]
+}

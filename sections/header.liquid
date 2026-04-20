@@ -1,63 +1,85 @@
 {{ 'header.css' | asset_url | stylesheet_tag }}
 
-<header class="site-header" role="banner">
+<header class="site-header header-background" role="banner">
 
-  <div class="site-header__inner">
+  {%- comment -%} Hamburger — mobile only {%- endcomment -%}
+  <button class="hamburger-btn" aria-label="Open menu" aria-expanded="false" id="hamburger-btn" type="button">
+    <span class="hamburger-btn__bar"></span>
+    <span class="hamburger-btn__bar"></span>
+    <span class="hamburger-btn__bar"></span>
+  </button>
 
-    {%- comment -%} Hamburger (mobile only) {%- endcomment -%}
-    <button class="hamburger-btn" aria-label="Open menu" aria-expanded="false" id="hamburger-btn" type="button">
-      <span class="hamburger-btn__bar"></span>
-      <span class="hamburger-btn__bar"></span>
-      <span class="hamburger-btn__bar"></span>
-    </button>
+  <div class="site-header__inner header-container">
 
-    {%- comment -%} Logo + Nav căn giữa {%- endcomment -%}
-    <div class="site-header__center">
-      <div class="site-header__logo">
-        <a href="{{ routes.root_url }}" class="logo-image block" title="{{ shop.name }}">
-          {% render 'icon', name: 'logo', class: 'w-full max-w-[120px] md:max-w-[150px]' %}
-        </a>
-      </div>
-
-      {% render 'header__menu', menu_handle: section.settings.main_menu %}
-
-      {%- comment -%} Search {%- endcomment -%}
-      <div class="site-header__search">
-        <button @click="toggleFlyout('search')" type="button" class="search-btn">
-          {% render 'icon', name: 'search' %}
-        </button>
+    {%- comment -%} Cột 1: Logo {%- endcomment -%}
+    <div class="site-header__left-group header-component-12">
+      <div class="site-header__logo-wrap">
+        <div class="site-header__logo">
+          <a href="{{ routes.root_url }}" title="{{ shop.name }}">
+            {% render 'icon', name: 'logo' %}
+          </a>
+        </div>
       </div>
     </div>
 
+    {%- comment -%} Cột 2: Nav CENTER + Search row {%- endcomment -%}
+    <div class="site-header__center">
+      <nav class="site-header__nav-main" aria-label="Main navigation">
+        {% render 'header__menu', menu_handle: section.settings.main_menu %}
+      </nav>
+    </div>
+
+    {%- comment -%} Search button — same row as menu {%- endcomment -%}
+    <div class="site-header__search site-header__button">
+      <button @click="toggleFlyout('search')" type="button" class="search-btn" aria-label="Search">
+        {% render 'icon', name: 'search' %}
+      </button>
+    </div>
+
+    
+
   </div>
+  {%- comment -%} Right: SIGN IN | BAG + BOOK AN EYE TEST {%- endcomment -%}
+    <div class="site-header__right">
+      <div class="site-header__utils">
+        <ul class="utils-nav" role="list">
+          <li>
+            {%- if customer -%}
+              <a class="utils-nav__link" href="{{ routes.account_url }}">{{ section.settings.account_label | default: 'MY ACCOUNT' }}</a>
+            {%- else -%}
+              <a class="utils-nav__link" href="{{ routes.account_login_url }}">{{ section.settings.signin_label | default: 'SIGN IN' }}</a>
+            {%- endif -%}
+          </li>
+          <li class="utils-nav__cart-wrap">
+            <a class="utils-nav__cart" href="{{ routes.cart_url }}" @click.prevent="toggleFlyout('minicart')" title="{{ 'layout.cart.title' | t }}" aria-label="Shopping bag">
+              <span>BAG</span>
+              <span class="cart-icon-wrap">
+                {% render 'icon', name: 'cart' %}
+                <div class="cart-count" v-if="cart && cart.item_count">${ cart.item_count }</div>
+                <div class="minicart-button__dot" v-if="cart && cart.item_count"></div>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </div>
 
-  {%- comment -%} SIGN IN + BAG + CTA sát phải {%- endcomment -%}
-  <div class="site-header__right">
-    <div class="site-header__utils">
-      <ul class="utils-nav" role="list">
-        <li>
-          {%- if customer -%}
-            <a class="utils-nav__link" href="{{ routes.account_url }}">{{ section.settings.account_label | default: 'MY ACCOUNT' }}</a>
-          {%- else -%}
-            <a class="utils-nav__link" href="{{ routes.account_login_url }}">{{ section.settings.signin_label | default: 'SIGN IN' }}</a>
-          {%- endif -%}
-        </li>
-      </ul>
+      <div class="site-header__cta header-button">
+        <a class="cta-book" href="{{ section.settings.book_url | default: '/pages/book-an-eye-test' }}">
+          {{ section.settings.book_label | default: 'BOOK AN EYE TEST' }}
+        </a>
+      </div>
+    </div>
 
-      <a class="utils-nav__cart" href="{{ routes.cart_url }}" @click.prevent="toggleFlyout('minicart')" title="{{ 'layout.cart.title' | t }}" aria-label="Shopping bag">
-        <span>BAG</span>
+    {%- comment -%} Mobile right: Search + Bag {%- endcomment -%}
+    <div class="site-header__mobile-actions">
+      <button @click="toggleFlyout('search')" type="button" class="mobile-search-btn" aria-label="Search">
+        {% render 'icon', name: 'search' %}
+      </button>
+      <a class="mobile-cart-btn" href="{{ routes.cart_url }}" @click.prevent="toggleFlyout('minicart')" title="{{ 'layout.cart.title' | t }}" aria-label="Shopping bag">
         {% render 'icon', name: 'cart' %}
         <small class="cart-count" v-if="cart && cart.item_count">${ cart.item_count }</small>
       </a>
     </div>
-
-    <div class="site-header__cta">
-      <a class="cta-book" href="{{ section.settings.book_url | default: '/pages/book-an-eye-test' }}">
-        {{ section.settings.book_label | default: 'Book An Eye Test' }}
-      </a>
-    </div>
-  </div>
-
 </header>
 
 {%- comment -%} Mobile Menu Drawer {%- endcomment -%}
@@ -69,15 +91,12 @@
         <path d="M1 1L17 17M17 1L1 17" stroke="#f7f6f3" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
     </button>
-    <div class="mobile-menu__logo">
-      {% render 'icon', name: 'logo' %}
+    <div class="mobile-menu__logo">{% render 'icon', name: 'logo' %}</div>
+    <div class="site-header__search">
+      <button @click="toggleFlyout('search')" type="button" class="search-btn" aria-label="Search">
+        {% render 'icon', name: 'search' %}
+      </button>
     </div>
-    {%- comment -%} Search {%- endcomment -%}
-<div class="site-header__search">
-  <button @click="toggleFlyout('search')" type="button" class="search-btn">
-    {% render 'icon', name: 'search' %}
-  </button>
-</div>
   </div>
 
   <div class="mobile-menu__body">
@@ -115,124 +134,75 @@
 
     <div class="mobile-menu__cta">
       <a class="mobile-cta-book" href="{{ section.settings.book_url | default: '/pages/book-an-eye-test' }}">
-        {{ section.settings.book_label | default: 'Book An Eye Test' }}
+        {{ section.settings.book_label | default: 'BOOK AN EYE TEST' }}
       </a>
     </div>
   </div>
 </div>
 
-
 {% render 'header__search' %}
 {% render 'header__minicart' %}
-
 {% schema %}
 {
-  "name": "Header",
-  "tag": "section",
-  "class": "section-header",
-  "settings": [
-    {
-      "type": "header",
-      "content": "Logo"
-    },
-    {
-      "type": "image_picker",
-      "id": "logo",
-      "label": "Logo image"
-    },
-    {
-      "type": "header",
-      "content": "Navigation"
-    },
-    {
-      "type": "link_list",
-      "id": "main_menu",
-      "label": "Main menu",
-      "default": "main-menu"
-    },
-    {
-      "type": "header",
-      "content": "Utility Links"
-    },
-    {
-      "type": "text",
-      "id": "signin_label",
-      "label": "Sign in label",
-      "default": "SIGN IN"
-    },
-    {
-      "type": "text",
-      "id": "account_label",
-      "label": "Account label (when logged in)",
-      "default": "MY ACCOUNT"
-    },
-    {
-      "type": "header",
-      "content": "Book CTA"
-    },
-    {
-      "type": "text",
-      "id": "book_label",
-      "label": "Book button label",
-      "default": "Book An Eye Test"
-    },
-    {
-      "type": "url",
-      "id": "book_url",
-      "label": "Book button URL"
-    }
-  ],
-  "presets": [
+"name": "Header",
+"tag": "section",
+"class": "section-header",
+"settings": [
+{
+"type": "header",
+"content": "Logo"
+},
+{
+"type": "image_picker",
+"id": "logo",
+"label": "Logo"
+},
+{
+  "type": "header",
+  "content": "Navigation"
+},
+{
+  "type": "link_list",
+  "id": "main_menu",
+  "label": "Menu",
+  "default": "main-menu"
+},
+{
+  "type": "header",
+  "content": "User"
+},
+{
+  "type": "text",
+  "id": "signin_label",
+  "label": "Sign in",
+  "default": "SIGN IN"
+},
+{
+  "type": "text",
+  "id": "account_label",
+  "label": "Account",
+  "default": "MY ACCOUNT"
+},
+{
+  "type": "header",
+  "content": "CTA"
+},
+{
+  "type": "text",
+  "id": "book_label",
+  "label": "Button label",
+  "default": "BOOK AN EYE TEST"
+},
+{
+  "type": "url",
+  "id": "book_url",
+  "label": "Button link"
+}
+],
+"presets": [
     {
       "name": "Header"
     }
   ]
 }
 {% endschema %}
-{% javascript %}
-  (function () {
-    const hamburger = document.getElementById('hamburger-btn');
-    const closeBtn = document.getElementById('mobile-menu-close');
-    const menu = document.getElementById('mobile-menu');
-    const overlay = document.getElementById('mobile-menu-overlay');
-
-    function openMenu() {
-      menu.classList.add('is-open');
-      overlay.classList.add('is-open');
-      menu.setAttribute('aria-hidden', 'false');
-      hamburger.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeMenu() {
-      menu.classList.remove('is-open');
-      overlay.classList.remove('is-open');
-      menu.setAttribute('aria-hidden', 'true');
-      hamburger.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
-    }
-
-    hamburger.addEventListener('click', openMenu);
-    closeBtn.addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
-
-    document.querySelectorAll('.mobile-nav-item__toggle').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        const item = btn.closest('.mobile-nav-item');
-        const isOpen = item.classList.contains('is-open');
-        document.querySelectorAll('.mobile-nav-item.is-open').forEach(function (el) {
-          el.classList.remove('is-open');
-          el.querySelector('.mobile-nav-item__toggle').setAttribute('aria-expanded', 'false');
-        });
-        if (!isOpen) {
-          item.classList.add('is-open');
-          btn.setAttribute('aria-expanded', 'true');
-        }
-      });
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeMenu();
-    });
-  })();
-{% endjavascript %}

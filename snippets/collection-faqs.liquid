@@ -1,0 +1,41 @@
+{%- if section.settings.faq_metaobject != blank -%}
+  <div class="faq-section">
+    <div class="faq-section__inner">
+      <h2 class="faq-section__title">
+        {{ section.settings.faq_heading | default: 'Frequently Asked Questions' }}
+      </h2>
+
+      <div class="faq-list">
+        {%- for faq_ref in section.settings.faq_metaobject -%}
+          {%- assign faq = faq_ref.value | default: faq_ref -%}
+          {%- if faq != blank -%}
+            {%- assign faq_question = faq.question.value | default: faq.question -%}
+            <div class="faq-item">
+              <div class="faq-item__question"
+                   role="button"
+                   tabindex="0"
+                   aria-expanded="false">
+                {{ faq_question }}
+                <span class="faq-item__icon" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8">
+                    <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  </svg>
+                </span>
+              </div>
+              <div class="faq-item__answer" aria-hidden="true">
+                <div class="faq-item__answer-inner">
+                  {%- if faq.answer != blank -%}
+                    {{ faq.answer | metafield_tag }}
+                  {%- elsif faq.answer.value != blank -%}
+                    {{ faq.answer.value }}
+                  {%- endif -%}
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+    </div>
+  </div>
+{%- endif -%}

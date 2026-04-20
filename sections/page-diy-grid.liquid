@@ -1,0 +1,485 @@
+{% comment %}
+  Section: Animated Card Grid
+  Features: Scroll-reveal animations, staggered entrance, hover zoom overlay
+  Responsive: 3 cols desktop, 2 tablet, 1 mobile
+  Tech: Vanilla JS (IntersectionObserver), CSS transitions
+{% endcomment %}
+
+{%- liquid
+  assign heading = section.settings.section_heading
+  assign cols    = section.settings.columns_desktop | default: '3'
+  assign bg      = section.settings.section_bg_color | default: '#ffffff'
+  assign pt      = section.settings.section_padding_top   | default: 60
+  assign pb      = section.settings.section_padding_bottom | default: 80
+  assign enable_animations = section.settings.enable_animations | default: true
+  assign animation_duration = section.settings.animation_duration | default: 5 | times: 0.1
+  assign stagger_delay = section.settings.stagger_delay | default: 1 | times: 0.1
+-%}
+
+<style>
+  /* ── Tokens ───────────────────────────────────────── */
+  #diy-grid-{{ section.id }} {
+    --cols-desk : {{ cols }};
+    --cols-tab  : 3;
+    --cols-mob  : 2;
+    --gap       : 12px;
+    --ease      : cubic-bezier(0.3, 0.66, 0.66, 1);
+    --dur       : {{ animation_duration }}s;
+    --ink       : #1a1a1a;
+    --muted     : #666;
+    --shadow    : 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
+    font-family : var(--font-body-family, system-ui, -apple-system, sans-serif);
+    background  : {{ bg }};
+    padding-top : {{ pt }}px;
+    padding-bottom : {{ pb }}px;
+  }
+
+  #diy-grid-{{ section.id }} .dg-wrap {
+    max-width     : 1440px;
+    margin-inline : auto;
+    padding-inline: 20px;
+  }
+
+  /* ── Page title ───────────────────────────────────── */
+  #diy-grid-{{ section.id }} .dg-title {
+    font-family  : var(--font-heading-family, system-ui, serif);
+    font-size    : 36px;
+    font-weight  : 500;
+    color        : #333;
+    margin       : 0 0 48px;
+    line-height  : 1.2;
+    letter-spacing: 0.5px;
+    text-align   : center;
+  }
+
+  /* ── Grid ─────────────────────────────────────────── */
+  #diy-grid-{{ section.id }} .dg-list {
+    display              : grid;
+    grid-template-columns: repeat(var(--cols-desk), 1fr);
+    gap                  : 12px;
+    list-style           : none;
+    margin               : 0;
+    padding              : 0;
+    justify-items        : center;
+    justify-content      : center;
+  }
+
+  /* ── Card (anchor wraps everything) ──────────────── */
+  #diy-grid-{{ section.id }} .dg-card {
+    display        : flex;
+    flex-direction : column;
+    align-items    : stretch;
+    text-decoration: none;
+    color          : inherit;
+    cursor         : pointer;
+    height         : 100%;
+    width          : 100%;
+  }
+
+  /* Card container - wraps image + title */
+  #diy-grid-{{ section.id }} .dg-card__container {
+    background   : #F4F4F4;
+    border       : 1px solid #EAEAEA;
+    border-radius: 4px;
+    overflow     : hidden;
+    transition   : transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+    width        : 270.4px;
+    height       : 376.15px;
+    display      : flex;
+    flex-direction: column;
+    max-width    : 100%;
+  }
+
+  #diy-grid-{{ section.id }} .dg-card:hover .dg-card__container {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  /* Image box with improved styling */
+  #diy-grid-{{ section.id }} .dg-card__img-box {
+    position     : relative;
+    width        : 270.4px;
+    height       : 270.4px;
+    overflow     : hidden;
+    background   : #fff;
+    border-radius: 0;
+    margin       : 0;
+    flex-shrink  : 0;
+    max-width    : 100%;
+  }
+
+  #diy-grid-{{ section.id }} .dg-card__img {
+    width        : 100%;
+    height       : 100%;
+    object-fit   : cover;
+    object-position: center;
+    display      : block;
+    transition   : transform var(--dur) var(--ease);
+  }
+
+  /* ── Scroll Animation ─────────────────────────────── */
+  .custom-anim-card {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .custom-anim-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity var(--dur) var(--ease), 
+                transform var(--dur) var(--ease);
+  }
+
+  /* Stagger delay for each card */
+  .custom-anim-card[data-stagger="0"] { --stagger-delay: 0ms; }
+  .custom-anim-card[data-stagger="1"] { --stagger-delay: {{ stagger_delay | times: 100 }}ms; }
+  .custom-anim-card[data-stagger="2"] { --stagger-delay: {{ stagger_delay | times: 200 }}ms; }
+  .custom-anim-card[data-stagger="3"] { --stagger-delay: {{ stagger_delay | times: 300 }}ms; }
+  .custom-anim-card[data-stagger="4"] { --stagger-delay: {{ stagger_delay | times: 400 }}ms; }
+  .custom-anim-card[data-stagger="5"] { --stagger-delay: {{ stagger_delay | times: 500 }}ms; }
+  .custom-anim-card[data-stagger="6"] { --stagger-delay: {{ stagger_delay | times: 600 }}ms; }
+  .custom-anim-card[data-stagger="7"] { --stagger-delay: {{ stagger_delay | times: 700 }}ms; }
+  .custom-anim-card[data-stagger="8"] { --stagger-delay: {{ stagger_delay | times: 800 }}ms; }
+  .custom-anim-card[data-stagger="9"] { --stagger-delay: {{ stagger_delay | times: 900 }}ms; }
+  .custom-anim-card[data-stagger="10"] { --stagger-delay: {{ stagger_delay | times: 1000 }}ms; }
+  .custom-anim-card[data-stagger="11"] { --stagger-delay: {{ stagger_delay | times: 1100 }}ms; }
+  .custom-anim-card[data-stagger="12"] { --stagger-delay: {{ stagger_delay | times: 1200 }}ms; }
+  .custom-anim-card[data-stagger="13"] { --stagger-delay: {{ stagger_delay | times: 1300 }}ms; }
+  .custom-anim-card[data-stagger="14"] { --stagger-delay: {{ stagger_delay | times: 1400 }}ms; }
+  .custom-anim-card[data-stagger="15"] { --stagger-delay: {{ stagger_delay | times: 1500 }}ms; }
+  .custom-anim-card[data-stagger="16"] { --stagger-delay: {{ stagger_delay | times: 1600 }}ms; }
+  .custom-anim-card[data-stagger="17"] { --stagger-delay: {{ stagger_delay | times: 1700 }}ms; }
+  .custom-anim-card[data-stagger="18"] { --stagger-delay: {{ stagger_delay | times: 1800 }}ms; }
+  .custom-anim-card[data-stagger="19"] { --stagger-delay: {{ stagger_delay | times: 1900 }}ms; }
+
+  .custom-anim-card.visible {
+    transition-delay: var(--stagger-delay);
+  }
+
+  #diy-grid-{{ section.id }} .dg-card:hover .dg-card__img {
+    transform: scale(1.08);
+  }
+
+  /* Placeholder when no image set */
+  #diy-grid-{{ section.id }} .dg-card__placeholder {
+    width           : 100%;
+    height          : 100%;
+    display         : flex;
+    align-items     : center;
+    justify-content : center;
+    background      : linear-gradient(135deg, #f0ebe5 0%, #e4ddd6 100%);
+  }
+
+  #diy-grid-{{ section.id }} .dg-card__placeholder svg {
+    width  : 42px;
+    height : 42px;
+    opacity: 0.3;
+    color  : #8a7a6a;
+  }
+
+  /* Title below image with improved spacing */
+  #diy-grid-{{ section.id }} .dg-card__name {
+    font-size    : calc(var(--font-heading-scale) * 1.8rem);
+    font-weight  : 500;
+    color        : #333;
+    margin       : 0;
+    line-height  : calc(1 + .5/max(1,var(--font-heading-scale)));
+    letter-spacing:  calc(var(--font-heading-scale) * .06rem);
+    transition   : color var(--dur) var(--ease);
+    text-align   : center;
+    padding      : 15px 12px;
+    background   : transparent;
+    border-radius: 0;
+    flex-grow    : 1;
+    display      : flex;
+    align-items  : center;
+    justify-content: center;
+    width        : 270.4px;
+    height       : 105.75px;
+    max-width    : 100%;
+  }
+
+  #diy-grid-{{ section.id }} .dg-card:hover .dg-card__name {
+    color: var(--muted);
+  }
+
+  /* ── Responsive ───────────────────────────────────── */
+  @media (max-width: 1100px) {
+    #diy-grid-{{ section.id }} .dg-list {
+      grid-template-columns: repeat(var(--cols-tab), 1fr);
+      gap: var(--gap);
+    }
+    #diy-grid-{{ section.id }} .dg-title {
+      font-size: 28px;
+      margin-bottom: 24px;
+    }
+  }
+
+  @media (max-width: 700px) {
+    #diy-grid-{{ section.id }} .dg-list {
+      grid-template-columns: repeat(var(--cols-mob), 1fr);
+      gap: 10px;
+    }
+    #diy-grid-{{ section.id }} .dg-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    #diy-grid-{{ section.id }} .dg-card__container {
+      width: 100%;
+      height: auto;
+    }
+    #diy-grid-{{ section.id }} .dg-card__img-box {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
+    }
+    #diy-grid-{{ section.id }} .dg-card__name {
+      font-size: 13px;
+      padding: 10px 8px;
+      width: 100%;
+      height: auto;
+      min-height: 50px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #diy-grid-{{ section.id }} .dg-card__img,
+    #diy-grid-{{ section.id }} .dg-card__img-box,
+    #diy-grid-{{ section.id }} .dg-card__name {
+      transition: none;
+    }
+    .custom-anim-card {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<section id="diy-grid-{{ section.id }}" class="{% if enable_animations %}custom-anim-enabled{% endif %}">
+  <div class="dg-wrap">
+
+    {%- if heading != blank -%}
+      <h1 class="dg-title">{{ heading }}</h1>
+    {%- endif -%}
+
+    <ul class="dg-list" role="list">
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'category_item' -%}
+            {%- liquid
+              assign img   = block.settings.card_image
+              assign title = block.settings.card_title
+              assign href  = block.settings.card_link | default: '#'
+            -%}
+            <li {{ block.shopify_attributes }} class="custom-anim-card" data-stagger="{{ forloop.index0 }}">
+              <a href="{{ href }}" class="dg-card" aria-label="{{ title | escape }}">
+
+                <div class="dg-card__container">
+                  <div class="dg-card__img-box">
+                    {%- if img != blank -%}
+                      {{
+                        img
+                        | image_url: width: 600
+                        | image_tag:
+                          class: 'dg-card__img',
+                          loading: 'lazy',
+                          alt: title,
+                          widths: '300,450,600',
+                          sizes: '(max-width:600px) 50vw,(max-width:1100px) 33vw,20vw'
+                      }}
+                    {%- else -%}
+                      <div class="dg-card__placeholder" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2"/>
+                          <circle cx="8.5" cy="8.5" r="1.5"/>
+                          <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                      </div>
+                    {%- endif -%}
+                  </div>
+
+                  {%- if title != blank -%}
+                    <p class="dg-card__name">{{ title }}</p>
+                  {%- endif -%}
+                </div>
+
+              </a>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        <li style="grid-column:1/-1;text-align:center;padding:60px 0;color:#999;">
+          Add category blocks in the Theme Editor.
+        </li>
+      {%- endif -%}
+    </ul>
+
+  </div>
+</section>
+
+<script>
+  (function() {
+    // Scroll reveal animation using IntersectionObserver
+    const enableAnimations = {{ enable_animations | default: true | json }};
+    const sectionId = 'diy-grid-{{ section.id }}';
+    const section = document.getElementById(sectionId);
+    
+    // Only initialize if animations are enabled
+    if (enableAnimations && section) {
+      const cards = section.querySelectorAll('.custom-anim-card');
+      
+      if (cards.length > 0) {
+        const observerOptions = {
+          root: null,
+          rootMargin: '0px 0px -50px 0px',
+          threshold: 0
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              // Add visible class to trigger animation
+              entry.target.classList.add('visible');
+              // Unobserve after animation to improve performance
+              observer.unobserve(entry.target);
+            }
+          });
+        }, observerOptions);
+        
+        // Observe each card
+        cards.forEach((card) => {
+          observer.observe(card);
+        });
+      }
+    }
+  })();
+</script>
+
+<style>
+  /* Smooth scroll behavior for the page */
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
+{% schema %}
+{
+  "name": "Animated Card Grid",
+  "tag": "section",
+  "class": "section-diy-grid",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Page Title",
+      "default": "DIY Projects"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_animations",
+      "label": "Enable Scroll Animations",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "animation_duration",
+      "label": "Animation Duration (×0.1s)",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "stagger_delay",
+      "label": "Stagger Delay Between Cards (×0.1s)",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns (Desktop)",
+      "options": [
+        { "value": "2", "label": "2 Columns" },
+        { "value": "3", "label": "3 Columns" },
+        { "value": "4", "label": "4 Columns" },
+        { "value": "5", "label": "5 Columns" }
+      ],
+      "default": "5"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Padding Top (px)",
+      "min": 0, 
+      "max": 120, 
+      "step": 4,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Padding Bottom (px)",
+      "min": 0, 
+      "max": 120, 
+      "step": 4,
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category_item",
+      "name": "Card Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "card_image",
+          "label": "Card Image"
+        },
+        {
+          "type": "text",
+          "id": "card_title",
+          "label": "Card Title",
+          "default": "Card Title"
+        },
+        {
+          "type": "url",
+          "id": "card_link",
+          "label": "Card Link (URL)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Animated Card Grid",
+      "settings": {
+        "section_heading": "DIY Projects",
+        "columns_desktop": "5",
+        "enable_animations": true,
+        "animation_duration": 5,
+        "stagger_delay": 1
+      },
+      "blocks": [
+        { "type": "category_item", "settings": { "card_title": "Floral Decoration & Gift Ideas" } },
+        { "type": "category_item", "settings": { "card_title": "Floral Bouquet Wrapping Ideas" } },
+        { "type": "category_item", "settings": { "card_title": "Event Decoration Ideas" } },
+        { "type": "category_item", "settings": { "card_title": "Wedding Decoration Ideas" } },
+        { "type": "category_item", "settings": { "card_title": "Gift Basket Ideas" } },
+        { "type": "category_item", "settings": { "card_title": "Terrarium Decorations" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

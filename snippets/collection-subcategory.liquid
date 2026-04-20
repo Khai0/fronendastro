@@ -1,0 +1,13 @@
+{%- if section.settings.subcategory_menu != blank -%}
+  <div class="subcategory-nav">
+    <div class="subcategory-nav__inner">
+      {%- for link in linklists[section.settings.subcategory_menu].links -%}
+        <a
+          class="subcategory-nav__pill{% if link.active %} is-active{% endif %}"
+          href="{{ link.url }}">
+          {{ link.title }}
+        </a>
+      {%- endfor -%}
+    </div>
+  </div>
+{%- endif -%}

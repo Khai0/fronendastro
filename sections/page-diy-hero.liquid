@@ -1,0 +1,162 @@
+{% comment %}
+  Section: page-diy-hero.liquid
+  Purpose: Hero section for DIY category landing page
+  Shopify Online Store 2.0 compatible
+{% endcomment %}
+
+{%- liquid
+  assign eyebrow     = section.settings.hero_eyebrow
+  assign title       = section.settings.hero_title
+  assign description = section.settings.hero_description
+  assign text_align  = section.settings.hero_text_align
+  assign bg_color    = section.settings.hero_bg_color
+  assign pt          = section.settings.hero_padding_top
+  assign pb          = section.settings.hero_padding_bottom
+-%}
+
+<style>
+  #diy-hero-{{ section.id }} {
+    background-color: {{ bg_color }};
+    padding-top: {{ pt }}px;
+    padding-bottom: {{ pb }}px;
+    text-align: {{ text_align }};
+  }
+
+  #diy-hero-{{ section.id }} .diy-hero__inner {
+    max-width: 780px;
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+
+  #diy-hero-{{ section.id }} .diy-hero__eyebrow {
+    display: inline-block;
+    font-family: var(--diy-font-body, 'Helvetica Neue', Helvetica, sans-serif);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #8b6f52;
+    margin-bottom: 18px;
+    position: relative;
+  }
+
+  #diy-hero-{{ section.id }} .diy-hero__eyebrow::before,
+  #diy-hero-{{ section.id }} .diy-hero__eyebrow::after {
+    content: '';
+    display: inline-block;
+    width: 28px;
+    height: 1px;
+    background: #8b6f52;
+    vertical-align: middle;
+    opacity: 0.6;
+  }
+
+  #diy-hero-{{ section.id }} .diy-hero__eyebrow::before { margin-right: 10px; }
+  #diy-hero-{{ section.id }} .diy-hero__eyebrow::after  { margin-left: 10px; }
+
+  #diy-hero-{{ section.id }} .diy-hero__title {
+    font-family: var(--diy-font-heading, Georgia, 'Times New Roman', serif);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 400;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    color: #1a1a1a;
+    margin: 0 0 20px;
+  }
+
+  #diy-hero-{{ section.id }} .diy-hero__description {
+    font-family: var(--diy-font-body, 'Helvetica Neue', Helvetica, sans-serif);
+    font-size: 17px;
+    line-height: 1.7;
+    color: #555;
+    margin: 0;
+    max-width: 600px;
+    margin-inline: auto;
+  }
+
+  @media (max-width: 768px) {
+    #diy-hero-{{ section.id }} {
+      padding-top: {{ pt | times: 0.65 | round }}px;
+      padding-bottom: {{ pb | times: 0.65 | round }}px;
+    }
+  }
+</style>
+
+<section id="diy-hero-{{ section.id }}" class="diy-hero">
+  <div class="diy-hero__inner">
+    {%- if eyebrow != blank -%}
+      <p class="diy-hero__eyebrow">{{ eyebrow }}</p>
+    {%- endif -%}
+
+    {%- if title != blank -%}
+      <h1 class="diy-hero__title">{{ title }}</h1>
+    {%- endif -%}
+
+    {%- if description != blank -%}
+      <p class="diy-hero__description">{{ description }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "DIY Hero",
+  "tag": "section",
+  "class": "section-diy-hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Eyebrow Text",
+      "default": "Explore & Create"
+    },
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Heading",
+      "default": "DIY Decor & Floral Ideas"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_description",
+      "label": "Description",
+      "default": "Find inspiration for every occasion — from elegant table settings to handcrafted floral arrangements."
+    },
+    {
+      "type": "select",
+      "id": "hero_text_align",
+      "label": "Text Alignment",
+      "options": [
+        { "value": "left",   "label": "Left"   },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "hero_bg_color",
+      "label": "Background Color",
+      "default": "#f5f0eb"
+    },
+    {
+      "type": "range",
+      "id": "hero_padding_top",
+      "label": "Padding Top (px)",
+      "min": 20, "max": 160, "step": 4,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "hero_padding_bottom",
+      "label": "Padding Bottom (px)",
+      "min": 20, "max": 160, "step": 4,
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "DIY Hero"
+    }
+  ]
+}
+{% endschema %}

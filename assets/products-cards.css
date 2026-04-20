@@ -1,6 +1,6 @@
-.eyewear-cards {
+﻿.eyewear-cards {
   padding: 38px 0 56px;
-  background: #efefef;
+  background: #ffffff;
 }
 
 .eyewear-cards .container {
@@ -39,33 +39,34 @@
 }
 
 .eyewear-cards__title {
-  margin: 18px auto 18px;
-  max-width: 350px;
-  font-family: Assistant, sans-serif;
-  font-size: clamp(2.15rem, 2.05vw, 2.95rem);
-  font-weight: 400;
-  line-height: 1.22;
-  letter-spacing: 0;
-  color: #222;
+  font-weight:300;
+  line-height:41px;
+  text-align: center !important;
+  font-size: 27px;
+  max-width: 21ch;
+  padding: 24px 0 !important;
+  margin: 0 auto;
 }
 
 .eyewear-cards__button {
+ /* button */
   display: inline-flex;
-  justify-content: center;
   align-items: center;
-  min-width: 280px;
-  min-height: 50px;
-  padding: 10px 28px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #202125 0%, #101114 100%);
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  background-color: #222;
   color: #ffffff;
   text-transform: uppercase;
-  text-decoration: none;
+  font-weight: 400;
+  border-color:#222;
   font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  line-height: 21px;
+  border-radius: 999px;
+  padding: 10px 20px;
+  margin-top: auto;
+  max-width: 300px;
+  width: 100%;
 }
 
 .eyewear-cards__button:hover {
@@ -125,3 +126,4 @@
     font-size: 12px;
   }
 }
+

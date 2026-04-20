@@ -1,0 +1,100 @@
+<aside class="filter-panel" id="filter-panel" aria-hidden="true">
+  <form class="filter-panel__form" id="filter-form">
+
+    {%- for filter in collection.filters -%}
+      <details class="filter-group">
+        <summary class="filter-group__header">
+          <span>{{ filter.label }}</span>
+          <svg class="filter-group__chevron" width="10" height="6" viewBox="0 0 10 6">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </summary>
+
+        <div class="filter-group__body">
+
+          {%- if filter.type == 'list' -%}
+
+            {%- if filter.label == 'Color' or filter.label == 'Colour' -%}
+              {%- comment -%} Color swatch filter {%- endcomment -%}
+              <div class="filter-swatches">
+                {%- for value in filter.values -%}
+                  <label class="filter-swatch" title="{{ value.label }}">
+                    <input
+                      type="checkbox"
+                      name="{{ value.param_name }}"
+                      value="{{ value.value }}"
+                      {% if value.active %}checked{% endif %}
+                      {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                      form="filter-form">
+                    <span
+                      class="filter-swatch__dot"
+                      style="background-color: {{ value.label | downcase | replace: ' ', '' }};"></span>
+                    <span class="filter-swatch__label">{{ value.label }}</span>
+                  </label>
+                {%- endfor -%}
+              </div>
+
+            {%- else -%}
+              {%- comment -%} Generic checkbox list filter {%- endcomment -%}
+              <ul class="filter-list">
+                {%- for value in filter.values -%}
+                  <li class="filter-list__item">
+                    <label class="filter-list__label{% if value.count == 0 and value.active == false %} is-disabled{% endif %}">
+                      <input
+                        class="filter-list__checkbox"
+                        type="checkbox"
+                        name="{{ value.param_name }}"
+                        value="{{ value.value }}"
+                        {% if value.active %}checked{% endif %}
+                        {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                        form="filter-form">
+                      <span class="filter-list__check"></span>
+                      <span class="filter-list__text">{{ value.label }}</span>
+                      <span class="filter-list__count">({{ value.count }})</span>
+                    </label>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+          {%- elsif filter.type == 'price_range' -%}
+            {%- comment -%} Price range filter {%- endcomment -%}
+            <div class="filter-price">
+              <div class="filter-price__inputs">
+                <div class="filter-price__field">
+                  <span class="filter-price__currency">$</span>
+                  <input
+                    class="filter-price__input"
+                    type="number"
+                    name="{{ filter.min_value.param_name }}"
+                    value="{{ filter.min_value.value | divided_by: 100.0 }}"
+                    min="0"
+                    max="{{ filter.range_max | divided_by: 100.0 }}"
+                    placeholder="Min"
+                    form="filter-form">
+                </div>
+                <span class="filter-price__dash">–</span>
+                <div class="filter-price__field">
+                  <span class="filter-price__currency">$</span>
+                  <input
+                    class="filter-price__input"
+                    type="number"
+                    name="{{ filter.max_value.param_name }}"
+                    value="{{ filter.max_value.value | divided_by: 100.0 }}"
+                    min="0"
+                    max="{{ filter.range_max | divided_by: 100.0 }}"
+                    placeholder="Max"
+                    form="filter-form">
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+
+        </div>
+      </details>
+    {%- endfor -%}
+
+    
+
+  </form>
+</aside>

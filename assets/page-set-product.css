@@ -1,0 +1,380 @@
+/* ── Tokens ─────────────────────────────────────────── */
+[id^="sp-"] {
+  --ink        : #1a1a1a;
+  --muted      : #555;
+  --border     : #e0dbd5;
+  --btn-fill   : #8c7d6e;
+  --btn-text   : #fff;
+  --ease       : cubic-bezier(.25,.46,.45,.94);
+  --dur        : .28s;
+  font-family  : var(--font-body-family, 'Helvetica Neue', Helvetica, sans-serif);
+  color        : var(--ink);
+}
+
+[id^="sp-"] .sp-wrap {
+  max-width     : 1280px;
+  margin-inline : auto;
+  padding-inline: clamp(16px, 3vw, 48px);
+}
+
+/* ── Two-column hero ────────────────────────────────── */
+[id^="sp-"] .sp-hero {
+  display               : grid;
+  grid-template-columns : 1fr 1fr;
+  gap                   : 48px;
+  align-items           : start;
+}
+
+/* ── Image ──────────────────────────────────────────── */
+[id^="sp-"] .sp-img-box {
+  width       : 100%;
+  aspect-ratio: 1 / 1;
+  overflow    : hidden;
+  background  : #ece7e1;
+}
+
+[id^="sp-"] .sp-img {
+  width     : 100%;
+  height    : 100%;
+  object-fit: cover;
+  display   : block;
+}
+
+[id^="sp-"] .sp-img-placeholder {
+  width           : 100%;
+  height          : 100%;
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  background      : linear-gradient(145deg,#ede8e2,#d0c8be);
+}
+
+[id^="sp-"] .sp-img-placeholder svg {
+  width:48px; height:48px; opacity:.22; color:#7a6a5a;
+}
+
+/* ── Info col ───────────────────────────────────────── */
+[id^="sp-"] .sp-info { padding-top: 4px; }
+
+[id^="sp-"] .sp-title {
+  font-family   : var(--font-heading-family, Georgia, serif);
+  font-size     : clamp(22px, 2.8vw, 32px);
+  font-weight   : 700;
+  color         : var(--ink);
+  margin        : 0 0 14px;
+  line-height   : 1.15;
+  letter-spacing: -.01em;
+}
+
+/* ── Breadcrumb ─────────────────────────────────────── */
+[id^="sp-"] .sp-bc {
+  display   : flex;
+  flex-wrap : wrap;
+  gap       : 4px;
+  list-style: none;
+  margin    : 0 0 28px;
+  padding   : 0;
+}
+
+[id^="sp-"] .sp-bc li {
+  display    : flex;
+  align-items: center;
+  gap        : 4px;
+  font-size  : 13px;
+  color      : var(--muted);
+}
+
+[id^="sp-"] .sp-bc a {
+  color: var(--muted); text-decoration: none;
+  transition: color var(--dur);
+}
+[id^="sp-"] .sp-bc a:hover { color: var(--ink); }
+
+[id^="sp-"] .sp-bc li + li::before { content:'>'; color:#bbb; }
+
+[id^="sp-"] .sp-bc .current { color:var(--ink); font-weight:500; }
+
+/* ── CTA buttons ────────────────────────────────────── */
+[id^="sp-"] .sp-btns {
+  display  : flex;
+  gap      : 12px;
+  flex-wrap: wrap;
+  margin   : 0 0 28px;
+}
+
+[id^="sp-"] .sp-btn {
+  display        : inline-flex;
+  align-items    : center;
+  justify-content: center;
+  height         : 46px;
+  padding        : 0 22px;
+  border-radius  : 4px;
+  font-size      : 14px;
+  font-weight    : 500;
+  cursor         : pointer;
+  text-decoration: none;
+  transition     : background var(--dur), color var(--dur), border-color var(--dur);
+  white-space    : nowrap;
+  border         : 1.5px solid transparent;
+}
+
+[id^="sp-"] .sp-btn--fill {
+  background: var(--btn-fill); color:var(--btn-text); border-color:var(--btn-fill);
+}
+[id^="sp-"] .sp-btn--fill:hover { background:#7a6a5a; border-color:#7a6a5a; }
+
+[id^="sp-"] .sp-btn--outline {
+  background: transparent; color:var(--btn-fill); border-color:var(--btn-fill);
+}
+[id^="sp-"] .sp-btn--outline:hover {
+  background:var(--btn-fill); color:var(--btn-text);
+}
+
+/* ── Divider ────────────────────────────────────────── */
+[id^="sp-"] .sp-hr {
+  border:none; border-top:1px solid var(--border); margin:22px 0;
+}
+
+/* ── Skill level ────────────────────────────────────── */
+[id^="sp-"] .sp-skill {
+  font-size:15px; margin:0 0 16px;
+}
+[id^="sp-"] .sp-skill a {
+  color:var(--ink); text-decoration:underline; text-underline-offset:2px;
+}
+[id^="sp-"] .sp-skill a:hover { color:var(--btn-fill); }
+
+/* ── Description ────────────────────────────────────── */
+[id^="sp-"] .sp-desc {
+  font-size:15px; line-height:1.7; color:var(--muted); margin:0 0 24px;
+}
+[id^="sp-"] .sp-desc p { margin:0 0 12px; }
+[id^="sp-"] .sp-desc p:last-child { margin-bottom:0; }
+
+/* ── Share row ──────────────────────────────────────── */
+[id^="sp-"] .sp-share {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+[id^="sp-"] .sp-share__btn {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:6px 12px; border-radius:3px;
+  font-size:13px; font-weight:600;
+  text-decoration:none; color:#fff;
+  border:none; cursor:pointer;
+  transition:opacity var(--dur); line-height:1;
+}
+[id^="sp-"] .sp-share__btn:hover { opacity:.85; }
+[id^="sp-"] .sp-share__btn svg { width:14px;height:14px;flex-shrink:0; }
+[id^="sp-"] .sp-share__btn--fb    { background:#1877f2; }
+[id^="sp-"] .sp-share__btn--save  { background:#e60023; }
+[id^="sp-"] .sp-share__btn--x     { background:#000; }
+[id^="sp-"] .sp-share__btn--print { background:#555; }
+[id^="sp-"] .sp-share__btn--email { background:#444; }
+
+/* ════════════════════════════════════════════════════
+   SUPPLIES SECTION
+════════════════════════════════════════════════════ */
+[id^="sp-supplies-"] {
+  background     : #f5f4f2;
+  margin-top     : 48px;
+  padding-inline : clamp(16px, 3vw, 48px);
+}
+
+[id^="sp-supplies-"] .sup-inner {
+  max-width:1280px; margin-inline:auto;
+}
+
+[id^="sp-supplies-"] .sup-heading {
+  font-family   : var(--font-heading-family, Georgia, serif);
+  font-size     : clamp(20px, 2.2vw, 26px);
+  font-weight   : 700;
+  color         : var(--ink);
+  margin        : 0 0 20px;
+  letter-spacing: -.01em;
+}
+
+/* Add All btn */
+[id^="sp-supplies-"] .sup-add-all {
+  display       : inline-flex;
+  align-items   : center;
+  height        : 44px;
+  padding       : 0 20px;
+  background    : var(--btn-fill);
+  color         : #fff;
+  border        : none;
+  border-radius : 4px;
+  font-size     : 14px;
+  font-weight   : 500;
+  cursor        : pointer;
+  margin-bottom : 28px;
+}
+[id^="sp-supplies-"] .sup-add-all:disabled {
+  opacity:.6; cursor:not-allowed;
+}
+
+/* Status message */
+[id^="sp-supplies-"] .sup-status {
+  font-size:13px; margin:0 0 16px; min-height:18px;
+  color: var(--btn-fill);
+}
+
+/* Bundle product grid */
+[id^="sp-supplies-"] .sup-grid {
+  display              : grid;
+  grid-template-columns: repeat(5,1fr);
+  gap                  : 20px;
+  list-style           : none;
+  margin               : 0;
+  padding              : 0;
+}
+
+[id^="sp-supplies-"] .sup-card {
+  background   : #fff;
+  border       : 1px solid var(--border);
+  border-radius: 4px;
+  padding      : 16px;
+  display      : flex;
+  flex-direction:column;
+  gap          : 8px;
+}
+
+[id^="sp-supplies-"] .sup-card__img-box {
+  width        : 100%;
+  aspect-ratio : 1 / 1;
+  background   : #f5f3f0;
+  display      : flex;
+  align-items  : center;
+  justify-content: center;
+  overflow     : hidden;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+[id^="sp-supplies-"] .sup-card__img {
+  width:100%; height:100%; object-fit:contain; display:block;
+}
+
+[id^="sp-supplies-"] .sup-card__sku {
+  font-size  : 12px;
+  color      : #999;
+  margin     : 0 0 3px;
+  line-height: 1.2;
+}
+
+[id^="sp-supplies-"] .sup-card__name {
+  font-size  : 13px;
+  font-weight: 500;
+  color      : var(--ink);
+  margin     : 0 0 6px;
+  line-height: 1.4;
+  flex       : 1;
+}
+
+[id^="sp-supplies-"] .sup-card__price {
+  font-size  : 14px;
+  font-weight: 600;
+  color      : var(--ink);
+  margin     : 0 0 4px;
+}
+
+[id^="sp-supplies-"] .sup-card__qty-req {
+  font-size: 12px;
+  color    : #888;
+  margin   : 0 0 12px;
+}
+
+/* Qty stepper */
+[id^="sp-supplies-"] .sup-card__stepper {
+  display      : flex;
+  align-items  : center;
+  border       : 1px solid #ccc;
+  border-radius: 4px;
+  overflow     : hidden;
+  margin-top   : auto;
+  user-select  : none;
+}
+
+[id^="sp-supplies-"] .sup-card__stepper .stepper-btn {
+  width      : 38px;
+  height     : 40px;
+  border     : none;
+  background : transparent;
+  font-size  : 20px;
+  line-height: 1;
+  cursor     : pointer;
+  color      : var(--ink);
+  display    : flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition : background var(--dur);
+  -webkit-appearance: none;
+  appearance : none;
+}
+
+[id^="sp-supplies-"] .sup-card__stepper .stepper-btn:hover {
+  background: #f0ede9;
+}
+
+[id^="sp-supplies-"] .sup-card__stepper .stepper-input {
+  flex        : 1;
+  border      : none;
+  border-left : 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  text-align  : center;
+  font-size   : 14px;
+  height      : 40px;
+  outline     : none;
+  width       : 0;
+  min-width   : 0;
+  color       : var(--ink);
+  background  : #fff;
+  -moz-appearance: textfield;
+}
+
+[id^="sp-supplies-"] .sup-card__stepper .stepper-input::-webkit-inner-spin-button,
+[id^="sp-supplies-"] .sup-card__stepper .stepper-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+[id^="sp-supplies-"] .sup-card__sold-out {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  height         : 40px;
+  border         : 1px solid #ccc;
+  border-radius  : 4px;
+  font-size      : 13px;
+  color          : #999;
+  margin-top     : auto;
+  background     : #fafafa;
+}
+
+/* Setup notice (shown when no metafield set) */
+[id^="sp-supplies-"] .sup-notice {
+  background:#fff8e1; border:1px solid #ffe082;
+  border-radius:6px; padding:20px 24px;
+  font-size:14px; line-height:1.7; color:#555;
+}
+[id^="sp-supplies-"] .sup-notice strong { color:var(--ink); }
+[id^="sp-supplies-"] .sup-notice code {
+  background:#f0ede9; padding:2px 6px; border-radius:3px;
+  font-size:13px; color:#8c7d6e;
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  [id^="sp-"] .sp-hero { grid-template-columns:1fr; gap:28px; }
+  [id^="sp-supplies-"] .sup-grid { grid-template-columns:repeat(3,1fr); }
+}
+@media (max-width: 600px) {
+  [id^="sp-"] .sp-btns { flex-direction:column; }
+  [id^="sp-"] .sp-btn  { width:100%; justify-content:center; }
+  [id^="sp-supplies-"] .sup-grid { grid-template-columns:repeat(2,1fr); gap:12px; }
+}
+@media print {
+  [id^="sp-"] .sp-btns,
+  [id^="sp-"] .sp-share,
+  [id^="sp-supplies-"] .sup-add-all { display:none !important; }
+}

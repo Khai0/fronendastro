@@ -1,0 +1,68 @@
+<div
+  class="vr-overlay"
+  id="vr-overlay"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-label="VR Try On">
+
+  <div class="vr-modal">
+
+    {%- comment -%} Close button {%- endcomment -%}
+    <button class="vr-modal__close" id="vr-close" type="button" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M1 1l14 14M15 1L1 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    {%- comment -%} Body: image left + content right {%- endcomment -%}
+    <div class="vr-modal__body">
+
+      <div class="vr-modal__left">
+        <div class="vr-preview" id="vr-preview">
+          <img class="vr-modal__product-img" id="vr-product-img" src="" alt="" width="400" height="260">
+          <video class="vr-preview__video" id="vr-camera-video" autoplay playsinline muted></video>
+          <img class="vr-preview__photo" id="vr-photo-preview" src="" alt="Uploaded face preview" width="400" height="260">
+          <div class="vr-preview__face-guide" aria-hidden="true"></div>
+          <img class="vr-preview__glasses" id="vr-glasses-overlay" src="" alt="" width="320" height="120">
+          <p class="vr-preview__status" id="vr-status">Choose a method to start try-on.</p>
+        </div>
+      </div>
+
+      <div class="vr-modal__right">
+       
+        <h2 class="vr-modal__title">Try on virtually</h2>
+        <p class="vr-modal__subtitle" id="vr-product-title"></p>
+        <p class="vr-modal__desc" id="vr-description">
+          Use your camera to see how these frames look on your face in real time.
+        </p>
+
+        <div class="vr-modal__options" id="vr-methods">
+          <button class="vr-modal__option-btn vr-modal__option-btn--primary" id="vr-use-camera" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M2 8.5C2 7.4 2.9 6.5 4 6.5h1.17a2 2 0 001.66-.9l.83-1.2A2 2 0 019.32 3.5h5.36a2 2 0 011.66.9l.83 1.2a2 2 0 001.66.9H20c1.1 0 2 .9 2 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2v-9z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            I Agree
+          </button>
+         
+        </div>
+        <div class="vr-modal__disagree">
+          <button class="vr-modal__option-btn vr-modal__option-btn--disagree" id="vr-disagree-method" type="button">I disagree</button> 
+        </div>
+
+        <p class="vr-modal__note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Your camera data is never stored or shared.
+        </p>
+      </div>
+    </div>
+
+    {%- comment -%} Step progress bar {%- endcomment -%}
+    
+
+  </div>
+</div>

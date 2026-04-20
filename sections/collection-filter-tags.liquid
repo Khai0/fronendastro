@@ -1,0 +1,185 @@
+﻿{% comment %} sections/collection-filter-tags.liquid {% endcomment %}
+
+<div class="filter-tags-section">
+  <div class="filter-tags-container">
+    {%- assign source_collection = blank -%}
+    {%- if section.settings.collection != blank -%}
+      {%- assign source_collection = collections[section.settings.collection] -%}
+    {%- elsif collection -%}
+      {%- assign source_collection = collection -%}
+    {%- endif -%}
+
+    <div
+      class="filter-tags-grid"
+      style="
+        --filter-cols-tablet: {{ section.settings.columns_tablet }};
+        --filter-tag-height: {{ section.settings.tag_height }}px;
+      "
+    >
+      {%- if source_collection and source_collection.tags.size > 0 -%}
+        {%- for tag in source_collection.tags limit: section.settings.max_tags -%}
+          <a href="{{ source_collection.url }}/{{ tag | handle }}" class="filter-tag{% if current_tags contains tag %} filter-tag--active{% endif %}">
+            {{ tag | escape }}
+          </a>
+        {%- endfor -%}
+      {%- else -%}
+        <p class="filter-tags-empty">Choose a collection in section settings.</p>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+.filter-tags-section {
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid #d9d9d9;
+  border-bottom: 1px solid #d9d9d9;
+  padding: 36px 0 34px;
+}
+
+.filter-tags-container {
+  max-width: 1397px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.filter-tags-grid {
+  width: 1397px;
+  max-width: 100%;
+  min-height: 263px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 257px);
+  grid-auto-rows: 64px;
+  justify-content: center;
+  align-content: start;
+  column-gap: 123px;
+  row-gap: 24px;
+}
+
+.filter-tags-empty {
+  margin: 0;
+  color: #666666;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.filter-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 257px;
+  height: 65px;
+  padding: 0 14px;
+  border: 1px solid #222222;
+  box-sizing: border-box;
+  color: #1f1f1f;
+  text-decoration: none;
+  font-family: "Aribau Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+  line-height: 1.2;
+  text-align: center;
+  background-color: #ffffff;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-tag:hover {
+  background-color: #222222;
+  color: #ffffff;
+}
+
+.filter-tag--active {
+  background-color: #007a8a;
+  border-color: #007a8a;
+  color: #ffffff;
+}
+
+@media screen and (max-width: 1023px) {
+  .filter-tags-container {
+    max-width: 100%;
+    padding: 0 18px;
+  }
+
+  .filter-tags-grid {
+    width: 100%;
+    min-height: 0;
+    grid-template-columns: repeat(var(--filter-cols-tablet), minmax(0, 1fr));
+    grid-auto-rows: var(--filter-tag-height);
+    justify-content: stretch;
+    row-gap: 12px;
+    column-gap: 18px;
+  }
+
+  .filter-tag {
+    width: 100%;
+    height: var(--filter-tag-height);
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .filter-tags-section {
+    padding: 20px 0;
+  }
+
+  .filter-tags-grid {
+    grid-template-columns: 1fr;
+    row-gap: 10px;
+    column-gap: 0;
+  }
+
+  .filter-tag {
+    width: 100%;
+    height: 46px;
+  }
+}
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection Filter Tags",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Select collection"
+    },
+    {
+      "type": "range",
+      "id": "max_tags",
+      "label": "Max tags",
+      "min": 4,
+      "max": 24,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "label": "Tablet columns",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "tag_height",
+      "label": "Tag height",
+      "min": 38,
+      "max": 64,
+      "step": 1,
+      "default": 44
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Filter Tags"
+    }
+  ]
+}
+{% endschema %}
+

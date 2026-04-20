@@ -1,0 +1,120 @@
+{%- assign grid_products = products | default: collection.products -%}
+
+{%- if grid_products.size == 0 -%}
+  <div class="collection-empty">
+    <p>No products found. <a href="{{ collection.url }}">Clear filters</a></p>
+  </div>
+{%- else -%}
+  <div class="product-grid" id="product-grid">
+    {%- for product in grid_products -%}
+      <div class="product-card" data-product-id="{{ product.id }}">
+        <div class="product-card__badges">
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign savings = product.compare_at_price | minus: product.price | divided_by: 100 -%}
+            <span class="badge badge--sale">${{ savings }} OFF</span>
+          {%- endif -%}
+          {%- for tag in product.tags -%}
+            {%- if tag == 'new' or tag == 'New' -%}
+              <span class="badge badge--new">New</span>
+            {%- elsif tag == 'bestseller' or tag == 'Best Seller' -%}
+              <span class="badge badge--best">Best Seller</span>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        {%- if product.metafields.custom.vr_overlay != blank -%}
+          <div class="product-card__vr">
+            <button
+              class="vr-btn"
+              type="button"
+              data-product-title="{{ product.title | escape }}"
+              data-product-img="{{ product.featured_image | image_url: width: 400 }}"
+              data-product-vr-overlay="{{ product.metafields.custom.vr_overlay | image_url: width: 800 }}"
+              data-product-has-vr-overlay="true"
+              aria-label="VR Try On {{ product.title }}">
+              <img class="vr-btn__icon" src="{{ 'iconcamera.svg' | asset_url }}" alt="" width="19" height="16" loading="lazy">
+              VR TRY ON
+            </button>
+          </div>
+        {%- endif -%}
+        <div class="product-card__media">
+          <a class="product-card__img-wrap" href="{{ product.url }}">
+            {%- if product.featured_image -%}
+              <img
+                class="product-card__img product-card__img--primary"
+                src="{{ product.featured_image | image_url: width: 600 }}"
+                alt="{{ product.featured_image.alt | escape }}"
+                width="600"
+                height="{{ 600 | divided_by: product.featured_image.aspect_ratio | round }}"
+                loading="lazy">
+              {%- if product.images[1] -%}
+                <img
+                  class="product-card__img product-card__img--hover"
+                  src="{{ product.images[1] | image_url: width: 600 }}"
+                  alt="{{ product.images[1].alt | escape }}"
+                  width="600"
+                  height="{{ 600 | divided_by: product.images[1].aspect_ratio | round }}"
+                  loading="lazy">
+              {%- endif -%}
+            {%- else -%}
+              <div class="product-card__img-placeholder">
+                {{ 'image' | placeholder_svg_tag }}
+              </div>
+            {%- endif -%}
+          </a>
+
+         
+        </div>
+       
+        {%- assign color_option_index = nil -%}
+        {%- for option in product.options_with_values -%}
+          {%- if option.name == 'Color' or option.name == 'Colour' -%}
+            {%- assign color_option_index = forloop.index0 -%}
+          {%- endif -%}
+        {%- endfor -%}
+        <div class="product-card__info">
+          {%- if product.vendor != blank -%}
+            <p class="product-card__vendor">{{ product.vendor }}</p>
+          {%- endif -%}
+          <h3 class="product-card__title">
+            <a href="{{ product.url }}">{{ product.title }}</a>
+          </h3>
+          <div class="product-card__price">
+            {%- if product.compare_at_price > product.price -%}
+              <span class="product-card__price--compare">{{ product.compare_at_price | money }}</span>
+            {%- endif -%}
+            <span class="product-card__price--current">{{ product.price | money }}</span>
+          </div>
+          {%- if color_option_index != nil -%}
+          <div class="product-card__swatches">
+            {%- assign swatch_limit = 5 -%}
+            {%- assign swatch_count = 0 -%}
+            {%- assign shown_colors = '' -%}
+            {%- for variant in product.variants -%}
+              {%- assign color_val = variant.options[color_option_index] -%}
+              {%- unless shown_colors contains color_val -%}
+                {%- if swatch_count < swatch_limit -%}
+                  <button
+                    class="swatch{% if variant == product.selected_or_first_available_variant %} is-active{% endif %}"
+                    type="button"
+                    title="{{ color_val }}"
+                    style="background-color: {{ color_val | downcase | replace: ' ', '' }};"
+                    data-variant-img="{{ variant.featured_image | image_url: width: 600 }}"
+                    data-card-id="{{ product.id }}">
+                  </button>
+                  {%- assign swatch_count = swatch_count | plus: 1 -%}
+                  {%- assign shown_colors = shown_colors | append: color_val | append: ',' -%}
+                {%- endif -%}
+              {%- endunless -%}
+            {%- endfor -%}
+            {%- assign remaining = product.variants.size | minus: swatch_limit -%}
+            {%- if remaining > 0 -%}
+              <span class="swatch-more">+{{ remaining }}</span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+          <span class="product-card__prescriptible">Prescriptible</span>
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+{%- endif -%}

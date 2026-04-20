@@ -1,13 +1,13 @@
-/* Container chính */
+﻿/* Container chÃ­nh */
 .container {
   max-width: 1440px;
   margin: 0 auto;
   padding: 1rem;
-  font-family: 'Inter', sans-serif;
+  font-family: "Aribau Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: #111827;
 }
 
-/* Toolbar trên cùng */
+/* Toolbar trÃªn cÃ¹ng */
 .toolbar {
   border-bottom: 1px solid #e5e7eb;
   padding-bottom: 0.75rem;
@@ -29,7 +29,7 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
-/* Grid sản phẩm */
+/* Grid sáº£n pháº©m */
 ul.grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -41,7 +41,7 @@ ul.grid {
   }
 }
 
-/* Item sản phẩm */
+/* Item sáº£n pháº©m */
 li product-item {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -54,7 +54,7 @@ li product-item:hover {
   box-shadow: 0 10px 20px rgba(0,0,0,0.08);
 }
 
-/* Hình ảnh responsive */
+/* HÃ¬nh áº£nh responsive */
 li product-item img {
   width: 100%;
   height: auto;
@@ -94,7 +94,7 @@ li product-item:hover img {
   40% { transform: scale(1); }
 }
 
-/* Text đẹp */
+/* Text Ä‘áº¹p */
 p.lead {
   font-size: 1.125rem;
   font-weight: 500;

@@ -1,0 +1,53 @@
+{
+  "sections": {
+    "diy_grid": {
+      "type": "page-diy-grid",
+      "blocks": {
+        "b1": {
+          "type": "category_item",
+          "settings": {
+            "card_title": "Floral Decoration & Gift Ideas",
+            "card_link": "/pages/diy-decor-floral-ideas/floral-decoration-gift-ideas"
+          }
+        },
+        "b2": {
+          "type": "category_item",
+          "settings": {
+            "card_title": "Floral Bouquet Wrapping Ideas",
+            "card_link": "/pages/diy-decor-floral-ideas/floral-bouquet-wrapping-ideas"
+          }
+        },
+        "b3": {
+          "type": "category_item",
+          "settings": {
+            "card_title": "Event Decoration Ideas",
+            "card_link": "/pages/diy-decor-floral-ideas/event-decoration-ideas"
+          }
+        },
+        "b4": {
+          "type": "category_item",
+          "settings": {
+            "card_title": "Wedding Decoration Ideas",
+            "card_link": "/pages/diy-decor-floral-ideas/wedding-decoration-ideas"
+          }
+        },
+        "b5": {
+          "type": "category_item",
+          "settings": {
+            "card_title": "Gift Basket Ideas",
+            "card_link": "/pages/diy-decor-floral-ideas/gift-basket-ideas"
+          }
+        }
+      },
+      "block_order": ["b1", "b2", "b3", "b4", "b5"],
+      "settings": {
+        "section_heading": "DIY Projects",
+        "columns_desktop": "5",
+        "section_bg_color": "#ffffff",
+        "section_padding_top": 40,
+        "section_padding_bottom": 60
+      }
+    }
+  },
+  "order": ["diy_grid"]
+}

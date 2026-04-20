@@ -22,6 +22,8 @@ export default {
       megamenuToggles,
       toggleFlyout,
       initMegamenu,
+      openMegamenu,
+      scheduleMegamenuClose,
       closeAllMegamenus
     } = useFlyouts()
 
@@ -31,6 +33,8 @@ export default {
       megamenuToggles,
       toggleFlyout,
       initMegamenu,
+      openMegamenu,
+      scheduleMegamenuClose,
       closeAllMegamenus
     }
   },

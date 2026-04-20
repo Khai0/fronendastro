@@ -19,8 +19,8 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 250px;          /* chỉnh độ dài line */
-  height: 1px;
+  width: 242px;          /* chỉnh độ dài line */
+  height: 1.5px;
   background: #ccc;
 }
 
@@ -28,7 +28,8 @@
   position: relative;
   border: none;
   background: none;
-  font-size: 22px;
+  font-size: 16px;
+  line-height: 18px;
   font-weight: 400;
   cursor: pointer;
   opacity: 1;
@@ -115,24 +116,24 @@
 }
 
 .best-sellers__button {
-  flex:1;
-  max-width: 220px;
-  text-align: center;
-  padding: 10px 22px;
-  background: #000;       /* nền đen */
-  color: #fff;            /* chữ trắng */
-  border: 1px solid #000;
-  text-decoration: none;
-  border-radius: 24px;
-  font-size: 24px;
-  
-  transition: all 0.3s ease;
-  
+      margin: 0 15px;
+    padding: 10px 50px;
+    background-color: #222;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: white;
+    white-space: nowrap;
+    min-width: 0;
+    border-radius: 36px;
+    border: 1.5px solid transparent;
 }
+
 .best-sellers__button:hover {
   background: #fff;
   color: #000;
   opacity: 0.85;
+   border-color: #000;
 }
 
 /* MOBILE */

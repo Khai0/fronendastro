@@ -1,0 +1,23 @@
+{%- if paginate.pages > 1 -%}
+  <nav class="collection-pagination" aria-label="Pagination">
+    <div class="collection-pagination__pages">
+      {%- for part in paginate.parts -%}
+        {%- if part.is_link -%}
+          <a class="collection-pagination__page" href="{{ part.url }}">{{ part.title }}</a>
+        {%- else -%}
+          {%- if part.title == paginate.current_page -%}
+            <span class="collection-pagination__page is-current" aria-current="page">{{ part.title }}</span>
+          {%- else -%}
+            <span class="collection-pagination__page collection-pagination__page--ellipsis">{{ part.title }}</span>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    {%- if paginate.next -%}
+      <a class="collection-pagination__next" href="{{ paginate.next.url }}" aria-label="Next page">
+        &raquo;
+      </a>
+    {%- endif -%}
+  </nav>
+{%- endif -%}

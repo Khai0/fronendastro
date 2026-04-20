@@ -1,0 +1,17 @@
+{%- assign banner_image = section.settings.banner_image | default: collection.image -%}
+{%- if banner_image != blank -%}
+  <div class="collection-banner">
+    <div class="collection-banner__inner">
+      {{
+        banner_image
+        | image_url: width: 2200
+        | image_tag:
+          class: 'collection-banner__img',
+          alt: banner_image.alt | default: collection.title,
+          loading: 'eager',
+          widths: '768,1200,1600,2200',
+          sizes: '100vw'
+      }}
+    </div>
+  </div>
+{%- endif -%}

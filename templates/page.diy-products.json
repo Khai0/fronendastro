@@ -1,0 +1,61 @@
+{
+  "sections": {
+    "diy_products": {
+      "type": "page-diy-products",
+      "blocks": {
+        "p1": {
+          "type": "product_item",
+          "settings": {
+            "product_sku": "KI.2450",
+            "product_name": "Cerulean Sunset",
+            "product_link": "/pages/set-products/cerulean-sunset"
+          }
+        },
+        "p2": {
+          "type": "product_item",
+          "settings": {
+            "product_sku": "KI.2452",
+            "product_name": "Sunshine & Poppies",
+            "product_link": "/pages/set-products/sunshine-poppies"
+          }
+        },
+        "p3": {
+          "type": "product_item",
+          "settings": {
+            "product_sku": "KI.2448",
+            "product_name": "Tangerine Dream",
+            "product_link": "/pages/set-products/tangerine-dream"
+          }
+        },
+        "p4": {
+          "type": "product_item",
+          "settings": {
+            "product_sku": "KI.2446",
+            "product_name": "Basket of Berries & Blooms",
+            "product_link": "/pages/set-products/basket-of-berries-blooms"
+          }
+        },
+        "p5": {
+          "type": "product_item",
+          "settings": {
+            "product_sku": "KI.2436",
+            "product_name": "Blossoming Pastels",
+            "product_link": "/pages/set-products/blossoming-pastels"
+          }
+        }
+      },
+      "block_order": ["p1", "p2", "p3", "p4", "p5"],
+      "settings": {
+        "section_title": "Floral Decoration & Gift Ideas",
+        "breadcrumb_home": "Home",
+        "breadcrumb_mid": "DIY Projects",
+        "breadcrumb_mid_url": "/pages/diy-decor-floral-ideas",
+        "columns_desktop": "5",
+        "section_bg_color": "#f7f7f7",
+        "section_padding_top": 36,
+        "section_padding_bottom": 60
+      }
+    }
+  },
+  "order": ["diy_products"]
+}

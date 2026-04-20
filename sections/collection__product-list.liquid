@@ -3,22 +3,26 @@
 <div class="container catalog-page" vue-init v-cloak>
   {% assign sort_by = collection.sort_by | default: collection.default_sort_by %}
   <product-list-and-filtering inline-template default-sort="{{ sort_by }}">
-    <div class="catalog-layout md:flex">
-      <aside class="catalog-filters md:basis-1/4">
+    <div class="catalog-layout">
+      <aside id="catalog-filters" class="catalog-filters catalog-filters--hidden">
         {% render 'facets', results: collection %}
       </aside>
 
-      <div class="catalog-content md:basis-3/4">
-        <aside class="catalog-toolbar md:flex items-center justify-between mb-5">
-          <span class="catalog-toolbar__count">{{ 'collections.general.products_count' | t: count: collection.products_count }}</span>
+      <div class="catalog-content">
+        <aside class="catalog-toolbar mb-5">
+          <span class="catalog-toolbar__count">{{ collection.products_count }} results</span>
 
-          <div class="catalog-toolbar__sort">
-            <label for="sort-by">{{ 'collections.sorting.title' | t }}</label>
-            <select v-model="sortBy" name="sort_by" id="sort-by" @change="submitFilters">
-              {% for option in collection.sort_options %}
-                <option value="{{ option.value }}">{{ option.name }}</option>
-              {% endfor %}
-            </select>
+          <div class="catalog-toolbar__controls">
+            <span class="catalog-toolbar__show-filters">Show filters</span>
+
+            <div class="catalog-toolbar__sort">
+              <label for="sort-by">{{ 'collections.sorting.title' | t }}:</label>
+              <select v-model="sortBy" name="sort_by" id="sort-by" @change="submitFilters">
+                {% for option in collection.sort_options %}
+                  <option value="{{ option.value }}">{{ option.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
         </aside>
 

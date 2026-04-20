@@ -16,6 +16,7 @@ const flyouts = reactive({
 })
 
 const megamenuToggles = reactive({})
+const megamenuCloseTimers = {}
 
 const scrollLock = {
   menu: true,
@@ -25,6 +26,13 @@ const scrollLock = {
 
 export function useFlyouts () {
   const scrollPosition = ref(0)
+
+  function clearMegamenuCloseTimer (parent) {
+    if (megamenuCloseTimers[parent]) {
+      window.clearTimeout(megamenuCloseTimers[parent])
+      delete megamenuCloseTimers[parent]
+    }
+  }
 
   function toggleFlyout (item) {
     for (const flyout in flyouts) {
@@ -37,25 +45,22 @@ export function useFlyouts () {
   function initMegamenu (el, binding) {
     const dropdown = document.querySelector(`[parent-item="${binding.value}"]`)
 
-    if (!binding.value.includes('__')) { // If top level menu item
-      el.addEventListener('mouseenter', () => {
-        if (window.matchMedia('(min-width: 1024px)').matches) {
-          closeAllMegamenus()
-        }
-      })
-    }
-
     if (dropdown) {
       Vue.set(megamenuToggles, binding.value, false)
+      const headerInner = el.closest('.site-header__inner')
 
-      insertAfter(dropdown, el)
+      if (headerInner) {
+        headerInner.appendChild(dropdown)
+      } else {
+        insertAfter(dropdown, el)
+      }
 
-      if (!binding.value.includes('__')) {
-        el.addEventListener('mouseenter', () => {
-          if (window.matchMedia('(min-width: 1024px)').matches) {
-            toggleMegamenu(binding.value)
-          }
+      if (!dropdown.dataset.megamenuHoverBound) {
+        dropdown.addEventListener('mouseenter', () => {
+          openMegamenu(binding.value)
         })
+
+        dropdown.dataset.megamenuHoverBound = 'true'
       }
 
       el.addEventListener('click', (e) => {
@@ -80,7 +85,36 @@ export function useFlyouts () {
     megamenuToggles[parent] = !megamenuToggles[parent]
   }
 
+  function openMegamenu (parent) {
+    if (window.matchMedia('(max-width: 1023px)').matches) return
+
+    clearMegamenuCloseTimer(parent)
+
+    if (!parent.includes('__')) { // If top level menu item
+      for (const menu in megamenuToggles) {
+        if (menu !== parent) { megamenuToggles[menu] = false }
+      }
+    }
+
+    megamenuToggles[parent] = true
+  }
+
+  function scheduleMegamenuClose (parent, delay = 220) {
+    if (window.matchMedia('(max-width: 1023px)').matches) return
+
+    clearMegamenuCloseTimer(parent)
+
+    megamenuCloseTimers[parent] = window.setTimeout(() => {
+      megamenuToggles[parent] = false
+      delete megamenuCloseTimers[parent]
+    }, delay)
+  }
+
   function closeAllMegamenus () {
+    for (const parent in megamenuCloseTimers) {
+      clearMegamenuCloseTimer(parent)
+    }
+
     for (const menu in megamenuToggles) {
       megamenuToggles[menu] = false
     }
@@ -109,6 +143,8 @@ export function useFlyouts () {
     toggleFlyout,
     initMegamenu,
     toggleMegamenu,
+    openMegamenu,
+    scheduleMegamenuClose,
     closeAllMegamenus
   }
 }
